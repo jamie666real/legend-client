@@ -154,13 +154,16 @@ public abstract class CharMatcher implements Predicate<Character> {
 	}
 
 	/**
-	 * Determines whether a character is a digit according to <a href=
-	 * "http://unicode.org/cldr/utility/list-unicodeset.jsp?a=%5Cp%7Bdigit%7D">Unicode</a>.
-	 * If you only care to match ASCII digits, you can use
-	 * {@code inRange('0', '9')}.
+	 * Determines whether a character is a digit according to
+	 * {@linkplain Character#isDigit(char) Java's definition}. If you only care to
+	 * match ASCII digits, you can use {@code inRange('0', '9')}.
 	 */
-	public static final CharMatcher DIGIT = new RangesMatcher("CharMatcher.DIGIT", ZEROES.toCharArray(),
-			NINES.toCharArray());
+	public static final CharMatcher DIGIT = new CharMatcher("CharMatcher.DIGIT") {
+		@Override
+		public boolean matches(char c) {
+			return Character.isDigit(c);
+		}
+	};
 
 	/**
 	 * Determines whether a character is a digit according to

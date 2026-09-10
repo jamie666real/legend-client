@@ -1601,7 +1601,9 @@ public class Minecraft implements IThreadListener {
         //I did the ClickGui like this, whatever works
 
         while (this.gameSettings.keyBindClickGui.isPressed()) {
-            this.displayGuiScreen(new ClickGuiScreen());
+            if (this.currentScreen == null && this.player != null) {
+                this.displayGuiScreen(new ClickGuiScreen());
+            }
         }
 
         boolean flag2 = this.gameSettings.chatVisibility != EntityPlayer.EnumChatVisibility.HIDDEN;

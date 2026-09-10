@@ -1,8 +1,15 @@
 package com.isacofff.clientbase.modules;
 
+import com.isacofff.clientbase.modules.features.ArmorStatus;
+import com.isacofff.clientbase.modules.features.AutoJump;
+import com.isacofff.clientbase.modules.features.AutoSprint;
 import com.isacofff.clientbase.modules.features.ClickGui;
 import com.isacofff.clientbase.modules.features.ExampleModule;
 import com.isacofff.clientbase.modules.features.FullBright;
+import com.isacofff.clientbase.modules.features.NoSlow;
+import com.isacofff.clientbase.modules.features.ShowCoordinates;
+import com.isacofff.clientbase.modules.features.TimeChanger;
+import com.isacofff.clientbase.modules.features.XYZ;
 import com.isacofff.clientbase.Category;
 
 import java.util.ArrayList;
@@ -14,6 +21,13 @@ public class Manager {
     public void init() {
     modules.add(new ClickGui());
     modules.add(new FullBright());
+    modules.add(new AutoSprint());
+    modules.add(new AutoJump());
+    modules.add(new NoSlow());
+    modules.add(new ShowCoordinates());
+    modules.add(new ArmorStatus());
+    modules.add(new TimeChanger());
+    modules.add(new XYZ());
     modules.add(new ExampleModule());
     }
 

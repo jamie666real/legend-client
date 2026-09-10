@@ -18,12 +18,12 @@ public class ClickGuiScreen extends GuiScreen {
     //I won't go into too much detail here but if you need help contact me on discord, reach out to me.
     //Discord : isacofff
 
-    private static final int PANEL_BG = 0x6688AADD;
-    private static final int PANEL_OUTLINE = 0x66AAD4FF;
-    private static final int MODULE_ENABLED = 0x66AAD4FF;
-    private static final int MODULE_DISABLED = 0x6688AADD;
-    private static final int TEXT_COLOR = -1;
-    private static final int ACCENT_COLOR = 0x66CCE6FF;
+    private static final int PANEL_BG = 0xCC0F172A;
+    private static final int PANEL_OUTLINE = 0xFF7DD3FC;
+    private static final int MODULE_ENABLED = 0xFF3B82F6;
+    private static final int MODULE_DISABLED = 0xCC172554;
+    private static final int TEXT_COLOR = 0xFFEAF2FF;
+    private static final int ACCENT_COLOR = 0xFF7DD3FC;
     private static final int PANEL_MOVE_SPEED = 15;
     private static final int SLIDER_BG = 0x6699CCFF;
     private static final int SLIDER_FILL = 0x667799BB;

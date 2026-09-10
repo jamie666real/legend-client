@@ -98,29 +98,40 @@ public class GuiCredits extends GuiScreen {
 		this.mc.getTextureManager().bindTexture(beaconx);
 		this.drawTexturedModalRect(x + 323, y + 7, 114, 223, 13, 13);
 		int lines = this.credits.size();
+		if (lines <= 0) {
+			return;
+		}
 		if (scrollPosition < 0)
 			scrollPosition = 0;
+		if (lines <= visibleLines) {
+			scrollPosition = 0;
+		}
 		if (scrollPosition + visibleLines > lines)
 			scrollPosition = lines - visibleLines;
-		for (int i = 0; i < visibleLines; ++i) {
+		for (int i = 0; i < visibleLines && scrollPosition + i < lines; ++i) {
 			this.mc.fontRendererObj.drawString(this.credits.get(scrollPosition + i), x + 10, y + 10 + (i * 10),
 					0x404060);
 		}
 		int trackHeight = 193;
-		int offset = trackHeight * scrollPosition / lines;
+		int offset = lines <= visibleLines ? 0 : trackHeight * scrollPosition / lines;
 		drawRect(x + 326, y + 27, x + 334, y + 220, 0x33000020);
-		drawRect(x + 326, y + 27 + offset, x + 334, y + 27 + (visibleLines * trackHeight / lines) + offset + 1,
+		drawRect(x + 326, y + 27 + offset, x + 334,
+				y + 27 + (lines <= visibleLines ? trackHeight : (visibleLines * trackHeight / lines)) + offset + 1,
 				0x66000000);
 	}
 
 	public void updateScreen() {
 		if (Mouse.isButtonDown(0) && dragstart > 0) {
 			int trackHeight = 193;
-			scrollPosition = (mousey - dragstart) * this.credits.size() / trackHeight + dragstartI;
+			int lines = this.credits.size();
+			scrollPosition = (mousey - dragstart) * lines / trackHeight + dragstartI;
 			if (scrollPosition < 0)
 				scrollPosition = 0;
-			if (scrollPosition + visibleLines > this.credits.size())
-				scrollPosition = this.credits.size() - visibleLines;
+			if (lines <= visibleLines) {
+				scrollPosition = 0;
+			} else if (scrollPosition + visibleLines > lines) {
+				scrollPosition = lines - visibleLines;
+			}
 		} else {
 			dragstart = -1;
 		}
