@@ -1,5 +1,6 @@
 package com.isacofff.clientbase.modules;
 
+import com.isacofff.clientbase.Client;
 import com.isacofff.clientbase.settings.Setting;
 import com.isacofff.clientbase.Category;
 
@@ -31,7 +32,16 @@ public abstract class Module {
         this.enabled = !this.enabled;
         if (this.enabled) onEnable();
         else onDisable();
+        if (Client.manager != null) {
+            ModulePersistence.save(Client.manager);
+        }
+    }
 
+    void setEnabledWithoutSaving(boolean enabled) {
+        this.enabled = enabled;
+        if (enabled) {
+            onEnable();
+        }
     }
 
 

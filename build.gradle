@@ -33,6 +33,10 @@ sourceSets {
     }
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
+
 repositories {
     mavenCentral()
 }
@@ -74,5 +78,5 @@ tasks.register('runclient', JavaExec) {
     }
 
     workingDir "./desktopRuntime"
-    main 'net.lax1dude.eaglercraft.internal.MainClass'
+    mainClass.set('net.lax1dude.eaglercraft.internal.MainClass')
 }

@@ -18,15 +18,15 @@ public class ClickGuiScreen extends GuiScreen {
     //I won't go into too much detail here but if you need help contact me on discord, reach out to me.
     //Discord : isacofff
 
-    private static final int PANEL_BG = 0xCC0F172A;
-    private static final int PANEL_OUTLINE = 0xFF7DD3FC;
-    private static final int MODULE_ENABLED = 0xFF3B82F6;
-    private static final int MODULE_DISABLED = 0xCC172554;
-    private static final int TEXT_COLOR = 0xFFEAF2FF;
-    private static final int ACCENT_COLOR = 0xFF7DD3FC;
+    private static final int PANEL_BG = 0xE61A1208;
+    private static final int PANEL_OUTLINE = 0xFFFFB300;
+    private static final int MODULE_ENABLED = 0xFFE87500;
+    private static final int MODULE_DISABLED = 0xCC3A2108;
+    private static final int TEXT_COLOR = 0xFFFFF3D0;
+    private static final int ACCENT_COLOR = 0xFFFFD54A;
     private static final int PANEL_MOVE_SPEED = 15;
-    private static final int SLIDER_BG = 0x6699CCFF;
-    private static final int SLIDER_FILL = 0x667799BB;
+    private static final int SLIDER_BG = 0x99A85A00;
+    private static final int SLIDER_FILL = 0xFFFFB300;
     private static final int SLIDER_KNOB = -1;
 
     private final ArrayList<Panel> panels = new ArrayList<>();
@@ -167,7 +167,7 @@ public class ClickGuiScreen extends GuiScreen {
 
             int offset = height;
 
-            for (Module module : Client.INSTANCE.manager.getModulesByCategory(category)) {
+            for (Module module : Client.manager.getModulesByCategory(category)) {
 
                 if (isHover(mouseX, mouseY, x, y + offset, width, 14)) {
                     return module.getDescription();
@@ -212,7 +212,7 @@ public class ClickGuiScreen extends GuiScreen {
 
                 int offset = height;
 
-                for (Module module : Client.INSTANCE.manager.getModulesByCategory(category)) {
+                for (Module module : Client.manager.getModulesByCategory(category)) {
 
                     drawRect(x, y + offset, x + width, y + offset + 14, module.isEnabled() ? MODULE_ENABLED : MODULE_DISABLED);
 
@@ -307,7 +307,7 @@ public class ClickGuiScreen extends GuiScreen {
 
                 int offset = height;
 
-                for (Module module : Client.INSTANCE.manager.getModulesByCategory(category)) {
+                for (Module module : Client.manager.getModulesByCategory(category)) {
 
                     if (isHover(mouseX, mouseY, x, y + offset, width, 14)) {
 
@@ -384,7 +384,7 @@ public class ClickGuiScreen extends GuiScreen {
 
         private int getTotalHeight() {
             int total = height;
-            for (Module module : Client.INSTANCE.manager.getModulesByCategory(category)) {
+                for (Module module : Client.manager.getModulesByCategory(category)) {
                 total += 14;
                 if (module.open && hasSettings(module)) {
                     total += module.getSettings().size() * 14;

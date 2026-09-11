@@ -6,10 +6,11 @@ import com.isacofff.clientbase.modules.features.AutoSprint;
 import com.isacofff.clientbase.modules.features.ClickGui;
 import com.isacofff.clientbase.modules.features.ExampleModule;
 import com.isacofff.clientbase.modules.features.FullBright;
-import com.isacofff.clientbase.modules.features.NoSlow;
 import com.isacofff.clientbase.modules.features.ShowCoordinates;
 import com.isacofff.clientbase.modules.features.TimeChanger;
 import com.isacofff.clientbase.modules.features.XYZ;
+import com.isacofff.clientbase.modules.features.ViaEntities;
+import com.isacofff.clientbase.modules.features.ViaItems;
 import com.isacofff.clientbase.Category;
 
 import java.util.ArrayList;
@@ -23,12 +24,14 @@ public class Manager {
     modules.add(new FullBright());
     modules.add(new AutoSprint());
     modules.add(new AutoJump());
-    modules.add(new NoSlow());
     modules.add(new ShowCoordinates());
     modules.add(new ArmorStatus());
     modules.add(new TimeChanger());
     modules.add(new XYZ());
     modules.add(new ExampleModule());
+    modules.add(new ViaItems());
+    modules.add(new ViaEntities());
+    ModulePersistence.restore(this);
     }
 
     public void onTick() {
