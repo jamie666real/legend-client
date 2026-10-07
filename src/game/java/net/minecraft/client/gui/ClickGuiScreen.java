@@ -167,7 +167,7 @@ public class ClickGuiScreen extends GuiScreen {
 
             int offset = height;
 
-            for (Module module : Client.INSTANCE.manager.getModulesByCategory(category)) {
+            for (Module module : Client.manager.getModulesByCategory(category)) {
 
                 if (isHover(mouseX, mouseY, x, y + offset, width, 14)) {
                     return module.getDescription();
@@ -212,7 +212,7 @@ public class ClickGuiScreen extends GuiScreen {
 
                 int offset = height;
 
-                for (Module module : Client.INSTANCE.manager.getModulesByCategory(category)) {
+                for (Module module : Client.manager.getModulesByCategory(category)) {
 
                     drawRect(x, y + offset, x + width, y + offset + 14, module.isEnabled() ? MODULE_ENABLED : MODULE_DISABLED);
 
@@ -307,7 +307,7 @@ public class ClickGuiScreen extends GuiScreen {
 
                 int offset = height;
 
-                for (Module module : Client.INSTANCE.manager.getModulesByCategory(category)) {
+                for (Module module : Client.manager.getModulesByCategory(category)) {
 
                     if (isHover(mouseX, mouseY, x, y + offset, width, 14)) {
 
@@ -384,7 +384,7 @@ public class ClickGuiScreen extends GuiScreen {
 
         private int getTotalHeight() {
             int total = height;
-            for (Module module : Client.INSTANCE.manager.getModulesByCategory(category)) {
+            for (Module module : Client.manager.getModulesByCategory(category)) {
                 total += 14;
                 if (module.open && hasSettings(module)) {
                     total += module.getSettings().size() * 14;
