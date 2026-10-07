@@ -7,16 +7,18 @@ import net.minecraft.client.Minecraft;
 public class AutoJump extends Module {
 
     private final Minecraft mc = Minecraft.getMinecraft();
+    private boolean previousAutoJump;
 
     public AutoJump() {
         super("AutoJump", Category.Movement);
-        this.description = "Automatically jumps when needed.";
+        this.description = "Temporarily enables Minecraft's automatic jumping option.";
     }
 
     @Override
     public void onEnable() {
         super.onEnable();
         if (mc != null && mc.gameSettings != null) {
+            previousAutoJump = mc.gameSettings.autoJump;
             mc.gameSettings.autoJump = true;
         }
     }
@@ -25,7 +27,7 @@ public class AutoJump extends Module {
     public void onDisable() {
         super.onDisable();
         if (mc != null && mc.gameSettings != null) {
-            mc.gameSettings.autoJump = false;
+            mc.gameSettings.autoJump = previousAutoJump;
         }
     }
 }

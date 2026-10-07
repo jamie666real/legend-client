@@ -1,43 +1,47 @@
 package com.isacofff.clientbase.modules;
 
+import com.isacofff.clientbase.Category;
 import com.isacofff.clientbase.modules.features.ArmorStatus;
 import com.isacofff.clientbase.modules.features.AutoJump;
 import com.isacofff.clientbase.modules.features.AutoSprint;
 import com.isacofff.clientbase.modules.features.ClickGui;
-import com.isacofff.clientbase.modules.features.ExampleModule;
+import com.isacofff.clientbase.modules.features.FPSBoost;
 import com.isacofff.clientbase.modules.features.FullBright;
+import com.isacofff.clientbase.modules.features.NoSlow;
 import com.isacofff.clientbase.modules.features.ShowCoordinates;
 import com.isacofff.clientbase.modules.features.TimeChanger;
-import com.isacofff.clientbase.modules.features.XYZ;
-import com.isacofff.clientbase.modules.features.ViaEntities;
-import com.isacofff.clientbase.modules.features.ViaItems;
-import com.isacofff.clientbase.Category;
 
 import java.util.ArrayList;
 
 public class Manager {
 
     public final ArrayList<Module> modules = new ArrayList<>();
-    //Add the modules here for them to appear in the ClickGui
+
     public void init() {
-    modules.add(new ClickGui());
-    modules.add(new FullBright());
-    modules.add(new AutoSprint());
-    modules.add(new AutoJump());
-    modules.add(new ShowCoordinates());
-    modules.add(new ArmorStatus());
-    modules.add(new TimeChanger());
-    modules.add(new XYZ());
-    modules.add(new ExampleModule());
-    modules.add(new ViaItems());
-    modules.add(new ViaEntities());
-    ModulePersistence.restore(this);
+        modules.add(new ClickGui());
+        modules.add(new FullBright());
+        modules.add(new AutoSprint());
+        modules.add(new AutoJump());
+        modules.add(new NoSlow());
+        modules.add(new ShowCoordinates());
+        modules.add(new ArmorStatus());
+        modules.add(new TimeChanger());
+        modules.add(new FPSBoost());
+        ModulePersistence.restore(this);
     }
 
     public void onTick() {
-        for (Module m : modules) {
-            if (m.isEnabled()) {
-                m.onUpdate();
+        for (Module module : modules) {
+            if (module.isEnabled()) {
+                module.onUpdate();
+            }
+        }
+    }
+
+    public void onRender() {
+        for (Module module : modules) {
+            if (module.isEnabled()) {
+                module.onRender();
             }
         }
     }
@@ -47,25 +51,35 @@ public class Manager {
     }
 
     public <T extends Module> T getModule(Class<T> classs) {
-
-        for (Module m : modules) {
-            if (classs.isInstance(m)) return classs.cast(m);
+        for (Module module : modules) {
+            if (classs.isInstance(module)) {
+                return classs.cast(module);
+            }
         }
         return null;
     }
 
     public Module getModuleByName(String name) {
-        for (Module m : modules) {
-            if (m.getName().equalsIgnoreCase(name)) return m;
+        for (Module module : modules) {
+            if (module.getName().equalsIgnoreCase(name)) {
+                return module;
+            }
         }
         return null;
     }
 
-    public ArrayList<Module> getModulesByCategory(Category c) {
-        ArrayList<Module> list = new ArrayList<>();
-        for (Module m : modules) {
-            if (m.getCategory() == c) list.add(m);
+    public boolean isModuleEnabled(Class<? extends Module> moduleClass) {
+        Module module = getModule(moduleClass);
+        return module != null && module.isEnabled();
+    }
+
+    public ArrayList<Module> getModulesByCategory(Category category) {
+        ArrayList<Module> result = new ArrayList<>();
+        for (Module module : modules) {
+            if (module.getCategory() == category) {
+                result.add(module);
+            }
         }
-        return list;
+        return result;
     }
 }

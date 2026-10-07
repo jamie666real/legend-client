@@ -1393,6 +1393,10 @@ public class Minecraft implements IThreadListener {
         }
 
         this.systemTime = getSystemTime();
+
+        if (!this.isGamePaused && com.isacofff.clientbase.Client.manager != null) {
+            com.isacofff.clientbase.Client.manager.onTick();
+        }
     }
 
     private void runTickKeyboard() throws IOException {

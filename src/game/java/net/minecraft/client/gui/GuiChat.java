@@ -62,7 +62,7 @@ public class GuiChat extends GuiScreenVisualViewport implements ITabCompleter {
 			}
 		}
 		this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
-		this.inputField = new GuiTextField(0, this.fontRendererObj, 4, this.height - 12, this.width - 4, 12);
+		this.inputField = new ChatInputField(0, this.fontRendererObj, 4, this.height - 12, this.width - 4, 12);
 		this.inputField.setMaxStringLength(256);
 		this.inputField.setEnableBackgroundDrawing(false);
 		this.inputField.setFocused(true);
@@ -287,6 +287,81 @@ public class GuiChat extends GuiScreenVisualViewport implements ITabCompleter {
 			}
 
 			return blockpos;
+		}
+	}
+
+	private static class ChatInputField extends GuiTextField {
+		private String cachedSource;
+		private String cachedDisplay;
+
+		private ChatInputField(int componentId, FontRenderer fontRenderer, int x, int y, int width, int height) {
+			super(componentId, fontRenderer, x, y, width, height);
+		}
+
+		@Override
+		public void drawTextBox() {
+			String originalText = this.text;
+			this.text = getDisplayText(originalText);
+			try {
+				super.drawTextBox();
+			} finally {
+				this.text = originalText;
+			}
+		}
+
+		@Override
+		public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
+			String originalText = this.text;
+			this.text = getDisplayText(originalText);
+			try {
+				return super.mouseClicked(mouseX, mouseY, mouseButton);
+			} finally {
+				this.text = originalText;
+			}
+		}
+
+		private String getDisplayText(String source) {
+			if (source != this.cachedSource) {
+				this.cachedSource = source;
+				this.cachedDisplay = maskPasswordArguments(source);
+			}
+
+			return this.cachedDisplay;
+		}
+
+		private static String maskPasswordArguments(String text) {
+			int commandStart = 0;
+			while (commandStart < text.length() && Character.isWhitespace(text.charAt(commandStart))) {
+				++commandStart;
+			}
+
+			int commandEnd = commandStart;
+			while (commandEnd < text.length() && !Character.isWhitespace(text.charAt(commandEnd))) {
+				++commandEnd;
+			}
+
+			String command = text.substring(commandStart, commandEnd);
+			if (!command.equalsIgnoreCase("/reg") && !command.equalsIgnoreCase("/register")
+					&& !command.equalsIgnoreCase("/l") && !command.equalsIgnoreCase("/login")) {
+				return text;
+			}
+
+			int passwordStart = commandEnd;
+			while (passwordStart < text.length() && Character.isWhitespace(text.charAt(passwordStart))) {
+				++passwordStart;
+			}
+			if (passwordStart == text.length()) {
+				return text;
+			}
+
+			StringBuilder masked = new StringBuilder(text);
+			for (int i = passwordStart; i < masked.length(); ++i) {
+				if (!Character.isWhitespace(masked.charAt(i))) {
+					masked.setCharAt(i, '*');
+				}
+			}
+
+			return masked.toString();
 		}
 	}
 }

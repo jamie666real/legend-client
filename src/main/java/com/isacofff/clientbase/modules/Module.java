@@ -67,5 +67,8 @@ public abstract class Module {
     public void onEnable() {}
     public void onDisable() {}
     public void onUpdate() {}
+    public void onRender() {}
+    public void onSettingChanged(Setting<?> setting) {}
+    public boolean shouldPersist() { return true; }
 
 }

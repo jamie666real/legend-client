@@ -58,9 +58,18 @@ public abstract class Setting<T> {
 
             this.modes = modes;
             this.index = 0;
+            for (int i = 0; i < modes.length; i++) {
+                if (modes[i].equals(defaultMode)) {
+                    this.index = i;
+                    break;
+                }
+            }
         }
 
         public void cycle() {
+            if (modes.length == 0) {
+                return;
+            }
             index = (index + 1) % modes.length;
             setValue(modes[index]);
         }

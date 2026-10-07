@@ -11,7 +11,7 @@
 		<meta property="og:title" content="Eaglercraft 1.12.2">
 		<meta property="og:description" content="Play minecraft 1.12.2 in your browser!">
 		<link type="image/png" rel="shortcut icon" href="favicon.png">
-		<script type="text/javascript" src="classes.js?v=legend-client-multiplayer-coming-soon-v1"></script>
+		<script type="text/javascript" src="classes.js?v=legend-client-clickgui-fps-v3"></script>
 		<script type="text/javascript">
 			"use strict";
 			window.addEventListener("load", function() {
@@ -25,6 +25,11 @@
 						assetsURI: "assets.epk",
 						localesURI: "lang/",
 						worldsDB: "worlds",
+						servers: [
+							{ name: "§d§lSHADOW §f§lNETWORK", addr: "play.shadownetwork.shop" },
+							{ name: "§e§lCosmi§6§lxMC", addr: "mc.cosmixmc.org" },
+							{ name: "§b§lNex§9§lon§5§lMC", addr: "nexonmc.pathost.xyz" }
+						],
 						logInvalidCerts: true,
 						crashOnUncaughtExceptions: true
 					};

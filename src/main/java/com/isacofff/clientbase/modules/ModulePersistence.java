@@ -29,7 +29,8 @@ final class ModulePersistence {
             String[] names = new String(bytes, StandardCharsets.UTF_8).split("\\n");
             for (String name : names) {
                 Module module = manager.getModuleByName(name.trim());
-                if (module != null && !"ClickGUI".equalsIgnoreCase(module.getName())) {
+                if (module != null && module.shouldPersist()
+                        && !"ClickGUI".equalsIgnoreCase(module.getName())) {
                     module.setEnabledWithoutSaving(true);
                 }
             }
@@ -46,7 +47,8 @@ final class ModulePersistence {
         try {
             StringBuilder enabled = new StringBuilder();
             for (Module module : manager.getModules()) {
-                if (module.isEnabled() && !"ClickGUI".equalsIgnoreCase(module.getName())) {
+                if (module.isEnabled() && module.shouldPersist()
+                        && !"ClickGUI".equalsIgnoreCase(module.getName())) {
                     enabled.append(module.getName()).append('\n');
                 }
             }

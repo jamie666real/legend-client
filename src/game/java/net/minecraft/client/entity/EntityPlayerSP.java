@@ -840,8 +840,13 @@ public class EntityPlayerSP extends AbstractClientPlayer {
 		this.mc.func_193032_ao().func_193293_a(this.movementInput);
 
 		if (this.isHandActive() && !this.isRiding()) {
-			this.movementInput.moveStrafe *= 0.2F;
-			this.movementInput.field_192832_b *= 0.2F;
+			boolean noSlowEnabled = com.isacofff.clientbase.Client.manager != null
+					&& com.isacofff.clientbase.Client.manager
+							.isModuleEnabled(com.isacofff.clientbase.modules.features.NoSlow.class);
+			if (!noSlowEnabled) {
+				this.movementInput.moveStrafe *= 0.2F;
+				this.movementInput.field_192832_b *= 0.2F;
+			}
 			this.sprintToggleTimer = 0;
 		}
 

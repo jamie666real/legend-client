@@ -7,7 +7,9 @@ import net.minecraft.client.Minecraft;
 
 public class FullBright extends Module {
 
-    public Setting.NumberSetting gamma = new Setting.NumberSetting("Gamma", 1000,1,1000,1);
+    private final Minecraft mc = Minecraft.getMinecraft();
+    private float previousGamma = 1.0F;
+    public Setting.NumberSetting gamma = new Setting.NumberSetting("Gamma", 10, 1, 10, 0.5);
 
 
     public FullBright() {
@@ -21,12 +23,35 @@ public class FullBright extends Module {
     @Override
     public void onEnable() {
         super.onEnable();
-        Minecraft.getMinecraft().gameSettings.gammaSetting = gamma.getValue().floatValue();
+        if (mc != null && mc.gameSettings != null) {
+            previousGamma = mc.gameSettings.gammaSetting;
+            applyGamma();
+        }
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
-        Minecraft.getMinecraft().gameSettings.gammaSetting = 1f;
+        if (mc != null && mc.gameSettings != null) {
+            mc.gameSettings.gammaSetting = previousGamma;
+        }
+    }
+
+    @Override
+    public void onUpdate() {
+        applyGamma();
+    }
+
+    @Override
+    public void onSettingChanged(com.isacofff.clientbase.settings.Setting<?> setting) {
+        if (setting == gamma) {
+            applyGamma();
+        }
+    }
+
+    private void applyGamma() {
+        if (mc != null && mc.gameSettings != null) {
+            mc.gameSettings.gammaSetting = gamma.getValue().floatValue();
+        }
     }
 }

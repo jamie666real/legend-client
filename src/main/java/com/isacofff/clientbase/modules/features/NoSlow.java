@@ -7,6 +7,6 @@ public class NoSlow extends Module {
 
     public NoSlow() {
         super("NoSlow", Category.Player);
-        this.description = "Reduces slowdown while using items or blocking.";
+        this.description = "Prevents item-use movement slowdown.";
     }
 }

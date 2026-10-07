@@ -1,121 +1,317 @@
 package net.minecraft.client.gui;
 
+import com.isacofff.clientbase.Category;
 import com.isacofff.clientbase.Client;
 import com.isacofff.clientbase.modules.Module;
+import com.isacofff.clientbase.modules.features.ClickGui;
 import com.isacofff.clientbase.settings.Setting;
 import com.isacofff.clientbase.settings.Setting.BooleanSetting;
 import com.isacofff.clientbase.settings.Setting.ModeSetting;
 import com.isacofff.clientbase.settings.Setting.NumberSetting;
-import com.isacofff.clientbase.Category;
-import net.lax1dude.eaglercraft.Keyboard;
-import net.lax1dude.eaglercraft.KeyboardConstants;
-import net.lax1dude.eaglercraft.Mouse;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class ClickGuiScreen extends GuiScreen {
 
-    //I won't go into too much detail here but if you need help contact me on discord, reach out to me.
-    //Discord : isacofff
+    private static final int BACKDROP = 0xB8000000;
+    private static final int WINDOW = 0xFF10131C;
+    private static final int SIDEBAR = 0xFF151A26;
+    private static final int CARD = 0xFF1B2230;
+    private static final int CARD_SELECTED = 0xFF253247;
+    private static final int OUTLINE = 0xFF293448;
+    private static final int ACCENT = 0xFF56C8F5;
+    private static final int TEXT = 0xFFF1F5F9;
+    private static final int MUTED = 0xFF99A8BC;
+    private static final int GREEN = 0xFF68E0A0;
 
-    private static final int PANEL_BG = 0xCC0F172A;
-    private static final int PANEL_OUTLINE = 0xFF7DD3FC;
-    private static final int MODULE_ENABLED = 0xFF3B82F6;
-    private static final int MODULE_DISABLED = 0xCC172554;
-    private static final int TEXT_COLOR = 0xFFEAF2FF;
-    private static final int ACCENT_COLOR = 0xFF7DD3FC;
-    private static final int PANEL_MOVE_SPEED = 15;
-    private static final int SLIDER_BG = 0x6699CCFF;
-    private static final int SLIDER_FILL = 0x667799BB;
-    private static final int SLIDER_KNOB = -1;
-
-    private final ArrayList<Panel> panels = new ArrayList<>();
+    private Category category = Category.Movement;
+    private Module selectedModule;
+    private NumberSetting draggingSlider;
+    private int panelX;
+    private int panelY;
+    private int panelWidth;
+    private int panelHeight;
+    private int sidebarWidth;
+    private int listX;
+    private int listWidth;
+    private int detailsX;
+    private int detailsWidth;
+    private int contentY;
+    private int contentBottom;
 
     public ClickGuiScreen() {
-        int x = 1;
-        int y = 1;
-
-        for (Category cat : Category.values()) {
-            //Cat :3
-            panels.add(new Panel(cat, x, y));
-            x += 91;
+        ArrayList<Module> modules = Client.manager.getModulesByCategory(category);
+        if (!modules.isEmpty()) {
+            selectedModule = modules.get(0);
         }
     }
 
+    private void calculateLayout() {
+        panelWidth = Math.min(760, Math.max(300, width - 24));
+        panelHeight = Math.min(430, Math.max(220, height - 24));
+        panelX = (width - panelWidth) / 2;
+        panelY = (height - panelHeight) / 2;
+        sidebarWidth = 118;
+        contentY = panelY + 58;
+        contentBottom = panelY + panelHeight - 14;
 
-
-    @Override
-    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
-        for (Panel panel : panels) {
-            panel.mouseDragged(mouseX, mouseY, clickedMouseButton);
-        }
-        super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
-    }
-
-
-    @Override
-    public void updateScreen() {
-
-        int movex = 0;
-        int movey = 0;
-
-        if (Keyboard.isKeyDown(KeyboardConstants.KEY_UP))
-            movey = - PANEL_MOVE_SPEED;
-        if (Keyboard.isKeyDown(KeyboardConstants.KEY_DOWN))
-            movey =  PANEL_MOVE_SPEED;
-        if (Keyboard.isKeyDown(KeyboardConstants.KEY_LEFT))
-            movex = - PANEL_MOVE_SPEED;
-        if (Keyboard.isKeyDown(KeyboardConstants.KEY_RIGHT))
-            movex =  PANEL_MOVE_SPEED;
-
-        if (movex != 0 || movey != 0) {
-            for (Panel panel : panels) {
-                panel.x += movex;
-                panel.y += movey;
-            }
-        }
+        int contentX = panelX + sidebarWidth + 14;
+        int contentWidth = panelWidth - sidebarWidth - 28;
+        listWidth = Math.min(218, Math.max(100, contentWidth * 2 / 5));
+        listX = contentX;
+        detailsX = listX + listWidth + 14;
+        detailsWidth = Math.max(70, panelX + panelWidth - 14 - detailsX);
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        calculateLayout();
+        drawRect(0, 0, width, height, BACKDROP);
+        drawRect(panelX, panelY, panelX + panelWidth, panelY + panelHeight, WINDOW);
+        drawRect(panelX, panelY, panelX + panelWidth, panelY + 42, SIDEBAR);
+        drawRect(panelX, panelY + 41, panelX + panelWidth, panelY + 42, OUTLINE);
+        drawRect(panelX, panelY + 42, panelX + sidebarWidth, panelY + panelHeight, SIDEBAR);
+        drawRect(panelX + sidebarWidth, panelY + 42, panelX + sidebarWidth + 1,
+                panelY + panelHeight, OUTLINE);
 
-        this.drawDefaultBackground();
+        fontRendererObj.drawStringWithShadow("LEGEND", panelX + 16, panelY + 10, ACCENT);
+        fontRendererObj.drawStringWithShadow("CLIENT", panelX + 68, panelY + 10, TEXT);
+        fontRendererObj.drawString("MODULES", panelX + 16, panelY + 29, MUTED);
+        fontRendererObj.drawStringWithShadow("Right Shift", panelX + panelWidth - 82, panelY + 16, MUTED);
 
-        for (Panel panel : panels) {
-            panel.draw(mouseX, mouseY);
-        }
-
+        drawCategorySidebar(mouseX, mouseY);
+        drawModuleList(mouseX, mouseY);
+        drawModuleDetails();
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
 
-        String descriptionn = null;
+    private void drawCategorySidebar(int mouseX, int mouseY) {
+        int y = panelY + 56;
+        for (Category item : Category.values()) {
+            boolean active = category == item;
+            boolean hovered = isHovered(mouseX, mouseY, panelX + 9, y, sidebarWidth - 18, 27);
+            if (active) {
+                drawRect(panelX + 9, y, panelX + sidebarWidth - 9, y + 27, CARD_SELECTED);
+                drawRect(panelX + 9, y, panelX + 12, y + 27, ACCENT);
+            } else if (hovered) {
+                drawRect(panelX + 9, y, panelX + sidebarWidth - 9, y + 27, CARD);
+            }
+            fontRendererObj.drawString(item.name(), panelX + 20, y + 9, active ? TEXT : MUTED);
+            y += 32;
+        }
+    }
 
-        for (int panelSize = panels.size() - 1; panelSize >= 0; panelSize--) {
-            String description = panels.get(panelSize).getHoveredDescription(mouseX, mouseY);
-            if (description != null) {
-                descriptionn = description;
+    private void drawModuleList(int mouseX, int mouseY) {
+        fontRendererObj.drawString("YOUR MODULES", listX, panelY + 47, MUTED);
+        int y = contentY;
+        for (Module module : Client.manager.getModulesByCategory(category)) {
+            if (y + 35 > contentBottom) {
                 break;
             }
+            boolean selected = module == selectedModule;
+            boolean hovered = isHovered(mouseX, mouseY, listX, y, listWidth, 35);
+            drawRect(listX, y, listX + listWidth, y + 35,
+                    selected ? CARD_SELECTED : hovered ? CARD : WINDOW);
+            drawRect(listX, y, listX + 2, y + 35, module.isEnabled() ? GREEN : OUTLINE);
+            fontRendererObj.drawString(module.getName(), listX + 10, y + 6,
+                    selected ? TEXT : MUTED);
+
+            int toggleX = listX + listWidth - 37;
+            int toggleColor = module.isEnabled() ? 0xFF28694F : 0xFF3A4352;
+            drawRect(toggleX, y + 11, toggleX + 27, y + 24, toggleColor);
+            int knobX = module.isEnabled() ? toggleX + 17 : toggleX + 3;
+            drawRect(knobX, y + 13, knobX + 9, y + 22, TEXT);
+            y += 40;
+        }
+    }
+
+    private void drawModuleDetails() {
+        drawRect(detailsX - 8, panelY + 48, detailsX - 7, contentBottom, OUTLINE);
+        if (selectedModule == null) {
+            fontRendererObj.drawString("Select a module to view its settings.", detailsX, contentY, MUTED);
+            return;
         }
 
-        if (descriptionn != null) {
-            drawDescription(descriptionn, mouseX, mouseY);
+        fontRendererObj.drawString(selectedModule.getName(), detailsX, panelY + 47, TEXT);
+        String state = selectedModule.isEnabled() ? "ENABLED" : "DISABLED";
+        fontRendererObj.drawString(state, detailsX, panelY + 62,
+                selectedModule.isEnabled() ? GREEN : MUTED);
+
+        String description = fontRendererObj.trimStringToWidth(selectedModule.getDescription(),
+                Math.max(30, detailsWidth));
+        fontRendererObj.drawString(description, detailsX, panelY + 80, MUTED);
+
+        int settingsY = panelY + 108;
+        fontRendererObj.drawString("SETTINGS", detailsX, settingsY, MUTED);
+        settingsY += 17;
+        for (Setting<?> setting : selectedModule.getSettings()) {
+            if (settingsY + 36 > contentBottom) {
+                break;
+            }
+            if (setting instanceof BooleanSetting) {
+                BooleanSetting booleanSetting = (BooleanSetting) setting;
+                fontRendererObj.drawString(booleanSetting.getName(), detailsX, settingsY + 7, TEXT);
+                String value = booleanSetting.getValue() ? "ON" : "OFF";
+                fontRendererObj.drawString(value, detailsX + detailsWidth
+                        - fontRendererObj.getStringWidth(value), settingsY + 7,
+                        booleanSetting.getValue() ? GREEN : MUTED);
+            } else if (setting instanceof ModeSetting) {
+                ModeSetting modeSetting = (ModeSetting) setting;
+                fontRendererObj.drawString(modeSetting.getName(), detailsX, settingsY + 2, MUTED);
+                drawRect(detailsX, settingsY + 14, detailsX + detailsWidth, settingsY + 33, CARD);
+                String value = modeSetting.getValue() + "  >";
+                fontRendererObj.drawString(value, detailsX + 7, settingsY + 20, TEXT);
+            } else if (setting instanceof NumberSetting) {
+                NumberSetting numberSetting = (NumberSetting) setting;
+                String label = numberSetting.getName();
+                String value = formatNumber(numberSetting.getValue());
+                fontRendererObj.drawString(label, detailsX, settingsY + 2, MUTED);
+                fontRendererObj.drawString(value,
+                        detailsX + detailsWidth - fontRendererObj.getStringWidth(value),
+                        settingsY + 2, TEXT);
+                int barY = settingsY + 22;
+                drawRect(detailsX, barY, detailsX + detailsWidth, barY + 4, CARD);
+                int fill = getSliderFill(numberSetting, detailsWidth);
+                drawRect(detailsX, barY, detailsX + fill, barY + 4, ACCENT);
+                drawRect(detailsX + fill - 2, barY - 2, detailsX + fill + 2, barY + 6, TEXT);
+            }
+            settingsY += 39;
         }
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-
-        for (Panel panel : panels) {
-            panel.mouseClicked(mouseX, mouseY, mouseButton);
+        calculateLayout();
+        if (mouseButton != 0) {
+            super.mouseClicked(mouseX, mouseY, mouseButton);
+            return;
         }
 
+        if (isHovered(mouseX, mouseY, panelX + panelWidth - 90, panelY, 90, 42)) {
+            closeGui();
+            return;
+        }
+
+        int categoryY = panelY + 56;
+        for (Category item : Category.values()) {
+            if (isHovered(mouseX, mouseY, panelX + 9, categoryY, sidebarWidth - 18, 27)) {
+                category = item;
+                ArrayList<Module> modules = Client.manager.getModulesByCategory(category);
+                selectedModule = modules.isEmpty() ? null : modules.get(0);
+                return;
+            }
+            categoryY += 32;
+        }
+
+        int moduleY = contentY;
+        for (Module module : Client.manager.getModulesByCategory(category)) {
+            if (moduleY + 35 > contentBottom) {
+                break;
+            }
+            if (isHovered(mouseX, mouseY, listX, moduleY, listWidth, 35)) {
+                selectedModule = module;
+                int toggleX = listX + listWidth - 37;
+                if (mouseX >= toggleX) {
+                    module.toggle();
+                }
+                return;
+            }
+            moduleY += 40;
+        }
+
+        if (selectedModule != null) {
+            clickSetting(mouseX, mouseY);
+        }
         super.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
+    private void clickSetting(int mouseX, int mouseY) {
+        int settingsY = panelY + 125;
+        for (Setting<?> setting : selectedModule.getSettings()) {
+            if (settingsY + 36 > contentBottom) {
+                break;
+            }
+            if (isHovered(mouseX, mouseY, detailsX, settingsY, detailsWidth, 36)) {
+                if (setting instanceof BooleanSetting) {
+                    ((BooleanSetting) setting).toggle();
+                    notifySettingChanged(setting);
+                } else if (setting instanceof ModeSetting) {
+                    ((ModeSetting) setting).cycle();
+                    notifySettingChanged(setting);
+                } else if (setting instanceof NumberSetting) {
+                    draggingSlider = (NumberSetting) setting;
+                    updateSlider(mouseX);
+                }
+                return;
+            }
+            settingsY += 39;
+        }
+    }
+
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+        if (draggingSlider != null && clickedMouseButton == 0) {
+            updateSlider(mouseX);
+        }
+        super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+    }
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int state) {
+        draggingSlider = null;
+        super.mouseReleased(mouseX, mouseY, state);
+    }
+
+    private void updateSlider(int mouseX) {
+        double min = draggingSlider.getMin();
+        double max = draggingSlider.getMax();
+        double percent = Math.max(0.0, Math.min(1.0, (mouseX - detailsX) / (double) Math.max(1, detailsWidth)));
+        double value = min + percent * (max - min);
+        double increment = draggingSlider.getIncrement();
+        if (increment > 0.0) {
+            value = min + Math.round((value - min) / increment) * increment;
+            value = Math.round(value * 10000.0) / 10000.0;
+        }
+        value = Math.max(min, Math.min(max, value));
+        draggingSlider.setValue(value);
+        notifySettingChanged(draggingSlider);
+    }
+
+    private int getSliderFill(NumberSetting setting, int width) {
+        double range = setting.getMax() - setting.getMin();
+        if (range <= 0.0) {
+            return 0;
+        }
+        double value = (setting.getValue() - setting.getMin()) / range;
+        return (int) (Math.max(0.0, Math.min(1.0, value)) * width);
+    }
+
+    private String formatNumber(double value) {
+        return value == Math.rint(value) ? Integer.toString((int) value) : Double.toString(value);
+    }
+
+    private void notifySettingChanged(Setting<?> setting) {
+        selectedModule.onSettingChanged(setting);
+    }
+
+    private boolean isHovered(int mouseX, int mouseY, int x, int y, int boxWidth, int boxHeight) {
+        return mouseX >= x && mouseX <= x + boxWidth && mouseY >= y && mouseY <= y + boxHeight;
+    }
+
+    private void closeGui() {
+        ClickGui clickGui = Client.manager.getModule(ClickGui.class);
+        if (clickGui != null && clickGui.isEnabled()) {
+            clickGui.toggle();
+        } else {
+            mc.displayGuiScreen(null);
+        }
     }
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
-        if (keyCode == KeyboardConstants.KEY_ESCAPE) {
-            mc.displayGuiScreen(null);
+        if (keyCode == 1) {
+            closeGui();
         }
     }
 
@@ -123,276 +319,4 @@ public class ClickGuiScreen extends GuiScreen {
     public boolean doesGuiPauseGame() {
         return false;
     }
-
-    public void drawDescription(String text, int mouseX, int mouseY) {
-
-        int padding = 5;
-        int textWidth = fontRendererObj.getStringWidth(text);
-        int boxX = mouseX + 8;
-        int boxY = mouseY + 8;
-
-        drawRect(boxX, boxY, boxX + textWidth + padding * 2, boxY + 12 + padding, 0x90000000);
-        fontRendererObj.drawString(text, boxX + padding, boxY + padding, TEXT_COLOR);
-    }
-
-    private void drawOutline(int x1, int y1, int x2, int y2, int color) {
-        drawRect(x1, y1, x2, y1 + 1, color);
-        drawRect(x1, y2 - 1, x2, y2, color);
-        drawRect(x1, y1, x1 + 1, y2, color);
-        drawRect(x2 - 1, y1, x2, y2, color);
-    }
-
-
-    public class Panel {
-        public Category category;
-        public int x, y, width = 90, height = 16;
-        public boolean dragging = false;
-        public int dragX, dragY;
-        public boolean open = true;
-        private NumberSetting draggingSlider = null;
-        private int sliderX = 0;
-        private int sliderWidth = 0;
-        public Panel(Category category, int x, int y) {
-            this.category = category;
-            this.x = x;
-            this.y = y;
-        }
-
-        private boolean hasSettings(Module module) {
-            return module.getSettings() != null && !module.getSettings().isEmpty();
-        }
-
-        public String getHoveredDescription(int mouseX, int mouseY) {
-            if (!open) return null;
-
-            int offset = height;
-
-            for (Module module : Client.manager.getModulesByCategory(category)) {
-
-                if (isHover(mouseX, mouseY, x, y + offset, width, 14)) {
-                    return module.getDescription();
-                }
-                offset += 14;
-
-                if (module.open && hasSettings(module)) {
-                    for (Setting<?> setting : module.getSettings()) {
-                        if (isHover(mouseX, mouseY, x, y + offset, width, 14)) {
-                            return setting.getName();
-                        }
-                        offset += 14;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        public void draw(int mouseX, int mouseY) {
-
-            if (!Mouse.isButtonDown(0)) {
-                dragging = false;
-                draggingSlider = null;
-            }
-            if (dragging) {
-                this.x = mouseX - dragX;
-                this.y = mouseY - dragY;
-            }
-
-            if (open) {
-                drawOutline(x, y, x + width, y + getTotalHeight(), PANEL_OUTLINE);
-            } else {
-                drawOutline(x, y, x + width, y + height, PANEL_OUTLINE);
-            }
-
-            drawRect(x, y, x + width, y + height, PANEL_BG);
-
-            fontRendererObj.drawString(category.name(), x + 4, y + 4, TEXT_COLOR);
-
-            if (open) {
-
-                int offset = height;
-
-                for (Module module : Client.manager.getModulesByCategory(category)) {
-
-                    drawRect(x, y + offset, x + width, y + offset + 14, module.isEnabled() ? MODULE_ENABLED : MODULE_DISABLED);
-
-                    String symbol = module.open ? "-" : "+";
-                    fontRendererObj.drawString(symbol, x + width - 10, y + offset + 4, ACCENT_COLOR);
-                    fontRendererObj.drawString(module.getName(), x + 4, y + offset + 4, TEXT_COLOR);
-
-                    offset += 14;
-
-                    if (module.open && hasSettings(module)) {
-                        for (Setting<?> setting : module.getSettings()) {
-
-                            drawRect(x, y + offset, x + width, y + offset + 14, MODULE_DISABLED);
-                            drawSetting(setting, x, y + offset);
-
-                            offset += 14;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void drawSetting(Setting<?> s, int x, int y) {
-
-            if (s instanceof BooleanSetting bs) {
-                fontRendererObj.drawString(bs.getName() + " : " + bs.getValue(), x + 4, y + 4, TEXT_COLOR);
-                return;
-            }
-
-            if (s instanceof ModeSetting ms) {
-                fontRendererObj.drawString(ms.getName() + " : " + ms.getValue() + " ...", x + 4, y + 4, TEXT_COLOR);
-                return;
-            }
-
-            if (s instanceof NumberSetting number) {
-                drawRect(x, y, x + width, y + 14, MODULE_DISABLED);
-                fontRendererObj.drawString(number.getName() + " : " + number.getValue(), x + 4, y + 4, TEXT_COLOR);
-                int barX = x + 4;
-                int barY = y + 12;
-                int barW = width - 8;
-                int barH = 2;
-                drawRect(barX, barY, barX + barW, barY + barH, SLIDER_BG);
-                double percent = (number.getValue() - number.getMin()) / (number.getMax() - number.getMin());
-                int fillW = (int)(percent * barW);
-                drawRect(barX, barY, barX + fillW, barY + barH, SLIDER_FILL);
-                int knobX = barX + fillW;
-                drawRect(knobX - 1, barY, knobX + 1, barY + barH, SLIDER_KNOB);
-            }
-        }
-
-        public void mouseDragged(int mouseX, int mouseY, int mouseButton) {
-            if (draggingSlider != null && mouseButton == 0) {
-                double percent = (mouseX - sliderX) / (double) sliderWidth;
-                percent = Math.max(0.0, Math.min(1.0, percent));
-                double rawValue = draggingSlider.getMin() + percent * (draggingSlider.getMax() - draggingSlider.getMin());
-                double increment = draggingSlider.getIncrement();
-                if (increment > 0) {
-                    double steps = (rawValue - draggingSlider.getMin()) / increment;
-                    double snapped = draggingSlider.getMin() + Math.round(steps) * increment;
-                    snapped = Math.round(snapped * 10000.0) / 10000.0;
-                    snapped = Math.max(draggingSlider.getMin(), Math.min(draggingSlider.getMax(), snapped));
-                    draggingSlider.setValue(snapped);
-                } else {
-                    draggingSlider.setValue(Math.max(draggingSlider.getMin(), Math.min(draggingSlider.getMax(), rawValue)));
-                }
-            }
-
-            if (dragging && mouseButton == 0) {
-                this.x = mouseX - dragX;
-                this.y = mouseY - dragY;
-            }
-        }
-
-        public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-            if (isHover(mouseX, mouseY, x, y, width, height)) {
-
-                if (mouseButton == 0) {
-                    dragging = true;
-                    dragX = mouseX - x;
-                    dragY = mouseY - y;
-                }
-
-                if (mouseButton == 1) {
-                    dragging = false;
-                    open = !open;
-                }
-
-                return;
-            }
-
-            if (open) {
-
-                int offset = height;
-
-                for (Module module : Client.manager.getModulesByCategory(category)) {
-
-                    if (isHover(mouseX, mouseY, x, y + offset, width, 14)) {
-
-                        int gearSize = 12;
-                        int gearX = x + width - gearSize - 4;
-                        int gearY = y + offset + 1;
-
-                        boolean overGear = mouseX >= gearX && mouseX <= gearX + gearSize && mouseY >= gearY && mouseY <= gearY + gearSize;
-
-                        if (overGear && mouseButton == 0) {
-                            module.open = !module.open;
-                            return;
-                        }
-
-                        if (mouseButton == 0) {
-                            module.toggle();
-                        }
-
-                        if (mouseButton == 1 || (hasSettings(module) && mouseX >= x + width - 12)) {
-                            module.open = !module.open;
-                        }
-
-                        return;
-                    }
-
-                    offset += 14;
-
-                    if (module.open && hasSettings(module)) {
-                        for (Setting<?> setting : module.getSettings()) {
-
-                            if (isHover(mouseX, mouseY, x, y + offset, width, 14)) {
-
-                                if (setting instanceof BooleanSetting && mouseButton == 0) {
-                                    ((BooleanSetting) setting).toggle();
-                                }
-
-                                if (setting instanceof ModeSetting && mouseButton == 0) {
-                                    ((ModeSetting) setting).cycle();
-                                }
-
-                                if (setting instanceof NumberSetting && mouseButton == 0) {
-                                    draggingSlider = (NumberSetting) setting;
-                                    sliderX = x;
-                                    sliderWidth = width;
-                                    double snapped = getSnapped(mouseX);
-                                    draggingSlider.setValue(snapped);
-                                }
-
-                                return;
-                            }
-
-                            offset += 14;
-                        }
-                    }
-                }
-            }
-        }
-
-        private double getSnapped(int mouseX) {
-            double percent = (mouseX - x) / (double) width;
-            percent = Math.max(0.0, Math.min(1.0, percent));
-            double rawValue = draggingSlider.getMin() + percent * (draggingSlider.getMax() - draggingSlider.getMin());
-            double increment = draggingSlider.getIncrement();
-            double steps = (rawValue - draggingSlider.getMin()) / increment;
-            double snapped = draggingSlider.getMin() + Math.round(steps) * increment;
-            snapped = Math.round(snapped * 10000.0) / 10000.0;
-            snapped = Math.max(draggingSlider.getMin(), Math.min(draggingSlider.getMax(), snapped));
-            return snapped;
-        }
-
-        private boolean isHover(int mx, int my, int x, int y, int w, int h) {
-            return mx >= x && mx <= x + w && my >= y && my <= y + h;
-        }
-
-        private int getTotalHeight() {
-            int total = height;
-            for (Module module : Client.manager.getModulesByCategory(category)) {
-                total += 14;
-                if (module.open && hasSettings(module)) {
-                    total += module.getSettings().size() * 14;
-                }
-            }
-            return total;
-        }
-    }
-
 }
-
