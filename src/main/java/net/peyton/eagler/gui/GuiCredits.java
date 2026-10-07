@@ -3,30 +3,29 @@ package net.peyton.eagler.gui;
 import java.util.ArrayList;
 import java.io.IOException;
 
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.util.ResourceLocation;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.Mouse;
-import net.lax1dude.eaglercraft.opengl.GlStateManager;
-import net.minecraft.client.gui.GuiScreen;
 
 public class GuiCredits extends GuiScreen {
 
 	private ArrayList<String> credits = new ArrayList<String>();
 
-	private int mousey = 0;
-
+	private int mouseY;
 	private int scrollPosition = 0;
-	private static final int visibleLines = 21;
+	private int visibleLines = 1;
+	private int panelX;
+	private int panelY;
+	private int panelWidth;
+	private int panelHeight;
+	private int contentTop;
+	private int trackHeight;
+	private String creditsText;
 
 	private int dragstart = -1;
 	private int dragstartI = -1;
-
-	private static final ResourceLocation beaconx = new ResourceLocation("textures/gui/container/beacon.png");
-	private static final ResourceLocation creditsBck = new ResourceLocation("textures/gui/demo_background.png");
 
 	String fileLocation;
 	GuiScreen parentScreen;
@@ -37,30 +36,41 @@ public class GuiCredits extends GuiScreen {
 	}
 
 	public void initGui() {
-		if (this.credits.isEmpty()) {
-			int width = 315;
-			String file = EagRuntime.getResourceString(fileLocation);
-			String[] lines = file.split("\n");
-			for (String s : lines) {
-				String s2 = s.trim();
-				if (s2.isEmpty()) {
-					this.credits.add("");
-				} else {
-					String[] words = s2.split(" ");
-					String currentLine = "   ";
-					for (String s3 : words) {
-						String cCurrentLine = currentLine + s3 + " ";
-						if (this.mc.fontRendererObj.getStringWidth(cCurrentLine) < width) {
-							currentLine = cCurrentLine;
-						} else {
+		this.panelWidth = Math.min(430, Math.max(1, this.width - 24));
+		this.panelHeight = Math.min(310, Math.max(1, this.height - 24));
+		this.panelX = (this.width - this.panelWidth) / 2;
+		this.panelY = (this.height - this.panelHeight) / 2;
+		this.contentTop = this.panelY + 57;
+		int footerTop = this.panelY + this.panelHeight - 28;
+		this.trackHeight = Math.max(1, footerTop - this.contentTop - 8);
+		this.visibleLines = Math.max(1, this.trackHeight / 10);
+
+		if (this.creditsText == null) {
+			this.creditsText = EagRuntime.getRequiredResourceString(this.fileLocation);
+		}
+		this.credits.clear();
+		int textWidth = Math.max(1, this.panelWidth - 54);
+		for (String line : this.creditsText.split("\n", -1)) {
+			String trimmedLine = line.trim();
+			if (trimmedLine.isEmpty()) {
+				this.credits.add("");
+			} else {
+				String currentLine = "   ";
+				for (String word : trimmedLine.split(" ")) {
+					String candidate = currentLine + word + " ";
+					if (this.mc.fontRendererObj.getStringWidth(candidate) < textWidth) {
+						currentLine = candidate;
+					} else {
+						if (!currentLine.trim().isEmpty()) {
 							this.credits.add(currentLine);
-							currentLine = s3 + " ";
 						}
+						currentLine = word + " ";
 					}
-					this.credits.add(currentLine);
 				}
+				this.credits.add(currentLine);
 			}
 		}
+		this.scrollPosition = Math.min(this.scrollPosition, Math.max(0, this.credits.size() - this.visibleLines));
 	}
 
 	protected void actionPerformed(GuiButton button) throws IOException {
@@ -68,15 +78,15 @@ public class GuiCredits extends GuiScreen {
 
 	protected void mouseClicked(int par1, int par2, int par3) {
 		if (par3 == 0) {
-			int x = (width - 345) / 2;
-			int y = (height - 230) / 2;
-			if(par1 >= (x + 323) && par1 <= (x + 323 + 13) && par2 >= (y + 7) && par2 <= (y + 7 + 13)) {
+			int closeX = this.panelX + this.panelWidth - 30;
+			if (par1 >= closeX && par1 <= closeX + 18 && par2 >= this.panelY + 9 && par2 <= this.panelY + 27) {
 				mc.displayGuiScreen(parentScreen);
+				return;
 			}
-			int trackHeight = 193;
-			int offset = trackHeight * scrollPosition / this.credits.size();
-			if (par1 >= (x + 326) && par1 <= (x + 334) && par2 >= (y + 27 + offset)
-					&& par2 <= (y + 27 + offset + (visibleLines * trackHeight / this.credits.size()) + 1)) {
+			if (this.credits.size() > this.visibleLines && par1 >= this.panelX + this.panelWidth - 19
+					&& par1 <= this.panelX + this.panelWidth - 11
+					&& par2 >= this.contentTop + this.getThumbOffset()
+					&& par2 <= this.contentTop + this.getThumbOffset() + this.getThumbHeight()) {
 				dragstart = par2;
 				dragstartI = scrollPosition;
 			}
@@ -86,52 +96,66 @@ public class GuiCredits extends GuiScreen {
 	public void drawScreen(int par1, int par2, float par3) {
 		super.drawScreen(0, 0, par3);
 		this.drawDefaultBackground();
-		mousey = par2;
-		int x = (width - 345) / 2;
-		int y = (height - 230) / 2;
-		this.mc.getTextureManager().bindTexture(creditsBck);
-		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y, 0.0f);
-		GlStateManager.scale(1.39f, 1.39f, 1.39f);
-		this.drawTexturedModalRect(0, 0, 0, 0, 248, 166);
-		GlStateManager.popMatrix();
-		this.mc.getTextureManager().bindTexture(beaconx);
-		this.drawTexturedModalRect(x + 323, y + 7, 114, 223, 13, 13);
+		this.mouseY = par2;
 		int lines = this.credits.size();
-		if (lines <= 0) {
-			return;
+		this.clampScrollPosition();
+
+		drawRect(0, 0, this.width, this.height, 0x55000000);
+		drawRect(this.panelX + 3, this.panelY + 4, this.panelX + this.panelWidth + 3,
+				this.panelY + this.panelHeight + 4, 0x88000000);
+		drawRect(this.panelX - 1, this.panelY - 1, this.panelX + this.panelWidth + 1,
+				this.panelY + this.panelHeight + 1, 0xFF52677F);
+		drawRect(this.panelX, this.panelY, this.panelX + this.panelWidth, this.panelY + this.panelHeight,
+				0xF20D1520);
+		drawRect(this.panelX + 1, this.panelY + 1, this.panelX + this.panelWidth - 1, this.panelY + 49,
+				0xCC172435);
+		drawRect(this.panelX + 1, this.panelY + 48, this.panelX + this.panelWidth - 1, this.panelY + 50,
+				0xFF55C7E8);
+
+		this.drawCenteredString(this.mc.fontRendererObj, "CREDITS", this.width / 2, this.panelY + 11, 0xFFFFFFFF);
+		this.drawCenteredString(this.mc.fontRendererObj, "The people and projects behind this client",
+				this.width / 2, this.panelY + 29, 0xFFB8C7D8);
+
+		int closeX = this.panelX + this.panelWidth - 30;
+		boolean closeHovered = par1 >= closeX && par1 <= closeX + 18 && par2 >= this.panelY + 9
+				&& par2 <= this.panelY + 27;
+		drawRect(closeX, this.panelY + 9, closeX + 19, this.panelY + 28,
+				closeHovered ? 0xFFB94A55 : 0xFF334255);
+		this.drawCenteredString(this.mc.fontRendererObj, "x", closeX + 9, this.panelY + 14, 0xFFFFFFFF);
+
+		int textX = this.panelX + 17;
+		int textY = this.contentTop;
+		for (int i = 0; i < this.visibleLines && this.scrollPosition + i < lines; ++i) {
+			this.mc.fontRendererObj.drawStringWithShadow(this.credits.get(this.scrollPosition + i), textX, textY + i * 10,
+					0xFFE6EDF5);
 		}
-		if (scrollPosition < 0)
-			scrollPosition = 0;
-		if (lines <= visibleLines) {
-			scrollPosition = 0;
+
+		int trackX = this.panelX + this.panelWidth - 17;
+		if (lines > this.visibleLines) {
+			int thumbY = this.contentTop + this.getThumbOffset();
+			boolean thumbHovered = par1 >= trackX - 1 && par1 <= trackX + 8
+					&& par2 >= thumbY && par2 <= thumbY + this.getThumbHeight();
+			drawRect(trackX + 3, this.contentTop, trackX + 5, this.contentTop + this.trackHeight, 0xFF263445);
+			drawRect(trackX, thumbY, trackX + 8, thumbY + this.getThumbHeight(),
+					thumbHovered ? 0xFF55C7E8 : 0xFF8CA4BB);
 		}
-		if (scrollPosition + visibleLines > lines)
-			scrollPosition = lines - visibleLines;
-		for (int i = 0; i < visibleLines && scrollPosition + i < lines; ++i) {
-			this.mc.fontRendererObj.drawString(this.credits.get(scrollPosition + i), x + 10, y + 10 + (i * 10),
-					0x404060);
-		}
-		int trackHeight = 193;
-		int offset = lines <= visibleLines ? 0 : trackHeight * scrollPosition / lines;
-		drawRect(x + 326, y + 27, x + 334, y + 220, 0x33000020);
-		drawRect(x + 326, y + 27 + offset, x + 334,
-				y + 27 + (lines <= visibleLines ? trackHeight : (visibleLines * trackHeight / lines)) + offset + 1,
-				0x66000000);
+
+		int footerY = this.panelY + this.panelHeight - 27;
+		drawRect(this.panelX + 1, footerY, this.panelX + this.panelWidth - 1, footerY + 1, 0xFF334255);
+		this.mc.fontRendererObj.drawStringWithShadow("Scroll to explore", this.panelX + 16, footerY + 9, 0xFF9AADC1);
+		String count = lines == 0 ? "0 credits" : (this.scrollPosition + 1) + "-"
+				+ Math.min(lines, this.scrollPosition + this.visibleLines) + " / " + lines;
+		this.mc.fontRendererObj.drawStringWithShadow(count,
+				this.panelX + this.panelWidth - 16 - this.mc.fontRendererObj.getStringWidth(count), footerY + 9,
+				0xFF9AADC1);
 	}
 
 	public void updateScreen() {
 		if (Mouse.isButtonDown(0) && dragstart > 0) {
-			int trackHeight = 193;
-			int lines = this.credits.size();
-			scrollPosition = (mousey - dragstart) * lines / trackHeight + dragstartI;
-			if (scrollPosition < 0)
-				scrollPosition = 0;
-			if (lines <= visibleLines) {
-				scrollPosition = 0;
-			} else if (scrollPosition + visibleLines > lines) {
-				scrollPosition = lines - visibleLines;
-			}
+			int maxScroll = Math.max(0, this.credits.size() - this.visibleLines);
+			int scrollRange = Math.max(1, this.trackHeight - this.getThumbHeight());
+			this.scrollPosition = this.dragstartI + (this.mouseY - this.dragstart) * maxScroll / scrollRange;
+			this.clampScrollPosition();
 		} else {
 			dragstart = -1;
 		}
@@ -142,9 +166,25 @@ public class GuiCredits extends GuiScreen {
 		int var1 = Mouse.getEventDWheel();
 		if (var1 < 0) {
 			scrollPosition += 3;
+			this.clampScrollPosition();
 		}
 		if (var1 > 0) {
 			scrollPosition -= 3;
+			this.clampScrollPosition();
 		}
+	}
+
+	private int getThumbHeight() {
+		return Math.min(this.trackHeight, Math.max(12, this.trackHeight * this.visibleLines / this.credits.size()));
+	}
+
+	private int getThumbOffset() {
+		int maxScroll = this.credits.size() - this.visibleLines;
+		return maxScroll <= 0 ? 0
+				: (this.trackHeight - this.getThumbHeight()) * this.scrollPosition / maxScroll;
+	}
+
+	private void clampScrollPosition() {
+		this.scrollPosition = Math.max(0, Math.min(this.scrollPosition, this.credits.size() - this.visibleLines));
 	}
 }

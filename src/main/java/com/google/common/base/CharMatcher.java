@@ -224,9 +224,9 @@ public abstract class CharMatcher implements Predicate<Character> {
 	 * FORMAT, SURROGATE, and PRIVATE_USE according to ICU4J.
 	 */
 	public static final CharMatcher INVISIBLE = new RangesMatcher("CharMatcher.INVISIBLE",
-			("\u0000\u007f\u00ad\u0600\u061c\u06dd\u070f\u1680\u180e\u2000\u2028\u205f\u2066\u2067\u2068"
+			("\u0000\u007f\u00ad\u0600\u061c\u06dd\u070f\u1680\u180e\u2000\u2028\u205f\u2060\u2066\u2067\u2068"
 					+ "\u2069\u206a\u3000\ud800\ufeff\ufff9\ufffa").toCharArray(),
-			("\u0020\u00a0\u00ad\u0604\u061c\u06dd\u070f\u1680\u180e\u200f\u202f\u2064\u2066\u2067\u2068"
+			("\u0020\u00a0\u00ad\u0604\u061c\u06dd\u070f\u1680\u180e\u200f\u202f\u205f\u2064\u2066\u2067\u2068"
 					+ "\u2069\u206f\u3000\uf8ff\ufeff\ufff9\ufffb").toCharArray());
 
 	private static String showCharacter(char c) {

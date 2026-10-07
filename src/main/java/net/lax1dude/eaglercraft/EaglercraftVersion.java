@@ -22,7 +22,7 @@ public class EaglercraftVersion {
 
 	// EPK Version Identifier
 
-	public static final String EPKVersionIdentifier = null; // Set to null to disable EPK version check
+	public static final String EPKVersionIdentifier = "legend-client-font-atlas-v1";
 
 	// Client brand identification system configuration
 

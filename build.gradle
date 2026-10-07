@@ -57,7 +57,7 @@ teavm.js {
     sourceMap = true
     targetFileName = "../" + name
     optimization = OptimizationLevel.AGGRESSIVE // Change to "AGGRESSIVE" for release
-    outOfProcess = false
+    outOfProcess = true
     fastGlobalAnalysis = false
     processMemory = 1024
     entryPointName = "main"
