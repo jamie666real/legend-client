@@ -5,3 +5,7 @@
 §fthis is literally not done fahhhhhhhhhhhhh
 
 §4§li am fixing it dw
+
+§b§lOTHER CREDITS
+§e• lax1dude: Creator of Eaglercraft, ported Minecraft source code to TeaVM, wrote the hardware-accelerated OpenGL emulator, and built core servers like EaglercraftXBungee.
+§e• ayunami2000: Maintained the JavaScript runtime, added bug fixes, WebRTC LAN worlds, and voice chat features.
