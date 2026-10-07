@@ -493,7 +493,7 @@ public class GuiMainMenu extends GuiScreen {
 		}
 
 		this.drawString(this.fontRendererObj, s, 2, this.height - 20, -1);
-		this.drawString(this.fontRendererObj, "Eaglercraft 1.12.2 (" + EaglercraftVersion.projectOriginVersion + ")", 2,
+		this.drawString(this.fontRendererObj, "Legend Client v1.0.3 (" + EaglercraftVersion.projectOriginVersion + ")", 2,
 				this.height - 10, -1);
 		this.drawString(this.fontRendererObj, "Resources copyright Mojang AB", this.field_193979_N, this.height - 10,
 				-1);
