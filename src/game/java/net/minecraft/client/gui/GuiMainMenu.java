@@ -50,6 +50,7 @@ public class GuiMainMenu extends GuiScreen {
 	/** The splash message. */
 	private String splashText;
 	private GuiButton buttonResetDemo;
+	private GuiButton multiplayerButton;
 
 	/** Timer used to rotate the panorama, increases every tick. */
 	private float panoramaTimer;
@@ -153,6 +154,8 @@ public class GuiMainMenu extends GuiScreen {
 	 * beforehand.
 	 */
 	public void initGui() {
+		this.multiplayerButton = null;
+
 		if (!this.mc.gameSettings.hasSeenFirstLoad) {
 			this.mc.displayGuiScreen(new GuiScreenFirstLoad(this.mc.gameSettings));
 			return;
@@ -195,8 +198,10 @@ public class GuiMainMenu extends GuiScreen {
 	 */
 	private void addSingleplayerMultiplayerButtons(int p_73969_1_, int p_73969_2_) {
 		this.buttonList.add(new GuiButton(1, this.width / 2 - 100, p_73969_1_, I18n.format("menu.singleplayer")));
-		this.buttonList.add(
-				new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, I18n.format("menu.multiplayer")));
+		this.multiplayerButton = new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1,
+				I18n.format("menu.multiplayer"));
+		this.multiplayerButton.enabled = false;
+		this.buttonList.add(this.multiplayerButton);
 		this.buttonList
 				.add(new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, I18n.format("menu.credits")));
 	}
@@ -234,7 +239,7 @@ public class GuiMainMenu extends GuiScreen {
 		}
 
 		if (button.id == 2) {
-			this.mc.displayGuiScreen(new GuiMultiplayer(this));
+			return;
 		}
 
 		if (button.id == 4) {
@@ -499,6 +504,10 @@ public class GuiMainMenu extends GuiScreen {
 				-1);
 
 		super.drawScreen(mouseX, mouseY, partialTicks);
+
+		if (this.multiplayerButton != null && this.multiplayerButton.isMouseOver()) {
+			this.drawHoveringText(Lists.newArrayList("Coming Soon!"), mouseX, mouseY);
+		}
 	}
 
 	/**
