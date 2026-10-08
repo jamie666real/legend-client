@@ -223,8 +223,6 @@ public class GuiCredits extends GuiScreen {
 				this.previewHitCount = 0;
 				this.previewDeathStart = 0L;
 			}
-			this.drawCenteredString(this.mc.fontRendererObj, "Click skin to attack", previewX,
-					this.contentTop + 42, 0xFF8296AA);
 			if (this.previewAnimationTime < 0L) {
 				this.previewMouseX = par1;
 				this.previewMouseY = par2;
