@@ -251,7 +251,7 @@
     const skinModelKey = "legendClientSkinModel";
     const skinSelectionKey = "legendClientSkinSelection";
     const skinOverridePixelsKey = "legendClientSkinOverridePixels";
-    let skinRotation = -25;
+    let skinRotation = 12;
     let dragX = null;
     let skinRenderer = null;
 
@@ -337,7 +337,7 @@
           float depth = 52.0 - rotated.z;
           float nearPlane = 1.0;
           float farPlane = 100.0;
-          float focalLength = 1.75;
+          float focalLength = 2.05;
           gl_Position = vec4(
             rotated.x * focalLength / uAspect,
             rotated.y * focalLength,
@@ -425,10 +425,7 @@
     function buildSkinModel(slimArms) {
       const vertices = [];
 
-      function addFace(points, u, v, width, height, normal) {
-        const texCoords = [
-          [u + width, v], [u, v], [u, v + height], [u + width, v + height]
-        ];
+      function addFace(points, texCoords, normal) {
         for (const index of [0, 1, 2, 0, 2, 3]) {
           const point = points[index];
           const texCoord = texCoords[index];
@@ -457,17 +454,27 @@
         const xMaxYMaxZMax = [maxX, maxY, maxZ];
 
         addFace([xMaxYMinZMax, xMaxYMinZMin, xMaxYMaxZMin, xMaxYMaxZMax],
-          u + depth + width, v + depth, depth, height, [1, 0, 0]);
+          [[u + depth + width + depth, v + depth], [u + depth + width, v + depth],
+            [u + depth + width, v + depth + height], [u + depth + width + depth, v + depth + height]],
+          [1, 0, 0]);
         addFace([xMinYMinZMin, xMinYMinZMax, xMinYMaxZMax, xMinYMaxZMin],
-          u, v + depth, depth, height, [-1, 0, 0]);
+          [[u + depth, v + depth], [u, v + depth], [u, v + depth + height], [u + depth, v + depth + height]],
+          [-1, 0, 0]);
         addFace([xMaxYMinZMax, xMinYMinZMax, xMinYMinZMin, xMaxYMinZMin],
-          u + depth, v, width, depth, [0, 1, 0]);
-        addFace([xMinYMaxZMin, xMinYMaxZMax, xMaxYMaxZMax, xMaxYMaxZMin],
-          u + depth + width, v, width, depth, [0, -1, 0]);
+          [[u + depth + width, v], [u + depth, v], [u + depth, v + depth], [u + depth + width, v + depth]],
+          [0, 1, 0]);
+        addFace([xMaxYMaxZMin, xMinYMaxZMin, xMinYMaxZMax, xMaxYMaxZMax],
+          [[u + depth + width, v + depth], [u + depth + width + width, v + depth],
+            [u + depth + width + width, v], [u + depth + width, v]],
+          [0, -1, 0]);
         addFace([xMaxYMinZMin, xMinYMinZMin, xMinYMaxZMin, xMaxYMaxZMin],
-          u + depth, v + depth, width, height, [0, 0, 1]);
+          [[u + depth, v + depth], [u, v + depth], [u, v + depth + height], [u + depth, v + depth + height]],
+          [0, 0, 1]);
         addFace([xMinYMinZMax, xMaxYMinZMax, xMaxYMaxZMax, xMinYMaxZMax],
-          u + depth + width + depth, v + depth, width, height, [0, 0, -1]);
+          [[u + depth + width + depth, v + depth], [u + depth + width + depth + width, v + depth],
+            [u + depth + width + depth + width, v + depth + height],
+            [u + depth + width + depth, v + depth + height]],
+          [0, 0, -1]);
       }
 
       const armWidth = slimArms ? 3 : 4;
@@ -521,7 +528,7 @@
       }
       gl.uniform1i(renderer.skin, 0);
       gl.uniform1f(renderer.yaw, skinRotation * Math.PI / 180);
-      gl.uniform1f(renderer.pitch, -7 * Math.PI / 180);
+      gl.uniform1f(renderer.pitch, -4 * Math.PI / 180);
       gl.uniform1f(renderer.aspect, width / height);
       gl.bindBuffer(gl.ARRAY_BUFFER, renderer.buffer);
       const stride = 8 * Float32Array.BYTES_PER_ELEMENT;
