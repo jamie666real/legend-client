@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legend Client</title>
+  <style>
+    :root {
+      --sun: #ffb000;
+      --amber: #ff8c00;
+      --gold: #ffd54a;
+      --cream: #fff7d6;
+      --ink: #4a2b00;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--gold), var(--sun), var(--amber));
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+    }
+
+    .card {
+      width: min(90vw, 520px);
+      padding: 3rem 2rem;
+      border: 4px solid rgba(255, 255, 255, 0.7);
+      border-radius: 24px;
+      background: rgba(255, 247, 214, 0.9);
+      box-shadow: 0 20px 60px rgba(120, 60, 0, 0.22);
+      backdrop-filter: blur(4px);
+    }
+
+    h1 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(2.2rem, 8vw, 4rem);
+    }
+
+    p {
+      margin: 0 0 2rem;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .launch {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--amber), #ff6a00);
+      box-shadow: 0 10px 24px rgba(255, 106, 0, 0.35);
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .launch:hover,
+    .launch:focus-visible {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 30px rgba(255, 106, 0, 0.45);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Legend Client</h1>
+    <p>Launch the client</p>
+    <a class="launch" href="/javascript/" aria-label="Launch Legend Client">Launch Client</a>
+  </main>
+</body>
+</html>

@@ -48,7 +48,7 @@ public enum DefaultSkins {
 	LAXATIVE_DUDE(26, "Laxative Dude", new ResourceLocation("eagler:mesh/laxativedude.fallback.png"), SkinModel.LAXATIVE_DUDE),
 	BABY_CHARLES(27, "Baby Charles", new ResourceLocation("eagler:mesh/charles.fallback.png"), SkinModel.BABY_CHARLES),
 	BABY_WINSTON(28, "Baby Winston", new ResourceLocation("eagler:mesh/winston.fallback.png"), SkinModel.BABY_WINSTON),
-	MIKU(29, "Miku", new ResourceLocation("eagler:skins/miku.png"), SkinModel.ALEX);
+	ZAYZAY(29, "Zay Zay", new ResourceLocation("eagler:skins/zayzay.png"), SkinModel.ALEX);
 	
 	public static final DefaultSkins[] defaultSkinsMap = new DefaultSkins[30];
 	
