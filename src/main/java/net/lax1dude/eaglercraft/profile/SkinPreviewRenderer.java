@@ -4,6 +4,7 @@ import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.opengl.EaglerMeshLoader;
 import net.lax1dude.eaglercraft.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
@@ -51,23 +52,23 @@ public class SkinPreviewRenderer {
 
 	public static void renderNpcPreview(int x, int y, int mx, int my, SkinModel skinModel,
 			ResourceLocation skinTexture, ResourceLocation capeTexture, float animationTime, boolean hurt,
-			float deathProgress) {
+			float deathProgress, float deathAlpha) {
 		float limbSwing = animationTime * 0.003f;
 		float limbSwingAmount = (0.035f + (float) Math.sin(animationTime * 0.0015f) * 0.015f)
 				* (1.0f - deathProgress);
 		renderPreviewInternal(x, y, mx, my, false, skinModel, skinTexture, capeTexture, limbSwing, limbSwingAmount,
-				hurt, deathProgress);
+				hurt, deathProgress, deathAlpha);
 	}
 
 	private static void renderPreviewInternal(int x, int y, int mx, int my, boolean capeMode, SkinModel skinModel,
 			ResourceLocation skinTexture, ResourceLocation capeTexture, float limbSwing, float limbSwingAmount) {
 		renderPreviewInternal(x, y, mx, my, capeMode, skinModel, skinTexture, capeTexture, limbSwing, limbSwingAmount,
-				false, 0.0f);
+			false, 0.0f, 1.0f);
 	}
 
 	private static void renderPreviewInternal(int x, int y, int mx, int my, boolean capeMode, SkinModel skinModel,
 			ResourceLocation skinTexture, ResourceLocation capeTexture, float limbSwing, float limbSwingAmount,
-			boolean hurt, float deathProgress) {
+			boolean hurt, float deathProgress, float deathAlpha) {
 		ModelBiped model;
 		switch(skinModel) {
 		case STEVE:
@@ -118,19 +119,27 @@ public class SkinPreviewRenderer {
 		GlStateManager.translate(0.0f, -1.0f, 0.0f);
 		if (deathProgress > 0.0f) {
 			float deathRotation = (float) Math.sqrt(Math.min(1.0f, deathProgress * 1.6f)) * 90.0f;
+			GlStateManager.translate(0.0f, 1.5f, 0.0f);
 			GlStateManager.rotate(deathRotation, 0.0f, 0.0f, 1.0f);
+			GlStateManager.translate(0.0f, -1.5f, 0.0f);
 		}
 		
 		if(skinTexture != null) {
 			Minecraft.getMinecraft().getTextureManager().bindTexture(skinTexture);
 		}
-		
+		if (deathAlpha < 1.0f) {
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(RealOpenGLEnums.GL_SRC_ALPHA,
+					RealOpenGLEnums.GL_ONE_MINUS_SRC_ALPHA, RealOpenGLEnums.GL_ONE, RealOpenGLEnums.GL_ZERO);
+		}
 		if (hurt) {
-			GlStateManager.color(1.0f, 0.4f, 0.4f, 1.0f);
+			GlStateManager.color(1.0f, 0.4f, 0.4f, deathAlpha);
+		} else {
+			GlStateManager.color(1.0f, 1.0f, 1.0f, deathAlpha);
 		}
 		model.render(null, limbSwing, limbSwingAmount, (float)(EagRuntime.steadyTimeMillis() % 2000000) / 50f,
 				((x - mx) * 0.06f), ((y - my) * -0.1f), 0.0625f);
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, deathAlpha);
 		
 		if(capeTexture != null && model instanceof ModelPlayer) {
 			Minecraft.getMinecraft().getTextureManager().bindTexture(capeTexture);
@@ -143,6 +152,8 @@ public class SkinPreviewRenderer {
 		}
 		
 		GlStateManager.popMatrix();
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		GlStateManager.disableBlend();
 		GlStateManager.disableLighting();
 	}
 

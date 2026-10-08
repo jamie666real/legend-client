@@ -86,6 +86,27 @@ public class GuiCredits extends GuiScreen {
 		}
 	}
 
+	private void drawDeathParticles(int centerX, int previewY, long elapsed) {
+		if (elapsed < 0L || elapsed >= 1000L) {
+			return;
+		}
+		double age = elapsed / 1000.0D;
+		int alpha = (int) (220.0D * (1.0D - age));
+		for (int i = 0; i < 24; ++i) {
+			double angle = i * 2.399963229728653D;
+			double distance = (20.0D + i % 5 * 7.0D) * age;
+			int originX = centerX + (int) Math.round(Math.cos(angle) * (i % 3) * 3.0D);
+			int originY = previewY - 58 + i % 7 * 5;
+			int x = originX + (int) Math.round(Math.cos(angle) * distance);
+			int y = originY + (int) Math.round(Math.sin(angle) * distance * 0.55D - 28.0D * age
+					+ 36.0D * age * age);
+			int size = 2 + i % 3;
+			int shade = 190 + i % 4 * 16;
+			int color = alpha << 24 | shade << 16 | shade << 8 | shade;
+			drawRect(x, y, x + size, y + size, color);
+		}
+	}
+
 	public void initGui() {
 		this.panelWidth = Math.min(430, Math.max(1, this.width - 24));
 		this.panelHeight = Math.min(310, Math.max(1, this.height - 24));
@@ -221,12 +242,18 @@ public class GuiCredits extends GuiScreen {
 			this.previewMouseY += (par2 + idleTilt - this.previewMouseY) * smoothing;
 			long hurtRemaining = Math.max(0L, this.previewHurtUntil - now);
 			float hurtShake = hurtRemaining > 0L ? (float) Math.sin(hurtRemaining * 0.08D) * 12.0F : 0.0F;
-			float deathProgress = this.previewRespawnAt > now
-					? Math.min(1.0F, (now - this.previewDeathStart) / 700.0F) : 0.0F;
-			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
-			SkinPreviewRenderer.renderNpcPreview(previewX, previewY, (int) (this.previewMouseX + hurtShake),
-					(int) this.previewMouseY, EaglerProfile.getActiveSkinModel(), EaglerProfile.getActiveSkinResourceLocation(),
-					EaglerProfile.getActiveCapeResourceLocation(), now, hurtRemaining > 0L, deathProgress);
+			long deathElapsed = this.previewRespawnAt > now ? now - this.previewDeathStart : -1L;
+			float deathProgress = deathElapsed >= 0L ? Math.min(1.0F, deathElapsed / 700.0F) : 0.0F;
+			float deathAlpha = deathElapsed < 900L ? 1.0F
+					: Math.max(0.0F, 1.0F - (deathElapsed - 900L) / 450.0F);
+			if (deathAlpha > 0.0F) {
+				GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
+				SkinPreviewRenderer.renderNpcPreview(previewX, previewY, (int) (this.previewMouseX + hurtShake),
+						(int) this.previewMouseY, EaglerProfile.getActiveSkinModel(),
+						EaglerProfile.getActiveSkinResourceLocation(), EaglerProfile.getActiveCapeResourceLocation(), now,
+						hurtRemaining > 0L, deathProgress, deathAlpha);
+			}
+		this.drawDeathParticles(previewX, previewY, deathElapsed);
 		}
 
 		int trackX = this.panelX + this.panelWidth - 17;
