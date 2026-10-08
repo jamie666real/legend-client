@@ -1225,10 +1225,6 @@ public class Minecraft implements IThreadListener {
             GlStateManager.viewport(0, 0, displayWidth, displayHeight); // to be safe
         }
 
-        if (this.player != null && this.player.connection != null) {
-            this.player.connection.getEaglerMessageController().flush();
-        }
-
         if (this.currentScreen == null && this.player != null) {
             if (this.player.getHealth() <= 0.0F && !(this.currentScreen instanceof GuiGameOver)) {
                 this.displayGuiScreen((GuiScreen) null);
@@ -1405,6 +1401,10 @@ public class Minecraft implements IThreadListener {
 
         if (!this.isGamePaused && com.isacofff.clientbase.Client.manager != null) {
             com.isacofff.clientbase.Client.manager.onTick();
+        }
+
+        if (this.player != null && this.player.connection != null) {
+            this.player.connection.getEaglerMessageController().flush();
         }
     }
 
