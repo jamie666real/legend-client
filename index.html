@@ -248,7 +248,7 @@
             <p id="skin-preview-name" class="hint">Current profile skin</p>
           </div>
         </div>
-        <p id="skin-status" role="status" aria-live="polite">Choose a PNG skin to apply it when you play.</p>
+        <p id="skin-status" role="status" aria-live="polite">Choose a skin to apply it when you play.</p>
       </section>
       <div class="actions">
         <button class="launch" type="submit">Play</button>
@@ -320,7 +320,7 @@
 
     function renderSkinModel(textureUrl, slimArms) {
       skinPreview.replaceChildren();
-      const pixelScale = 8;
+      const pixelScale = 1;
 
       function addCube(name, x, y, z, width, height, depth, uv, expand = 0) {
         const cube = document.createElement("div");
@@ -350,8 +350,16 @@
           face.style.top = "50%";
           face.style.transform = faceData.transform;
           face.style.backgroundImage = "url(" + textureUrl + ")";
-          face.style.backgroundSize = (64 * pixelScale) + "px " + (64 * pixelScale) + "px";
-          face.style.backgroundPosition = (-faceData.uv[0] * pixelScale) + "px " + (-faceData.uv[1] * pixelScale) + "px";
+          const uvWidth = faceData.uv[2] || faceData.size[0];
+          const uvHeight = faceData.uv[3] || faceData.size[1];
+          const scaleX = faceData.size[0] / uvWidth;
+          const scaleY = faceData.size[1] / uvHeight;
+          const textureWidth = 64 * pixelScale * scaleX;
+          const textureHeight = 64 * pixelScale * scaleY;
+          face.style.backgroundSize = textureWidth + "px " + textureHeight + "px";
+          face.style.backgroundPosition =
+            (-(faceData.uv[0] + uvWidth / 2) * pixelScale * scaleX + faceData.size[0] / 2) + "px "
+            + (-(faceData.uv[1] + uvHeight / 2) * pixelScale * scaleY + faceData.size[1] / 2) + "px";
           cube.appendChild(face);
         }
         skinPreview.appendChild(cube);
