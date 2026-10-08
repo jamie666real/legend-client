@@ -35,6 +35,7 @@ public class GuiCredits extends GuiScreen {
 	private long previewAnimationTime = -1L;
 	private int previewHitCount;
 	private long previewHurtUntil;
+	private long previewDeathStart;
 	private long previewRespawnAt;
 
 	private int dragstart = -1;
@@ -74,6 +75,7 @@ public class GuiCredits extends GuiScreen {
 		}
 		++this.previewHitCount;
 		if (this.previewHitCount >= 20) {
+			this.previewDeathStart = now;
 			this.previewRespawnAt = now + 2000L;
 			this.previewHurtUntil = 0L;
 			this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.ENTITY_PLAYER_DEATH, 1.0F));
@@ -198,16 +200,8 @@ public class GuiCredits extends GuiScreen {
 			if (this.previewRespawnAt != 0L && now >= this.previewRespawnAt) {
 				this.previewRespawnAt = 0L;
 				this.previewHitCount = 0;
+				this.previewDeathStart = 0L;
 			}
-			int remainingHits = Math.max(0, 20 - this.previewHitCount);
-			int healthColor = remainingHits > 10 ? 0xFF55D68B : remainingHits > 5 ? 0xFFFFC857 : 0xFFFF5D6C;
-			drawRect(previewX - 28, this.contentTop + 25, previewX + 28, this.contentTop + 29, 0xFF101820);
-			if (remainingHits > 0) {
-				drawRect(previewX - 28, this.contentTop + 25, previewX - 28 + remainingHits * 56 / 20,
-						this.contentTop + 29, healthColor);
-			}
-			this.drawCenteredString(this.mc.fontRendererObj, "Hits: " + this.previewHitCount + "/20", previewX,
-					this.contentTop + 31, 0xFFB8C7D8);
 			this.drawCenteredString(this.mc.fontRendererObj, "Click skin to attack", previewX,
 					this.contentTop + 42, 0xFF8296AA);
 			if (this.previewAnimationTime < 0L) {
@@ -221,22 +215,18 @@ public class GuiCredits extends GuiScreen {
 			long glanceCycle = now % 7800L;
 			float glance = glanceCycle >= 5300L && glanceCycle <= 6700L
 					? (float) Math.sin((glanceCycle - 5300L) * Math.PI / 1400.0D) : 0.0F;
-			if (this.previewRespawnAt > now) {
-				long seconds = (this.previewRespawnAt - now + 999L) / 1000L;
-				this.drawCenteredString(this.mc.fontRendererObj, "Respawning in " + seconds + "...", previewX,
-						previewY - 5, 0xFFFF8A8A);
-			} else {
-				float idleSway = (float) Math.sin(now * 0.00045D) * 18.0F;
-				float idleTilt = (float) Math.sin(now * 0.0008D) * 5.0F;
-				this.previewMouseX += (par1 - idleSway - glance * 130.0F - this.previewMouseX) * smoothing;
-				this.previewMouseY += (par2 + idleTilt - this.previewMouseY) * smoothing;
-				long hurtRemaining = Math.max(0L, this.previewHurtUntil - now);
-				float hurtShake = hurtRemaining > 0L ? (float) Math.sin(hurtRemaining * 0.08D) * 12.0F : 0.0F;
-				GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
-				SkinPreviewRenderer.renderNpcPreview(previewX, previewY, (int) (this.previewMouseX + hurtShake),
-						(int) this.previewMouseY, EaglerProfile.getActiveSkinModel(), EaglerProfile.getActiveSkinResourceLocation(),
-						EaglerProfile.getActiveCapeResourceLocation(), now, hurtRemaining > 0L);
-			}
+			float idleSway = (float) Math.sin(now * 0.00045D) * 18.0F;
+			float idleTilt = (float) Math.sin(now * 0.0008D) * 5.0F;
+			this.previewMouseX += (par1 - idleSway - glance * 130.0F - this.previewMouseX) * smoothing;
+			this.previewMouseY += (par2 + idleTilt - this.previewMouseY) * smoothing;
+			long hurtRemaining = Math.max(0L, this.previewHurtUntil - now);
+			float hurtShake = hurtRemaining > 0L ? (float) Math.sin(hurtRemaining * 0.08D) * 12.0F : 0.0F;
+			float deathProgress = this.previewRespawnAt > now
+					? Math.min(1.0F, (now - this.previewDeathStart) / 700.0F) : 0.0F;
+			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
+			SkinPreviewRenderer.renderNpcPreview(previewX, previewY, (int) (this.previewMouseX + hurtShake),
+					(int) this.previewMouseY, EaglerProfile.getActiveSkinModel(), EaglerProfile.getActiveSkinResourceLocation(),
+					EaglerProfile.getActiveCapeResourceLocation(), now, hurtRemaining > 0L, deathProgress);
 		}
 
 		int trackX = this.panelX + this.panelWidth - 17;
