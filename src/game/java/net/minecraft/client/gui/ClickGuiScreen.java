@@ -11,6 +11,7 @@ import com.isacofff.clientbase.settings.Setting.NumberSetting;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import net.lax1dude.eaglercraft.Mouse;
 
@@ -33,6 +34,7 @@ public class ClickGuiScreen extends GuiScreen {
     private Module selectedModule;
     private Module draggingHudModule;
     private NumberSetting draggingSlider;
+    private GuiTextField moduleSearchField;
     private int moduleScrollOffset;
     private int hudDragOffsetX;
     private int hudDragOffsetY;
@@ -67,7 +69,7 @@ public class ClickGuiScreen extends GuiScreen {
         panelX = (width - panelWidth) / 2;
         panelY = (height - panelHeight) / 2;
         sidebarWidth = 118;
-        contentY = panelY + 58;
+        contentY = panelY + 72;
         contentBottom = panelY + panelHeight - 14;
 
         int contentX = panelX + sidebarWidth + 14;
@@ -76,6 +78,16 @@ public class ClickGuiScreen extends GuiScreen {
         listX = contentX;
         detailsX = listX + listWidth + 14;
         detailsWidth = Math.max(70, panelX + panelWidth - 14 - detailsX);
+    }
+
+    @Override
+    public void initGui() {
+        calculateLayout();
+        moduleSearchField = new GuiTextField(0, fontRendererObj, listX + 5, panelY + 46,
+                Math.max(1, listWidth - 12), 18);
+        moduleSearchField.setMaxStringLength(64);
+        moduleSearchField.setEnableBackgroundDrawing(false);
+        moduleSearchField.setTextColor(TEXT);
     }
 
     @Override
@@ -153,11 +165,22 @@ public class ClickGuiScreen extends GuiScreen {
     }
 
     private void drawModuleList(int mouseX, int mouseY) {
-        fontRendererObj.drawString("YOUR MODULES", listX, panelY + 47, MUTED);
-        ArrayList<Module> modules = Client.manager.getModulesByCategory(category);
+        drawRect(listX, panelY + 44, listX + listWidth - 1, panelY + 65,
+                moduleSearchField.isFocused() ? CARD_SELECTED : CARD);
+        drawRect(listX, panelY + 44, listX + listWidth - 1, panelY + 45,
+                moduleSearchField.isFocused() ? ACCENT : OUTLINE);
+        moduleSearchField.drawTextBox();
+        if (moduleSearchField.getText().isEmpty() && !moduleSearchField.isFocused()) {
+            fontRendererObj.drawString("Search mods...", listX + 5, panelY + 50, MUTED);
+        }
+
+        ArrayList<Module> modules = getFilteredModules();
         int visibleCount = getVisibleModuleCount();
         clampModuleScroll(modules.size(), visibleCount);
         int end = Math.min(modules.size(), moduleScrollOffset + visibleCount);
+        if (modules.isEmpty()) {
+            fontRendererObj.drawString("No matching mods.", listX + 6, contentY + 8, MUTED);
+        }
         for (int index = moduleScrollOffset; index < end; ++index) {
             int y = contentY + (index - moduleScrollOffset) * 40;
             if (y + 35 > contentBottom) {
@@ -192,6 +215,33 @@ public class ClickGuiScreen extends GuiScreen {
             int maxOffset = modules.size() - visibleCount;
             int thumbY = contentY + (trackHeight - thumbHeight) * moduleScrollOffset / maxOffset;
             drawRect(trackX, thumbY, trackX + 2, thumbY + thumbHeight, ACCENT);
+        }
+    }
+
+    private ArrayList<Module> getFilteredModules() {
+        String query = moduleSearchField == null ? "" : moduleSearchField.getText().trim().toLowerCase(Locale.ROOT);
+        ArrayList<Module> modules = new ArrayList<>();
+        for (Module module : Client.manager.getModules()) {
+            if (query.isEmpty() && module.getCategory() != category) {
+                continue;
+            }
+            if (!query.isEmpty()) {
+                String searchable = module.getName() + " " + module.getCategory().name() + " "
+                        + (module.getDescription() == null ? "" : module.getDescription());
+                if (!searchable.toLowerCase(Locale.ROOT).contains(query)) {
+                    continue;
+                }
+            }
+            modules.add(module);
+        }
+        return modules;
+    }
+
+    private void updateSearchResults() {
+        ArrayList<Module> modules = getFilteredModules();
+        moduleScrollOffset = 0;
+        if (!modules.contains(selectedModule)) {
+            selectedModule = modules.isEmpty() ? null : modules.get(0);
         }
     }
 
@@ -300,6 +350,11 @@ public class ClickGuiScreen extends GuiScreen {
             return;
         }
 
+        moduleSearchField.mouseClicked(mouseX, mouseY, mouseButton);
+        if (isHovered(mouseX, mouseY, listX, panelY + 44, listWidth - 1, 21)) {
+            return;
+        }
+
         if (isHovered(mouseX, mouseY, panelX + panelWidth - 90, panelY, 90, 42)) {
             closeGui();
             return;
@@ -325,8 +380,9 @@ public class ClickGuiScreen extends GuiScreen {
         for (Category item : visibleCategories) {
             if (isHovered(mouseX, mouseY, panelX + 9, categoryY, sidebarWidth - 18, 27)) {
                 category = item;
+                moduleSearchField.setText("");
                 moduleScrollOffset = 0;
-                ArrayList<Module> modules = Client.manager.getModulesByCategory(category);
+                ArrayList<Module> modules = getFilteredModules();
                 selectedModule = modules.isEmpty() ? null : modules.get(0);
                 return;
             }
@@ -334,7 +390,7 @@ public class ClickGuiScreen extends GuiScreen {
         }
 
         int moduleY = contentY;
-        ArrayList<Module> modules = Client.manager.getModulesByCategory(category);
+        ArrayList<Module> modules = getFilteredModules();
         int end = Math.min(modules.size(), moduleScrollOffset + getVisibleModuleCount());
         for (int index = moduleScrollOffset; index < end; ++index) {
             Module module = modules.get(index);
@@ -363,7 +419,7 @@ public class ClickGuiScreen extends GuiScreen {
         int mouseY = height - (int) (Mouse.getY() * (float) height / mc.displayHeight) - 1;
         if (wheel != 0 && isHovered(mouseX, mouseY,
                 listX, contentY, listWidth, contentBottom - contentY)) {
-            ArrayList<Module> modules = Client.manager.getModulesByCategory(category);
+            ArrayList<Module> modules = getFilteredModules();
             int direction = wheel > 0 ? -1 : 1;
             moduleScrollOffset += direction;
             clampModuleScroll(modules.size(), getVisibleModuleCount());
@@ -517,7 +573,14 @@ public class ClickGuiScreen extends GuiScreen {
     protected void keyTyped(char typedChar, int keyCode) {
         if (keyCode == 1) {
             closeGui();
+        } else if (moduleSearchField.textboxKeyTyped(typedChar, keyCode)) {
+            updateSearchResults();
         }
+    }
+
+    @Override
+    public void updateScreen() {
+        moduleSearchField.updateCursorCounter();
     }
 
     @Override

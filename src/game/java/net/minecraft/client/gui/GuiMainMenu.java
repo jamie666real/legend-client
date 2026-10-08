@@ -50,6 +50,7 @@ public class GuiMainMenu extends GuiScreen {
 	/** The splash message. */
 	private String splashText;
 	private GuiButton buttonResetDemo;
+	private GuiButton buttonSingleplayer;
 
 	/** Timer used to rotate the panorama, increases every tick. */
 	private float panoramaTimer;
@@ -194,7 +195,10 @@ public class GuiMainMenu extends GuiScreen {
 	 * bought the game.
 	 */
 	private void addSingleplayerMultiplayerButtons(int p_73969_1_, int p_73969_2_) {
-		this.buttonList.add(new GuiButton(1, this.width / 2 - 100, p_73969_1_, I18n.format("menu.singleplayer")));
+		this.buttonSingleplayer = new GuiButton(1, this.width / 2 - 100, p_73969_1_,
+				I18n.format("menu.singleplayer"));
+		this.buttonSingleplayer.enabled = false;
+		this.buttonList.add(this.buttonSingleplayer);
 		this.buttonList.add(
 				new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, I18n.format("menu.multiplayer")));
 		this.buttonList
@@ -499,6 +503,13 @@ public class GuiMainMenu extends GuiScreen {
 				-1);
 
 		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (this.buttonSingleplayer != null && mouseX >= this.buttonSingleplayer.xPosition
+				&& mouseX < this.buttonSingleplayer.xPosition + this.buttonSingleplayer.width
+				&& mouseY >= this.buttonSingleplayer.yPosition
+				&& mouseY < this.buttonSingleplayer.yPosition + 20) {
+			this.drawHoveringText(java.util.Collections.singletonList(
+					"Will release soon once i set up the integrated server!"), mouseX, mouseY);
+		}
 	}
 
 	/**
