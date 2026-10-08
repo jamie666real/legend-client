@@ -39,6 +39,15 @@ public abstract class JSEaglercraftXOptsRoot implements JSObject {
 	@JSBody(params = { "def" }, script = "return (typeof this.initialUsername === \"string\") ? this.initialUsername : def;")
 	public native String getInitialUsername(String defaultValue);
 
+	@JSBody(params = { "def" }, script = "return (typeof this.initialSkinData === \"string\") ? this.initialSkinData : def;")
+	public native String getInitialSkinData(String defaultValue);
+
+	@JSBody(params = { "def" }, script = "return (typeof this.initialSkinModel === \"string\") ? this.initialSkinModel : def;")
+	public native String getInitialSkinModel(String defaultValue);
+
+	@JSBody(params = { "def" }, script = "return (typeof this.initialSkinId === \"string\") ? this.initialSkinId : def;")
+	public native String getInitialSkinId(String defaultValue);
+
 	@JSBody(params = { "def" }, script = "return (typeof this.localesURI === \"string\") ? this.localesURI : def;")
 	public native String getLocalesURI(String defaultValue);
 

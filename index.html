@@ -57,6 +57,8 @@
       border: 1px solid #3b4148;
     }
 
+    .profile + .profile { margin-top: 16px; }
+
     .section-title {
       margin: 0 0 16px;
       color: #ffb323;
@@ -81,6 +83,68 @@
 
     input:focus { outline: 2px solid #ffb323; outline-offset: 1px; }
     .hint { margin: 8px 0 0; color: #9da4ab; font-size: 12px; }
+
+    .skin-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 160px;
+      align-items: start;
+      gap: 18px;
+    }
+
+    input[type="file"], select {
+      display: block;
+      width: 100%;
+      max-width: 340px;
+      padding: 9px;
+      color: #f2f2f2;
+      background: #101214;
+      border: 1px solid #555d66;
+      font: inherit;
+    }
+
+    select { margin-top: 8px; }
+    #skin-model { margin-top: 12px; }
+    .skin-stage {
+      position: relative;
+      width: 160px;
+      height: 190px;
+      overflow: hidden;
+      perspective: 600px;
+      background: radial-gradient(ellipse at center, #343a40, #101214 72%);
+      border: 1px solid #555d66;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .skin-stage:active { cursor: grabbing; }
+    .player-model {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 16px;
+      height: 32px;
+      transform: translate(-50%, -50%) scale(3.4) rotateX(-7deg) rotateY(var(--skin-rotation, -25deg));
+      transform-style: preserve-3d;
+    }
+
+    .skin-cube { position: absolute; transform-style: preserve-3d; }
+    .skin-face {
+      position: absolute;
+      background-repeat: no-repeat;
+      image-rendering: pixelated;
+      backface-visibility: hidden;
+    }
+
+    .skin-face-front { filter: brightness(1); }
+    .skin-face-back { filter: brightness(.75); }
+    .skin-face-right { filter: brightness(.85); }
+    .skin-face-left { filter: brightness(.7); }
+    .skin-face-top { filter: brightness(1.15); }
+    .skin-face-bottom { filter: brightness(.6); }
+    .skin-texture { display: none; }
+
+    #skin-status { min-height: 18px; margin: 8px 0 0; color: #ffcf73; font-size: 12px; }
 
     .actions {
       display: flex;
@@ -109,6 +173,9 @@
     @media (max-width: 520px) {
       main { margin: 28px auto; padding: 22px; }
       .actions { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .skin-controls { grid-template-columns: minmax(0, 1fr) 120px; gap: 12px; }
+      .skin-stage { width: 120px; height: 160px; }
+      .player-model { transform: translate(-50%, -50%) scale(2.8) rotateX(-7deg) rotateY(var(--skin-rotation, -25deg)); }
     }
   </style>
 </head>
@@ -121,9 +188,67 @@
       <section class="profile" aria-labelledby="profile-title">
         <h2 class="section-title" id="profile-title">Player profile</h2>
         <label for="player-name">Profile name</label>
-        <input id="player-name" name="username" type="text" maxlength="16" pattern="[A-Za-z0-9_]{1,16}"
+        <input id="player-name" name="username" type="text" minlength="3" maxlength="16" pattern="[A-Za-z0-9_]{3,16}"
           autocomplete="nickname" placeholder="Enter a username" required>
-        <p class="hint">Use 1–16 letters, numbers, or underscores.</p>
+        <p class="hint">Use 3–16 letters, numbers, or underscores.</p>
+      </section>
+      <section class="profile" aria-labelledby="skin-title">
+        <h2 class="section-title" id="skin-title">Eagler skin editor</h2>
+        <div class="skin-controls">
+          <div>
+            <label for="embedded-skin">Client's built-in skins</label>
+            <select id="embedded-skin">
+              <option value="profile">Keep current profile skin</option>
+              <option value="uploaded">My uploaded skin</option>
+              <option value="0">Default Steve</option>
+              <option value="1">Default Alex</option>
+              <option value="2">Tennis Steve</option>
+              <option value="3">Tennis Alex</option>
+              <option value="4">Tuxedo Steve</option>
+              <option value="5">Tuxedo Alex</option>
+              <option value="6">Athlete Steve</option>
+              <option value="7">Athlete Alex</option>
+              <option value="8">Cyclist Steve</option>
+              <option value="9">Cyclist Alex</option>
+              <option value="10">Boxer Steve</option>
+              <option value="11">Boxer Alex</option>
+              <option value="12">Prisoner Steve</option>
+              <option value="13">Prisoner Alex</option>
+              <option value="14">Scottish Steve</option>
+              <option value="15">Scottish Alex</option>
+              <option value="16">Developer Steve</option>
+              <option value="17">Developer Alex</option>
+              <option value="18">Herobrine</option>
+              <option value="19">Notch</option>
+              <option value="20">Creeper</option>
+              <option value="21">Zombie</option>
+              <option value="22">Pig</option>
+              <option value="23">Mooshroom</option>
+              <option value="24">Long Arms (Eagler model)</option>
+              <option value="25">Weird Climber Dude (Eagler model)</option>
+              <option value="26">Laxative Dude (Eagler model)</option>
+              <option value="27">Baby Charles (Eagler model)</option>
+              <option value="28">Baby Winston (Eagler model)</option>
+              <option value="29">Zay Zay</option>
+            </select>
+            <label for="skin-file">Choose a Minecraft skin</label>
+            <input id="skin-file" type="file" accept="image/png">
+            <label for="skin-model" class="hint">Player model</label>
+            <select id="skin-model">
+              <option value="default">Steve (wide arms)</option>
+              <option value="slim">Alex (slim arms)</option>
+            </select>
+            <p class="hint">Choose a built-in skin above or upload a 64×64 / classic 64×32 PNG.</p>
+          </div>
+          <div class="skin-preview">
+            <div id="skin-stage" class="skin-stage" role="img" aria-label="3D preview of selected skin; drag to rotate">
+              <div id="skin-preview" class="player-model"></div>
+            </div>
+            <canvas id="skin-texture" class="skin-texture" width="64" height="64"></canvas>
+            <p id="skin-preview-name" class="hint">Current profile skin</p>
+          </div>
+        </div>
+        <p id="skin-status" role="status" aria-live="polite">Choose a PNG skin to apply it when you play.</p>
       </section>
       <div class="actions">
         <button class="launch" type="submit">Play</button>
@@ -131,25 +256,369 @@
       </div>
     </form>
   </main>
-  <footer>Legend Client · Minecraft 1.12.2</footer>
+  <footer>Legend Client · by jamie666 :)</footer>
   <script>
     const profileInput = document.getElementById("player-name");
     const launcherForm = document.getElementById("launcher");
     const launcherStatus = document.getElementById("status");
+    const skinFileInput = document.getElementById("skin-file");
+    const embeddedSkinInput = document.getElementById("embedded-skin");
+    const skinModelInput = document.getElementById("skin-model");
+    const skinPreview = document.getElementById("skin-preview");
+    const skinStage = document.getElementById("skin-stage");
+    const skinTextureCanvas = document.getElementById("skin-texture");
+    const skinPreviewName = document.getElementById("skin-preview-name");
+    const skinStatus = document.getElementById("skin-status");
+    const skinContext = skinTextureCanvas.getContext("2d", { willReadFrequently: true });
+    const skinPixelsKey = "legendClientSkinPixels";
+    const skinModelKey = "legendClientSkinModel";
+    const skinSelectionKey = "legendClientSkinSelection";
+    let skinRotation = -25;
+    let dragX = null;
 
     try {
-      profileInput.value = localStorage.getItem("legendClientProfileName") || "";
+      profileInput.value = (localStorage.getItem("legendClientProfileName") || "")
+        .replace(/[^A-Za-z0-9_]/g, "").slice(0, 16);
+      const savedSkinPixels = localStorage.getItem(skinPixelsKey);
+      const savedSkinSelection = localStorage.getItem(skinSelectionKey)
+        || (savedSkinPixels ? "uploaded" : "profile");
+      embeddedSkinInput.querySelector('option[value="uploaded"]').disabled = !savedSkinPixels;
+      embeddedSkinInput.value = savedSkinSelection;
+      if (embeddedSkinInput.value !== savedSkinSelection) embeddedSkinInput.value = "profile";
+      if (savedSkinPixels) {
+        skinModelInput.value = localStorage.getItem(skinModelKey) || "default";
+        if (savedSkinSelection === "uploaded") {
+          drawSkinPreview(savedSkinPixels);
+          skinPreviewName.textContent = "My uploaded skin";
+          renderSkinModel(skinTextureCanvas.toDataURL("image/png"), skinModelInput.value === "slim");
+        }
+        skinStatus.textContent = savedSkinSelection === "uploaded"
+          ? "Saved uploaded skin will be applied when you play."
+          : "Choose a built-in skin, uploaded skin, or keep your current profile skin.";
+      }
+      if (/^(?:[0-9]|[12][0-9])$/.test(savedSkinSelection)) {
+        showEmbeddedSkinPreview(savedSkinSelection);
+      } else if (savedSkinSelection === "profile") {
+        showProfileSkinPreview();
+      }
     } catch (error) {
       launcherStatus.textContent = "Browser storage is unavailable; the profile will only apply this session.";
     }
+
+    function drawSkinPreview(encodedPixels) {
+      const binaryPixels = atob(encodedPixels);
+      if (binaryPixels.length !== 64 * 64 * 4) return;
+      const image = skinContext.createImageData(64, 64);
+      for (let i = 0; i < binaryPixels.length; i += 4) {
+        image.data[i] = binaryPixels.charCodeAt(i + 1);
+        image.data[i + 1] = binaryPixels.charCodeAt(i + 2);
+        image.data[i + 2] = binaryPixels.charCodeAt(i + 3);
+        image.data[i + 3] = binaryPixels.charCodeAt(i);
+      }
+      skinContext.putImageData(image, 0, 0);
+    }
+
+    function renderSkinModel(textureUrl, slimArms) {
+      skinPreview.replaceChildren();
+      const pixelScale = 8;
+
+      function addCube(name, x, y, z, width, height, depth, uv, expand = 0) {
+        const cube = document.createElement("div");
+        cube.className = "skin-cube";
+        cube.style.left = (x - expand) + "px";
+        cube.style.top = (y - expand) + "px";
+        cube.style.width = (width + expand * 2) + "px";
+        cube.style.height = (height + expand * 2) + "px";
+        cube.style.transform = "translateZ(" + z + "px)";
+
+        const faces = {
+          front: { size: [width + expand * 2, height + expand * 2], uv: uv.front, transform: "translate(-50%, -50%) translateZ(" + (depth / 2 + expand) + "px)" },
+          back: { size: [width + expand * 2, height + expand * 2], uv: uv.back, transform: "translate(-50%, -50%) rotateY(180deg) translateZ(" + (depth / 2 + expand) + "px)" },
+          right: { size: [depth + expand * 2, height + expand * 2], uv: uv.right, transform: "translate(-50%, -50%) rotateY(90deg) translateZ(" + (width / 2 + expand) + "px)" },
+          left: { size: [depth + expand * 2, height + expand * 2], uv: uv.left, transform: "translate(-50%, -50%) rotateY(-90deg) translateZ(" + (width / 2 + expand) + "px)" },
+          top: { size: [width + expand * 2, depth + expand * 2], uv: uv.top, transform: "translate(-50%, -50%) rotateX(90deg) translateZ(" + (height / 2 + expand) + "px)" },
+          bottom: { size: [width + expand * 2, depth + expand * 2], uv: uv.bottom, transform: "translate(-50%, -50%) rotateX(-90deg) translateZ(" + (height / 2 + expand) + "px)" }
+        };
+
+        for (const [side, faceData] of Object.entries(faces)) {
+          if (!faceData.uv) continue;
+          const face = document.createElement("div");
+          face.className = "skin-face skin-face-" + side;
+          face.style.width = faceData.size[0] + "px";
+          face.style.height = faceData.size[1] + "px";
+          face.style.left = "50%";
+          face.style.top = "50%";
+          face.style.transform = faceData.transform;
+          face.style.backgroundImage = "url(" + textureUrl + ")";
+          face.style.backgroundSize = (64 * pixelScale) + "px " + (64 * pixelScale) + "px";
+          face.style.backgroundPosition = (-faceData.uv[0] * pixelScale) + "px " + (-faceData.uv[1] * pixelScale) + "px";
+          cube.appendChild(face);
+        }
+        skinPreview.appendChild(cube);
+      }
+
+      function sides(right, front, left, back) {
+        return { right, front, left, back };
+      }
+
+      const headUV = {
+        ...sides([0, 8], [8, 8], [16, 8], [24, 8]),
+        top: [8, 0], bottom: [16, 0]
+      };
+      const hatUV = {
+        ...sides([32, 8], [40, 8], [48, 8], [56, 8]),
+        top: [40, 0], bottom: [48, 0]
+      };
+      const bodyUV = {
+        ...sides([16, 20], [20, 20], [28, 20], [32, 20]),
+        top: [20, 16], bottom: [28, 16]
+      };
+      const jacketUV = {
+        ...sides([16, 36], [20, 36], [28, 36], [32, 36]),
+        top: [20, 32], bottom: [28, 32]
+      };
+      const rightArmUV = slimArms
+        ? { ...sides([40, 20, 3], [43, 20, 4], [47, 20, 3], [50, 20, 4]), top: [44, 16, 3], bottom: [47, 16, 3] }
+        : { ...sides([40, 20], [44, 20], [48, 20], [52, 20]), top: [44, 16], bottom: [48, 16] };
+      const rightSleeveUV = slimArms
+        ? { ...sides([40, 36, 3], [43, 36, 4], [47, 36, 3], [50, 36, 4]), top: [44, 32, 3], bottom: [47, 32, 3] }
+        : { ...sides([40, 36], [44, 36], [48, 36], [52, 36]), top: [44, 32], bottom: [48, 32] };
+      const leftArmUV = {
+        ...sides([32, 52], [36, 52], [40, 52], [44, 52]),
+        top: [36, 48], bottom: [40, 48]
+      };
+      const leftSleeveUV = {
+        ...sides([48, 52], [52, 52], [56, 52], [60, 52]),
+        top: [52, 48], bottom: [56, 48]
+      };
+      const rightLegUV = {
+        ...sides([0, 20], [4, 20], [8, 20], [12, 20]),
+        top: [4, 16], bottom: [8, 16]
+      };
+      const rightPantsUV = {
+        ...sides([0, 36], [4, 36], [8, 36], [12, 36]),
+        top: [4, 32], bottom: [8, 32]
+      };
+      const leftLegUV = {
+        ...sides([16, 52], [20, 52], [24, 52], [28, 52]),
+        top: [20, 48], bottom: [24, 48]
+      };
+      const leftPantsUV = {
+        ...sides([0, 52], [4, 52], [8, 52], [12, 52]),
+        top: [4, 48], bottom: [8, 48]
+      };
+
+      addCube("head", 4, 0, 0, 8, 8, 8, headUV);
+      addCube("hat", 4, 0, 0, 8, 8, 8, hatUV, 0.25);
+      addCube("body", 4, 8, 0, 8, 12, 4, bodyUV);
+      addCube("jacket", 4, 8, 0, 8, 12, 4, jacketUV, 0.25);
+      const armWidth = slimArms ? 3 : 4;
+      const leftArmX = 16 - armWidth;
+      addCube("right-arm", 0, 8, 0, armWidth, 12, 4, rightArmUV);
+      addCube("right-sleeve", 0, 8, 0, armWidth, 12, 4, rightSleeveUV, 0.25);
+      addCube("left-arm", leftArmX, 8, 0, armWidth, 12, 4, leftArmUV);
+      addCube("left-sleeve", leftArmX, 8, 0, armWidth, 12, 4, leftSleeveUV, 0.25);
+      addCube("right-leg", 4, 20, 0, 4, 12, 4, rightLegUV);
+      addCube("right-pants", 4, 20, 0, 4, 12, 4, rightPantsUV, 0.2);
+      addCube("left-leg", 8, 20, 0, 4, 12, 4, leftLegUV);
+      addCube("left-pants", 8, 20, 0, 4, 12, 4, leftPantsUV, 0.2);
+    }
+
+    function showEmbeddedSkinPreview(skinId) {
+      const option = embeddedSkinInput.querySelector('option[value="' + skinId + '"]');
+      if (!option) return;
+      const preview = new Image();
+      preview.onload = function() {
+        if (embeddedSkinInput.value !== skinId) return;
+        skinTextureCanvas.width = 64;
+        skinTextureCanvas.height = 64;
+        skinContext.clearRect(0, 0, 64, 64);
+        skinContext.imageSmoothingEnabled = false;
+        skinContext.drawImage(preview, 0, 0, 64, 64);
+        renderSkinModel(skinTextureCanvas.toDataURL("image/png"), new Set(["1", "3", "5", "7", "9", "11", "13", "15", "17", "29"]).has(skinId));
+      };
+      preview.onerror = function() {
+        if (embeddedSkinInput.value !== skinId) return;
+        skinPreview.replaceChildren();
+        skinStatus.textContent = "Could not load the preview for " + option.textContent + ".";
+      };
+      preview.src = "/javascript/skin-previews/" + skinId + ".png";
+      skinPreviewName.textContent = option.textContent;
+    }
+
+    function showProfileSkinPreview() {
+      skinPreview.replaceChildren();
+      skinPreviewName.textContent = "Current profile skin";
+    }
+
+    skinStage.addEventListener("pointerdown", function(event) {
+      dragX = event.clientX;
+      skinStage.setPointerCapture(event.pointerId);
+    });
+
+    skinStage.addEventListener("pointermove", function(event) {
+      if (dragX === null) return;
+      skinRotation += (event.clientX - dragX) * 0.8;
+      dragX = event.clientX;
+      skinPreview.style.setProperty("--skin-rotation", skinRotation + "deg");
+    });
+
+    function stopSkinRotation() {
+      dragX = null;
+    }
+
+    skinStage.addEventListener("pointerup", stopSkinRotation);
+    skinStage.addEventListener("pointercancel", stopSkinRotation);
+
+    function encodeSkinPixels(rgbaPixels) {
+      let binaryPixels = "";
+      for (let i = 0; i < rgbaPixels.length; i += 4) {
+        binaryPixels += String.fromCharCode(rgbaPixels[i + 3], rgbaPixels[i], rgbaPixels[i + 1], rgbaPixels[i + 2]);
+      }
+      return btoa(binaryPixels);
+    }
+
+    function copySkinRegion(source, destination, sourceX, sourceY, destX, destY, width, height, flip) {
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const targetX = destX + (flip ? width - x - 1 : x);
+          const sourceOffset = ((sourceY + y) * 64 + sourceX + x) * 4;
+          const targetOffset = ((destY + y) * 64 + targetX) * 4;
+          destination.set(source.subarray(sourceOffset, sourceOffset + 4), targetOffset);
+        }
+      }
+    }
+
+    function convertClassicSkin(source) {
+      const destination = new Uint8ClampedArray(64 * 64 * 4);
+      destination.set(source.subarray(0, 64 * 32 * 4));
+      const regions = [
+        [4,16,20,48,4,4,true], [8,16,24,48,4,4,true],
+        [8,20,16,52,4,12,true], [4,20,20,52,4,12,true],
+        [0,20,24,52,4,12,true], [12,20,28,52,4,12,true],
+        [44,16,36,48,4,4,true], [48,16,40,48,4,4,true],
+        [48,20,32,52,4,12,true], [44,20,36,52,4,12,true],
+        [40,20,40,52,4,12,true], [52,20,44,52,4,12,true]
+      ];
+      for (const region of regions) copySkinRegion(source, destination, ...region);
+      return destination;
+    }
+
+    skinFileInput.addEventListener("change", function() {
+      const file = skinFileInput.files && skinFileInput.files[0];
+      if (!file) return;
+      if (file.type !== "image/png" || file.size > 5 * 1024 * 1024) {
+        skinStatus.textContent = "Choose a PNG skin smaller than 5 MB.";
+        skinFileInput.value = "";
+        return;
+      }
+
+      const image = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      image.onload = function() {
+        URL.revokeObjectURL(objectUrl);
+        if (!((image.naturalWidth === 64 && image.naturalHeight === 64)
+            || (image.naturalWidth === 64 && image.naturalHeight === 32))) {
+          skinStatus.textContent = "Skin must be 64×64 or classic 64×32 pixels.";
+          skinFileInput.value = "";
+          return;
+        }
+
+        const sourceCanvas = document.createElement("canvas");
+        sourceCanvas.width = 64;
+        sourceCanvas.height = image.naturalHeight;
+        const sourceContext = sourceCanvas.getContext("2d", { willReadFrequently: true });
+        sourceContext.imageSmoothingEnabled = false;
+        sourceContext.drawImage(image, 0, 0);
+        let pixels = sourceContext.getImageData(0, 0, 64, image.naturalHeight).data;
+        if (image.naturalHeight === 32) pixels = convertClassicSkin(pixels);
+        const encodedPixels = encodeSkinPixels(pixels);
+
+        try {
+          localStorage.setItem(skinPixelsKey, encodedPixels);
+          localStorage.setItem(skinModelKey, skinModelInput.value);
+          localStorage.setItem(skinSelectionKey, "uploaded");
+          embeddedSkinInput.querySelector('option[value="uploaded"]').disabled = false;
+          embeddedSkinInput.value = "uploaded";
+          drawSkinPreview(encodedPixels);
+          skinPreviewName.textContent = "My uploaded skin";
+          renderSkinModel(skinTextureCanvas.toDataURL("image/png"), skinModelInput.value === "slim");
+          skinStatus.textContent = "Skin saved. It will be applied when you play.";
+        } catch (error) {
+          skinStatus.textContent = "Could not save the skin in browser storage.";
+        }
+      };
+      image.onerror = function() {
+        URL.revokeObjectURL(objectUrl);
+        skinStatus.textContent = "Could not read that PNG image.";
+        skinFileInput.value = "";
+      };
+      image.src = objectUrl;
+    });
+
+    embeddedSkinInput.addEventListener("change", function() {
+      const selection = embeddedSkinInput.value;
+      try {
+        if (selection === "uploaded") {
+          const savedSkinPixels = localStorage.getItem(skinPixelsKey);
+          if (!savedSkinPixels) {
+            embeddedSkinInput.value = "profile";
+            skinStatus.textContent = "Upload a skin PNG before selecting it.";
+            return;
+          }
+          drawSkinPreview(savedSkinPixels);
+          skinPreviewName.textContent = "My uploaded skin";
+          renderSkinModel(skinTextureCanvas.toDataURL("image/png"), skinModelInput.value === "slim");
+          skinStatus.textContent = "Uploaded skin selected. It will be applied when you play.";
+        } else {
+          if (selection === "profile") {
+            showProfileSkinPreview();
+            skinStatus.textContent = "Your current profile skin will be kept.";
+          } else {
+            showEmbeddedSkinPreview(selection);
+            skinStatus.textContent = "Built-in skin selected. It will be applied when you play.";
+          }
+        }
+        localStorage.setItem(skinSelectionKey, selection);
+      } catch (error) {
+        skinStatus.textContent = "Could not save the selected skin in browser storage.";
+      }
+    });
+
+    profileInput.addEventListener("input", function() {
+      const cursor = profileInput.selectionStart;
+      const beforeCursor = profileInput.value.slice(0, cursor).replace(/[^A-Za-z0-9_]/g, "").length;
+      profileInput.value = profileInput.value.replace(/[^A-Za-z0-9_]/g, "").slice(0, 16);
+      profileInput.setSelectionRange(beforeCursor, beforeCursor);
+      if (profileInput.value.length < 3) {
+        profileInput.setCustomValidity("Enter at least 3 letters, numbers, or underscores.");
+      } else {
+        profileInput.setCustomValidity("");
+      }
+    });
+
+    skinModelInput.addEventListener("change", function() {
+      try {
+        localStorage.setItem(skinModelKey, skinModelInput.value);
+        if (localStorage.getItem(skinPixelsKey)) {
+          if (embeddedSkinInput.value === "uploaded") {
+            drawSkinPreview(localStorage.getItem(skinPixelsKey));
+            renderSkinModel(skinTextureCanvas.toDataURL("image/png"), skinModelInput.value === "slim");
+          }
+          skinStatus.textContent = "Player model saved.";
+        }
+      } catch (error) {
+        skinStatus.textContent = "Could not save the player model in browser storage.";
+      }
+    });
 
     launcherForm.addEventListener("submit", function(event) {
       event.preventDefault();
       if (!launcherForm.reportValidity()) return;
 
-      const username = profileInput.value.trim();
-      if (!/^[A-Za-z0-9_]{1,16}$/.test(username)) {
-        launcherStatus.textContent = "Enter 1–16 letters, numbers, or underscores.";
+      const username = profileInput.value;
+      if (!/^[A-Za-z0-9_]{3,16}$/.test(username)) {
+        launcherStatus.textContent = "Enter 3–16 letters, numbers, or underscores.";
         return;
       }
 

@@ -11,7 +11,7 @@
 		<meta property="og:title" content="Legend Client/Cosmix Client">
 		<meta property="og:description" content="Play minecraft 1.12.2 in your browser!">
 		<link type="image/png" rel="shortcut icon" href="favicon.jpeg">
-		<script type="text/javascript" src="classes.js?v=legend-client-profile-launcher-v4"></script>
+		<script type="text/javascript" src="classes.js?v=legend-client-skin-launcher-v3"></script>
 		<script type="text/javascript">
 			"use strict";
 			window.addEventListener("load", function() {
@@ -19,10 +19,27 @@
 					alert("HTTP please, do not open this file locally, run a local HTTP server and load it via HTTP");
 				}else {
 					var relayId = Math.floor(Math.random() * 3);
+					var initialSkinData = null;
+					var initialSkinModel = "default";
+					var initialSkinId = null;
+					try {
+						var skinSelection = window.localStorage.getItem("legendClientSkinSelection");
+						if(skinSelection === "uploaded" || (!skinSelection && window.localStorage.getItem("legendClientSkinPixels"))) {
+							initialSkinData = window.localStorage.getItem("legendClientSkinPixels");
+							initialSkinModel = window.localStorage.getItem("legendClientSkinModel") || "default";
+						}else if(skinSelection !== "profile" && skinSelection !== null && /^[0-9]+$/.test(skinSelection)) {
+							initialSkinId = skinSelection;
+						}
+					}catch(e) {
+						console.error("Could not read the launcher skin from browser storage", e);
+					}
 					window.eaglercraftXOpts = {
 						demoMode: false,
 						container: "game_frame",
 						initialUsername: new URLSearchParams(window.location.search).get("username"),
+						initialSkinData: initialSkinData,
+						initialSkinModel: initialSkinModel,
+						initialSkinId: initialSkinId,
 						assetsURI: "assets.epk?v=legend-client-mainmenu-background-v3",
 						localesURI: "lang/",
 						worldsDB: "worlds",

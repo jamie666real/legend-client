@@ -2,8 +2,10 @@ package net.lax1dude.eaglercraft.profile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import net.lax1dude.eaglercraft.Base64;
 import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.EaglerInputStream;
 import net.lax1dude.eaglercraft.EaglerOutputStream;
@@ -291,6 +293,48 @@ public class EaglerProfile {
 		int r = customSkins.size();
 		customSkins.add(newSkin);
 		return r;
+	}
+
+	public static void applyLauncherSkin(String encodedSkin, String modelName, String presetSkinId) {
+		if(presetSkinId != null && presetSkinId.matches("[0-9]{1,2}")) {
+			int skinId = Integer.parseInt(presetSkinId);
+			if(skinId >= 0 && skinId < DefaultSkins.defaultSkinsMap.length
+					&& DefaultSkins.defaultSkinsMap[skinId] != null) {
+				EaglerProfile.presetSkinId = skinId;
+				customSkinId = -1;
+				save();
+				return;
+			}
+		}
+		if(encodedSkin == null || encodedSkin.length() != 21848) {
+			return;
+		}
+		byte[] rawSkin = Base64.decodeBase64(encodedSkin);
+		if(rawSkin == null || rawSkin.length != 16384) {
+			return;
+		}
+		SkinModel model = "slim".equals(modelName) ? SkinModel.ALEX : SkinModel.STEVE;
+		for(int y = 20; y < 32; ++y) {
+			for(int x = 16; x < 40; ++x) {
+				rawSkin[(y << 8) | (x << 2)] = (byte)0xff;
+			}
+		}
+		for(int i = 0; i < customSkins.size(); ++i) {
+			CustomSkin skin = customSkins.get(i);
+			if(skin.model == model && Arrays.equals(skin.texture, rawSkin)) {
+				EaglerProfile.presetSkinId = -1;
+				customSkinId = i;
+				save();
+				return;
+			}
+		}
+		int skinId = addCustomSkin("Launcher skin", rawSkin);
+		if(skinId >= 0) {
+			customSkins.get(skinId).model = model;
+			EaglerProfile.presetSkinId = -1;
+			customSkinId = skinId;
+			save();
+		}
 	}
 
 	public static int addCustomCape(String fileName, byte[] rawCape23x17RGB) {

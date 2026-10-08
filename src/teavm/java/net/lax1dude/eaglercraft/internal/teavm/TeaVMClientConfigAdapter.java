@@ -42,6 +42,9 @@ public class TeaVMClientConfigAdapter implements IClientConfigAdapter {
 	private List<RelayEntry> relays = new ArrayList<>();
 	private String serverToJoin = null;   
 	private String initialUsername = null;
+	private String initialSkinData = null;
+	private String initialSkinModel = null;
+	private String initialSkinId = null;
 	private String worldsDB = "worlds";
 	private String resourcePacksDB = "resourcePacks";
 	private JSONObject integratedServerOpts;
@@ -90,6 +93,9 @@ public class TeaVMClientConfigAdapter implements IClientConfigAdapter {
 		defaultLocale = eaglercraftXOpts.getLang("en_US");
 		serverToJoin = eaglercraftXOpts.getJoinServer(null);
 		initialUsername = eaglercraftXOpts.getInitialUsername(null);
+		initialSkinData = eaglercraftXOpts.getInitialSkinData(null);
+		initialSkinModel = eaglercraftXOpts.getInitialSkinModel(null);
+		initialSkinId = eaglercraftXOpts.getInitialSkinId(null);
 		worldsDB = eaglercraftXOpts.getWorldsDB("worlds");
 		resourcePacksDB = eaglercraftXOpts.getResourcePacksDB("resourcePacks");
 		checkGLErrors = eaglercraftXOpts.getCheckGLErrors(false);
@@ -193,6 +199,9 @@ public class TeaVMClientConfigAdapter implements IClientConfigAdapter {
 		defaultLocale = eaglercraftOpts.optString("lang", "en_US");
 		serverToJoin = eaglercraftOpts.optString("joinServer", null);
 		initialUsername = eaglercraftOpts.optString("initialUsername", null);
+		initialSkinData = eaglercraftOpts.optString("initialSkinData", null);
+		initialSkinModel = eaglercraftOpts.optString("initialSkinModel", null);
+		initialSkinId = eaglercraftOpts.optString("initialSkinId", null);
 		worldsDB = eaglercraftOpts.optString("worldsDB", "worlds");
 		resourcePacksDB = eaglercraftOpts.optString("resourcePacksDB", "resourcePacks");
 		checkGLErrors = eaglercraftOpts.optBoolean("checkGLErrors", false);
@@ -292,6 +301,21 @@ public class TeaVMClientConfigAdapter implements IClientConfigAdapter {
 	@Override
 	public String getInitialUsername() {
 		return initialUsername;
+	}
+
+	@Override
+	public String getInitialSkinData() {
+		return initialSkinData;
+	}
+
+	@Override
+	public String getInitialSkinModel() {
+		return initialSkinModel;
+	}
+
+	@Override
+	public String getInitialSkinId() {
+		return initialSkinId;
 	}
 
 	@Override

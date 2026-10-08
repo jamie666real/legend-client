@@ -525,10 +525,13 @@ public class Minecraft implements IThreadListener {
         ServerList.initServerList(this);
         EaglerProfile.read();
         String initialUsername = EagRuntime.getConfiguration().getInitialUsername();
-        if (initialUsername != null && initialUsername.matches("[A-Za-z0-9_]{1,16}")) {
+        if (initialUsername != null && initialUsername.matches("[A-Za-z0-9_]{3,16}")) {
             EaglerProfile.setName(initialUsername);
             EaglerProfile.save();
         }
+        EaglerProfile.applyLauncherSkin(EagRuntime.getConfiguration().getInitialSkinData(),
+                EagRuntime.getConfiguration().getInitialSkinModel(),
+                EagRuntime.getConfiguration().getInitialSkinId());
         ServerCookieDataStore.load();
 
         if (this.serverName != null) {

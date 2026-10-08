@@ -47,6 +47,18 @@ public interface IClientConfigAdapter {
 		return null;
 	}
 
+	default String getInitialSkinData() {
+		return null;
+	}
+
+	default String getInitialSkinModel() {
+		return null;
+	}
+
+	default String getInitialSkinId() {
+		return null;
+	}
+
 	String getWorldsDB();
 
 	String getResourcePacksDB();
