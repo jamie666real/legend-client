@@ -5,7 +5,9 @@ import java.io.IOException;
 
 import net.minecraft.client.gui.GuiButton;
 
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.init.SoundEvents;
 import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.Mouse;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
@@ -31,6 +33,9 @@ public class GuiCredits extends GuiScreen {
 	private float previewMouseX;
 	private float previewMouseY;
 	private long previewAnimationTime = -1L;
+	private int previewHitCount;
+	private long previewHurtUntil;
+	private long previewRespawnAt;
 
 	private int dragstart = -1;
 	private int dragstartI = -1;
@@ -41,6 +46,42 @@ public class GuiCredits extends GuiScreen {
 	public GuiCredits(GuiScreen screen, String location) {
 		this.fileLocation = location;
 		this.parentScreen = screen;
+	}
+
+	private boolean hasSkinPreview() {
+		return this.panelWidth >= 260 && this.panelHeight >= 220;
+	}
+
+	private boolean isSkinPreviewClicked(int mouseX, int mouseY) {
+		if (!this.hasSkinPreview()) {
+			return false;
+		}
+		int previewLeft = Math.max(this.panelX + 6, this.panelX + this.panelWidth - 122);
+		int previewRight = this.panelX + this.panelWidth - 10;
+		int previewX = (previewLeft + previewRight) / 2;
+		return mouseX >= previewX - 36 && mouseX <= previewX + 36
+				&& mouseY >= this.contentTop + 57 && mouseY <= this.contentTop + 160;
+	}
+
+	private void hitSkinPreview() {
+		long now = EagRuntime.steadyTimeMillis();
+		if (this.previewRespawnAt > now) {
+			return;
+		}
+		if (this.previewRespawnAt != 0L) {
+			this.previewRespawnAt = 0L;
+			this.previewHitCount = 0;
+		}
+		++this.previewHitCount;
+		if (this.previewHitCount >= 20) {
+			this.previewRespawnAt = now + 2000L;
+			this.previewHurtUntil = 0L;
+			this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.ENTITY_PLAYER_DEATH, 1.0F));
+		} else {
+			this.previewHurtUntil = now + 320L;
+			float pitch = 0.9F + (this.previewHitCount % 4) * 0.06F;
+			this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.ENTITY_PLAYER_HURT, pitch));
+		}
 	}
 
 	public void initGui() {
@@ -86,6 +127,10 @@ public class GuiCredits extends GuiScreen {
 
 	protected void mouseClicked(int par1, int par2, int par3) {
 		if (par3 == 0) {
+			if (this.isSkinPreviewClicked(par1, par2)) {
+				this.hitSkinPreview();
+				return;
+			}
 			int closeX = this.panelX + this.panelWidth - 30;
 			if (par1 >= closeX && par1 <= closeX + 18 && par2 >= this.panelY + 9 && par2 <= this.panelY + 27) {
 				mc.displayGuiScreen(parentScreen);
@@ -138,7 +183,7 @@ public class GuiCredits extends GuiScreen {
 					0xFFE6EDF5);
 		}
 
-		if (this.panelWidth >= 260 && this.panelHeight >= 220) {
+		if (this.hasSkinPreview()) {
 			int previewLeft = Math.max(this.panelX + 6, this.panelX + this.panelWidth - 122);
 			int previewRight = this.panelX + this.panelWidth - 10;
 			int previewX = (previewLeft + previewRight) / 2;
@@ -150,6 +195,21 @@ public class GuiCredits extends GuiScreen {
 			}
 			this.drawCenteredString(this.mc.fontRendererObj, playerName, previewX, this.contentTop + 12, 0xFFE6EDF5);
 			long now = EagRuntime.steadyTimeMillis();
+			if (this.previewRespawnAt != 0L && now >= this.previewRespawnAt) {
+				this.previewRespawnAt = 0L;
+				this.previewHitCount = 0;
+			}
+			int remainingHits = Math.max(0, 20 - this.previewHitCount);
+			int healthColor = remainingHits > 10 ? 0xFF55D68B : remainingHits > 5 ? 0xFFFFC857 : 0xFFFF5D6C;
+			drawRect(previewX - 28, this.contentTop + 25, previewX + 28, this.contentTop + 29, 0xFF101820);
+			if (remainingHits > 0) {
+				drawRect(previewX - 28, this.contentTop + 25, previewX - 28 + remainingHits * 56 / 20,
+						this.contentTop + 29, healthColor);
+			}
+			this.drawCenteredString(this.mc.fontRendererObj, "Hits: " + this.previewHitCount + "/20", previewX,
+					this.contentTop + 31, 0xFFB8C7D8);
+			this.drawCenteredString(this.mc.fontRendererObj, "Click skin to attack", previewX,
+					this.contentTop + 42, 0xFF8296AA);
 			if (this.previewAnimationTime < 0L) {
 				this.previewMouseX = par1;
 				this.previewMouseY = par2;
@@ -161,14 +221,22 @@ public class GuiCredits extends GuiScreen {
 			long glanceCycle = now % 7800L;
 			float glance = glanceCycle >= 5300L && glanceCycle <= 6700L
 					? (float) Math.sin((glanceCycle - 5300L) * Math.PI / 1400.0D) : 0.0F;
-			float idleSway = (float) Math.sin(now * 0.00045D) * 18.0F;
-			float idleTilt = (float) Math.sin(now * 0.0008D) * 5.0F;
-			this.previewMouseX += (par1 - idleSway - glance * 130.0F - this.previewMouseX) * smoothing;
-			this.previewMouseY += (par2 + idleTilt - this.previewMouseY) * smoothing;
-			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
-			SkinPreviewRenderer.renderNpcPreview(previewX, previewY, (int) this.previewMouseX,
-					(int) this.previewMouseY, EaglerProfile.getActiveSkinModel(), EaglerProfile.getActiveSkinResourceLocation(),
-					EaglerProfile.getActiveCapeResourceLocation(), now);
+			if (this.previewRespawnAt > now) {
+				long seconds = (this.previewRespawnAt - now + 999L) / 1000L;
+				this.drawCenteredString(this.mc.fontRendererObj, "Respawning in " + seconds + "...", previewX,
+						previewY - 5, 0xFFFF8A8A);
+			} else {
+				float idleSway = (float) Math.sin(now * 0.00045D) * 18.0F;
+				float idleTilt = (float) Math.sin(now * 0.0008D) * 5.0F;
+				this.previewMouseX += (par1 - idleSway - glance * 130.0F - this.previewMouseX) * smoothing;
+				this.previewMouseY += (par2 + idleTilt - this.previewMouseY) * smoothing;
+				long hurtRemaining = Math.max(0L, this.previewHurtUntil - now);
+				float hurtShake = hurtRemaining > 0L ? (float) Math.sin(hurtRemaining * 0.08D) * 12.0F : 0.0F;
+				GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
+				SkinPreviewRenderer.renderNpcPreview(previewX, previewY, (int) (this.previewMouseX + hurtShake),
+						(int) this.previewMouseY, EaglerProfile.getActiveSkinModel(), EaglerProfile.getActiveSkinResourceLocation(),
+						EaglerProfile.getActiveCapeResourceLocation(), now, hurtRemaining > 0L);
+			}
 		}
 
 		int trackX = this.panelX + this.panelWidth - 17;
