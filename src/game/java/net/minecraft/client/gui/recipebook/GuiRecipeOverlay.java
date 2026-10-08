@@ -217,9 +217,11 @@ public class GuiRecipeOverlay extends Gui {
 		public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_) {
 			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.enableAlpha();
-			p_191745_1_.getTextureManager().bindTexture(GuiRecipeOverlay.field_191847_a);
 			this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 					&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+			this.drawThemedBackground(this.enabled, this.hovered);
+			p_191745_1_.getTextureManager().bindTexture(GuiRecipeOverlay.field_191847_a);
+			this.setThemedTextureColor(this.enabled, this.hovered);
 			int i = 152;
 
 			if (!this.field_193925_q) {
@@ -233,6 +235,7 @@ public class GuiRecipeOverlay extends Gui {
 			}
 
 			this.drawTexturedModalRect(this.xPosition, this.yPosition, i, j, this.width, this.height);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			int k = 3;
 			int l = 3;
 

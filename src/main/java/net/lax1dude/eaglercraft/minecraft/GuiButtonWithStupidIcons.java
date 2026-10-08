@@ -1,7 +1,5 @@
 package net.lax1dude.eaglercraft.minecraft;
 
-import static net.lax1dude.eaglercraft.opengl.RealOpenGLEnums.*;
-
 import net.lax1dude.eaglercraft.Mouse;
 import net.lax1dude.eaglercraft.internal.EnumCursorType;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
@@ -79,27 +77,14 @@ public class GuiButtonWithStupidIcons extends GuiButton {
 	public void func_191745_a(Minecraft mc, int mouseX, int mouseY, float p_191745_4_) {
 		if (this.visible) {
 			FontRenderer fontrenderer = mc.fontRendererObj;
-			mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width
 					&& mouseY < this.yPosition + this.height;
 			if (this.enabled && this.hovered) {
 				Mouse.showCursor(EnumCursorType.HAND);
 			}
-			int i = this.getHoverState(this.hovered);
-			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-			GlStateManager.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + i * 20, this.width / 2, this.height);
-			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2,
-					46 + i * 20, this.width / 2, this.height);
+			this.drawThemedBackground(this.enabled, this.hovered);
 			this.mouseDragged(mc, mouseX, mouseY);
-			int j = 14737632;
-			if (!this.enabled) {
-				j = 10526880;
-			} else if (this.hovered) {
-				j = 16777120;
-			}
+			int j = this.getThemedTextColor();
 
 			int strWidth = fontrenderer.getStringWidth(displayString);
 			int strWidthAdj = strWidth - (leftIcon != null ? (int) (16 * leftIconAspect) : 0)

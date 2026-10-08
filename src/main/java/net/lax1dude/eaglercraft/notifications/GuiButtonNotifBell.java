@@ -39,18 +39,19 @@ public class GuiButtonNotifBell extends GuiButton {
 	public void func_191745_a(Minecraft minecraft, int i, int j, float p_191745_4_) {
 		if (this.visible) {
 			minecraft.getTextureManager().bindTexture(eaglerTextures);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			boolean flag = i >= this.xPosition && j >= this.yPosition && i < this.xPosition + this.width
 					&& j < this.yPosition + this.height;
 			int k = 0;
-			int c = 14737632;
+			int c = 0xFF2B1700;
 			if (flag) {
 				k += this.height;
-				c = 16777120;
 				Mouse.showCursor(EnumCursorType.HAND);
 			}
 
+			this.drawThemedBackground(this.enabled, flag);
+			this.setThemedTextureColor(this.enabled, flag);
 			drawTexturedModalRect(xPosition, yPosition, unread > 0 ? 116 : 136, k, width, height);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			
 			if(unread > 0) {
 				GlStateManager.pushMatrix();

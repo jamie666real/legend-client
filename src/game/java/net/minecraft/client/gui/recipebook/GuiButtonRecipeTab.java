@@ -60,6 +60,7 @@ public class GuiButtonRecipeTab extends GuiButtonToggle {
 
 			this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 					&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+			this.drawThemedBackground(this.enabled, this.hovered || this.field_191755_p);
 			p_191745_1_.getTextureManager().bindTexture(this.field_191760_o);
 			GlStateManager.disableDepth();
 			int k = this.field_191756_q;
@@ -79,8 +80,9 @@ public class GuiButtonRecipeTab extends GuiButtonToggle {
 				j -= 2;
 			}
 
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			this.setThemedTextureColor(this.enabled, this.hovered || this.field_191755_p);
 			this.drawTexturedModalRect(j, this.yPosition, k, i, this.width, this.height);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			GlStateManager.enableDepth();
 			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.disableLighting();

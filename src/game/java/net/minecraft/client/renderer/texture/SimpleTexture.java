@@ -27,7 +27,8 @@ public class SimpleTexture extends AbstractTexture {
 
 		try {
 			iresource = resourceManager.getResource(this.textureLocation);
-			ImageData bufferedimage = TextureUtil.readBufferedImage(iresource.getInputStream());
+			ImageData bufferedimage = TextureUtil.readBufferedImage(iresource.getInputStream(),
+					ImageData.getMimeFromType(this.textureLocation.getResourcePath()));
 			boolean flag = false;
 			boolean flag1 = false;
 

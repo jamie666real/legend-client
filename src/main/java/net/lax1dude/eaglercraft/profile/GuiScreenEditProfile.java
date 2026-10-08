@@ -53,6 +53,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 	private boolean newSkinWaitSteveOrAlex = false;
 
 	private static final ResourceLocation eaglerGui = new ResourceLocation("eagler:gui/eagler_gui.png");
+	private static final ResourceLocation PROFILE_BACKGROUND = new ResourceLocation("textures/gui/profile_background.jpeg");
 
 	protected String screenTitle = "Edit Profile";
 
@@ -126,7 +127,9 @@ public class GuiScreenEditProfile extends GuiScreen {
 	}
 
 	public void drawScreen(int mx, int my, float partialTicks) {
-		drawDefaultBackground();
+		mc.getTextureManager().bindTexture(PROFILE_BACKGROUND);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		drawModalRectWithCustomSizedTexture(0, 0, 0.0f, 0.0f, width, height, 1024.0f, 1024.0f);
 		drawCenteredString(fontRendererObj, screenTitle, width / 2, 15, 16777215);
 		drawString(fontRendererObj, I18n.format("editProfile.username"), width / 2 - 20, height / 6 + 8, 10526880);
 		drawString(fontRendererObj, I18n.format("editProfile.playerSkin"), width / 2 - 20, height / 6 + 66, 10526880);

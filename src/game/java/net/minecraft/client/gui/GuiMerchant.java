@@ -228,16 +228,17 @@ public class GuiMerchant extends GuiContainer {
 
 		public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_) {
 			if (this.visible) {
-				p_191745_1_.getTextureManager().bindTexture(GuiMerchant.MERCHANT_GUI_TEXTURE);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				boolean flag = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
+				boolean hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 						&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+				this.drawThemedBackground(this.enabled, hovered);
+				p_191745_1_.getTextureManager().bindTexture(GuiMerchant.MERCHANT_GUI_TEXTURE);
+				this.setThemedTextureColor(this.enabled, hovered);
 				int i = 0;
 				int j = 176;
 
 				if (!this.enabled) {
 					j += this.width * 2;
-				} else if (flag) {
+				} else if (hovered) {
 					j += this.width;
 				}
 
@@ -246,6 +247,7 @@ public class GuiMerchant extends GuiContainer {
 				}
 
 				this.drawTexturedModalRect(this.xPosition, this.yPosition, j, i, this.width, this.height);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			}
 		}
 	}

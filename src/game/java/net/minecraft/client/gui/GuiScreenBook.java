@@ -527,8 +527,9 @@ public class GuiScreenBook extends GuiScreenVisualViewport {
 			if (this.visible) {
 				boolean flag = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 						&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				this.drawThemedBackground(this.enabled, flag);
 				p_191745_1_.getTextureManager().bindTexture(GuiScreenBook.BOOK_GUI_TEXTURES);
+				this.setThemedTextureColor(this.enabled, flag);
 				int i = 0;
 				int j = 192;
 
@@ -541,6 +542,7 @@ public class GuiScreenBook extends GuiScreenVisualViewport {
 				}
 
 				this.drawTexturedModalRect(this.xPosition, this.yPosition, i, j, 23, 13);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			}
 		}
 	}

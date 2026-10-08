@@ -17,6 +17,10 @@ import net.lax1dude.eaglercraft.Mouse;
 
 public class ClickGuiScreen extends GuiScreen {
 
+    private static final int BUTTON_ORANGE = 0xFFF28C00;
+    private static final int BUTTON_YELLOW = 0xFFFFD21F;
+    private static final int BUTTON_OUTLINE = 0xFF713900;
+    private static final int BUTTON_TEXT = 0xFF2B1700;
     private int BACKDROP = 0xB8000000;
     private int WINDOW = 0xFF10131C;
     private int SIDEBAR = 0xFF151A26;
@@ -105,10 +109,11 @@ public class ClickGuiScreen extends GuiScreen {
         fontRendererObj.drawStringWithShadow("LEGEND", panelX + 16, panelY + 10, ACCENT);
         fontRendererObj.drawStringWithShadow("CLIENT", panelX + 68, panelY + 10, BRAND_YELLOW);
         fontRendererObj.drawString("MODULES", panelX + 16, panelY + 29, MUTED);
-        drawRect(panelX + panelWidth - 190, panelY + 8, panelX + panelWidth - 96, panelY + 34,
-                hudEditMode ? CARD_SELECTED : CARD);
+        drawRect(panelX + panelWidth - 190, panelY + 8, panelX + panelWidth - 96, panelY + 34, BUTTON_OUTLINE);
+        drawRect(panelX + panelWidth - 189, panelY + 9, panelX + panelWidth - 97, panelY + 33,
+                hudEditMode ? BUTTON_YELLOW : BUTTON_ORANGE);
         fontRendererObj.drawStringWithShadow(hudEditMode ? "HUD EDIT: ON" : "MOVE HUD",
-                panelX + panelWidth - 184, panelY + 17, hudEditMode ? BRAND_YELLOW : TEXT);
+                panelX + panelWidth - 184, panelY + 17, BUTTON_TEXT);
         fontRendererObj.drawStringWithShadow("RSHIFT", panelX + panelWidth - 88, panelY + 17, MUTED);
 
         drawCategorySidebar(mouseX, mouseY);
@@ -154,12 +159,13 @@ public class ClickGuiScreen extends GuiScreen {
             boolean active = category == item;
             boolean hovered = isHovered(mouseX, mouseY, panelX + 9, y, sidebarWidth - 18, 27);
             if (active) {
-                drawRect(panelX + 9, y, panelX + sidebarWidth - 9, y + 27, CARD_SELECTED);
-                drawRect(panelX + 9, y, panelX + 12, y + 27, ACCENT);
+                drawRect(panelX + 9, y, panelX + sidebarWidth - 9, y + 27, BUTTON_YELLOW);
+                drawRect(panelX + 9, y, panelX + 12, y + 27, BUTTON_ORANGE);
             } else if (hovered) {
-                drawRect(panelX + 9, y, panelX + sidebarWidth - 9, y + 27, CARD);
+                drawRect(panelX + 9, y, panelX + sidebarWidth - 9, y + 27, BUTTON_ORANGE);
             }
-            fontRendererObj.drawString(item.name(), panelX + 20, y + 9, active ? TEXT : MUTED);
+            fontRendererObj.drawString(item.name(), panelX + 20, y + 9,
+                    active || hovered ? BUTTON_TEXT : MUTED);
             y += 32;
         }
     }
@@ -168,7 +174,7 @@ public class ClickGuiScreen extends GuiScreen {
         drawRect(listX, panelY + 44, listX + listWidth - 1, panelY + 65,
                 moduleSearchField.isFocused() ? CARD_SELECTED : CARD);
         drawRect(listX, panelY + 44, listX + listWidth - 1, panelY + 45,
-                moduleSearchField.isFocused() ? ACCENT : OUTLINE);
+                moduleSearchField.isFocused() ? BUTTON_ORANGE : OUTLINE);
         moduleSearchField.drawTextBox();
         if (moduleSearchField.getText().isEmpty() && !moduleSearchField.isFocused()) {
             fontRendererObj.drawString("Search mods...", listX + 5, panelY + 50, MUTED);
@@ -190,18 +196,19 @@ public class ClickGuiScreen extends GuiScreen {
             boolean selected = module == selectedModule;
             boolean hovered = isHovered(mouseX, mouseY, listX, y, listWidth, 35);
             drawRect(listX, y, listX + listWidth, y + 35,
-                    selected ? CARD_SELECTED : hovered ? CARD : WINDOW);
-            drawRect(listX, y, listX + 2, y + 35, module.isEnabled() ? GREEN : OUTLINE);
+                    selected ? BUTTON_YELLOW : hovered ? BUTTON_ORANGE : WINDOW);
+            drawRect(listX, y, listX + 2, y + 35, module.isEnabled() ? BUTTON_ORANGE : OUTLINE);
             fontRendererObj.drawString(module.getName(), listX + 10, y + 6,
-                    selected ? TEXT : MUTED);
+                    selected || hovered ? BUTTON_TEXT : MUTED);
 
             int toggleX = listX + listWidth - 37;
-            int toggleColor = !module.isAvailable() ? 0xFF252A33
-                    : module.isEnabled() ? 0xFF28694F : 0xFF3A4352;
+            int toggleColor = !module.isAvailable() ? 0xFF51483D
+                    : module.isEnabled() ? BUTTON_YELLOW : BUTTON_ORANGE;
+            drawRect(toggleX - 1, y + 10, toggleX + 28, y + 25, BUTTON_OUTLINE);
             drawRect(toggleX, y + 11, toggleX + 27, y + 24, toggleColor);
             if (module.isAvailable()) {
                 int knobX = module.isEnabled() ? toggleX + 17 : toggleX + 3;
-                drawRect(knobX, y + 13, knobX + 9, y + 22, TEXT);
+                drawRect(knobX, y + 13, knobX + 9, y + 22, BUTTON_TEXT);
             } else {
                 fontRendererObj.drawString("!", toggleX + 10, y + 13, MUTED);
             }
@@ -278,9 +285,9 @@ public class ClickGuiScreen extends GuiScreen {
             } else if (setting instanceof ModeSetting) {
                 ModeSetting modeSetting = (ModeSetting) setting;
                 fontRendererObj.drawString(modeSetting.getName(), detailsX, settingsY + 2, MUTED);
-                drawRect(detailsX, settingsY + 14, detailsX + detailsWidth, settingsY + 33, CARD);
+                drawRect(detailsX, settingsY + 14, detailsX + detailsWidth, settingsY + 33, BUTTON_ORANGE);
                 String value = modeSetting.getValue() + "  >";
-                fontRendererObj.drawString(value, detailsX + 7, settingsY + 20, TEXT);
+                fontRendererObj.drawString(value, detailsX + 7, settingsY + 20, BUTTON_TEXT);
             } else if (setting instanceof NumberSetting) {
                 NumberSetting numberSetting = (NumberSetting) setting;
                 String label = numberSetting.getName();
@@ -290,10 +297,10 @@ public class ClickGuiScreen extends GuiScreen {
                         detailsX + detailsWidth - fontRendererObj.getStringWidth(value),
                         settingsY + 2, TEXT);
                 int barY = settingsY + 22;
-                drawRect(detailsX, barY, detailsX + detailsWidth, barY + 4, CARD);
+                drawRect(detailsX, barY, detailsX + detailsWidth, barY + 4, BUTTON_OUTLINE);
                 int fill = getSliderFill(numberSetting, detailsWidth);
-                drawRect(detailsX, barY, detailsX + fill, barY + 4, ACCENT);
-                drawRect(detailsX + fill - 2, barY - 2, detailsX + fill + 2, barY + 6, TEXT);
+                drawRect(detailsX, barY, detailsX + fill, barY + 4, BUTTON_ORANGE);
+                drawRect(detailsX + fill - 2, barY - 2, detailsX + fill + 2, barY + 6, BUTTON_YELLOW);
             }
             settingsY += 39;
         }

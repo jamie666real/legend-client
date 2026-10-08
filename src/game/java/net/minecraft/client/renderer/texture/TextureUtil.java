@@ -313,10 +313,14 @@ public class TextureUtil {
 	}
 
 	public static ImageData readBufferedImage(InputStream imageStream) throws IOException {
+		return readBufferedImage(imageStream, "image/png");
+	}
+
+	public static ImageData readBufferedImage(InputStream imageStream, String mime) throws IOException {
 		ImageData bufferedimage;
 
 		try {
-			bufferedimage = ImageData.loadImageFile(imageStream);
+			bufferedimage = ImageData.loadImageFile(imageStream, mime);
 		} finally {
 			IOUtils.closeQuietly(imageStream);
 		}

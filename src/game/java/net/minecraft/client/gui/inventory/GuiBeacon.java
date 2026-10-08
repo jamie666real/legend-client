@@ -214,10 +214,11 @@ public class GuiBeacon extends GuiContainer {
 
 		public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_) {
 			if (this.visible) {
-				p_191745_1_.getTextureManager().bindTexture(GuiBeacon.BEACON_GUI_TEXTURES);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 						&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+				this.drawThemedBackground(this.enabled, this.hovered || this.selected);
+				p_191745_1_.getTextureManager().bindTexture(GuiBeacon.BEACON_GUI_TEXTURES);
+				this.setThemedTextureColor(this.enabled, this.hovered || this.selected);
 				int i = 219;
 				int j = 0;
 
@@ -230,6 +231,7 @@ public class GuiBeacon extends GuiContainer {
 				}
 
 				this.drawTexturedModalRect(this.xPosition, this.yPosition, j, 219, this.width, this.height);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 				if (!GuiBeacon.BEACON_GUI_TEXTURES.equals(this.iconTexture)) {
 					p_191745_1_.getTextureManager().bindTexture(this.iconTexture);

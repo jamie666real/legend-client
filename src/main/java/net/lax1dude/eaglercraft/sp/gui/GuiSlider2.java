@@ -1,6 +1,5 @@
 package net.lax1dude.eaglercraft.sp.gui;
 
-import net.lax1dude.eaglercraft.opengl.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 
@@ -68,9 +67,7 @@ public class GuiSlider2 extends GuiButton {
 			}
 
 			if(this.enabled) {
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				this.drawTexturedModalRect(this.xPosition + (int) (this.sliderValue * (float) (this.width - 8)), this.yPosition, 0, 66, 4, 20);
-				this.drawTexturedModalRect(this.xPosition + (int) (this.sliderValue * (float) (this.width - 8)) + 4, this.yPosition, 196, 66, 4, 20);
+				this.drawThemedSliderHandle(this.xPosition + (int) (this.sliderValue * (float) (this.width - 8)));
 			}
 		}
 	}

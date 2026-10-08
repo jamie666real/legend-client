@@ -28,8 +28,10 @@ public class GuiButtonImage extends GuiButton {
 		if (this.visible) {
 			this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 					&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+			this.drawThemedBackground(this.enabled, this.hovered);
 			p_191745_1_.getTextureManager().bindTexture(this.field_191750_o);
 			GlStateManager.disableDepth();
+			this.setThemedTextureColor(this.enabled, this.hovered);
 			int i = this.field_191747_p;
 			int j = this.field_191748_q;
 
@@ -38,6 +40,7 @@ public class GuiButtonImage extends GuiButton {
 			}
 
 			this.drawTexturedModalRect(this.xPosition, this.yPosition, i, j, this.width, this.height);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			GlStateManager.enableDepth();
 		}
 	}

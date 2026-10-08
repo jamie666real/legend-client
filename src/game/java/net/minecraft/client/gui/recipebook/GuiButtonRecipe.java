@@ -58,8 +58,10 @@ public class GuiButtonRecipe extends GuiButton {
 			this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 					&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
 			RenderHelper.enableGUIStandardItemLighting();
+			this.drawThemedBackground(this.enabled, this.hovered);
 			p_191745_1_.getTextureManager().bindTexture(field_191780_o);
 			GlStateManager.disableLighting();
+			this.setThemedTextureColor(this.enabled, this.hovered);
 			int i = 29;
 
 			if (!this.field_191774_p.func_192708_c()) {
@@ -84,6 +86,7 @@ public class GuiButtonRecipe extends GuiButton {
 			}
 
 			this.drawTexturedModalRect(this.xPosition, this.yPosition, i, j, this.width, this.height);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			List<IRecipe> list = this.func_193927_f();
 			this.field_193932_t = MathHelper.floor(this.field_193931_r / 30.0F) % list.size();
 			ItemStack itemstack = ((IRecipe) list.get(this.field_193932_t)).getRecipeOutput();

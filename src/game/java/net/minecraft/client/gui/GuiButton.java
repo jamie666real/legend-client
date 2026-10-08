@@ -1,7 +1,6 @@
 package net.minecraft.client.gui;
 
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
-import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -10,6 +9,11 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiButton extends Gui {
 	protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("textures/gui/widgets.png");
+	private static final int BUTTON_BORDER = 0xFF713900;
+	private static final int BUTTON_ORANGE = 0xFFF28C00;
+	private static final int BUTTON_YELLOW = 0xFFFFD21F;
+	private static final int BUTTON_DISABLED = 0xFFD98200;
+	private static final int BUTTON_TEXT = 0xFF2B1700;
 
 	/** Button width in pixels */
 	public int width;
@@ -67,32 +71,42 @@ public class GuiButton extends Gui {
 		return i;
 	}
 
+	protected void drawThemedBackground(boolean buttonEnabled, boolean buttonHovered) {
+		int background = !buttonEnabled ? BUTTON_DISABLED : buttonHovered ? BUTTON_YELLOW : BUTTON_ORANGE;
+		this.drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height,
+				BUTTON_BORDER);
+		this.drawRect(this.xPosition + 1, this.yPosition + 1, this.xPosition + this.width - 1,
+				this.yPosition + this.height - 1, background);
+		if (this.width > 2 && this.height > 2) {
+			this.drawRect(this.xPosition + 1, this.yPosition + 1, this.xPosition + this.width - 1,
+					this.yPosition + 2, buttonEnabled && buttonHovered ? 0xFFFFE98A : 0xFFFFB52E);
+		}
+	}
+
+	protected int getThemedTextColor() {
+		return BUTTON_TEXT;
+	}
+
+	protected void setThemedTextureColor(boolean buttonEnabled, boolean buttonHovered) {
+		int color = !buttonEnabled ? BUTTON_DISABLED : buttonHovered ? BUTTON_YELLOW : BUTTON_ORANGE;
+		GlStateManager.color(((color >> 16) & 255) / 255.0F, ((color >> 8) & 255) / 255.0F,
+				(color & 255) / 255.0F, 1.0F);
+	}
+
+	protected void drawThemedSliderHandle(int x) {
+		this.drawRect(x - 1, this.yPosition + 2, x + 5, this.yPosition + this.height - 2, BUTTON_BORDER);
+		this.drawRect(x, this.yPosition + 3, x + 4, this.yPosition + this.height - 3, BUTTON_YELLOW);
+	}
+
 	public void func_191745_a(Minecraft p_191745_1_, int p_191745_2_, int p_191745_3_, float p_191745_4_) {
 		if (this.visible) {
 			FontRenderer fontrenderer = p_191745_1_.fontRendererObj;
-			p_191745_1_.getTextureManager().bindTexture(BUTTON_TEXTURES);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 					&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
-			int i = this.getHoverState(this.hovered);
-			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(RealOpenGLEnums.GL_SRC_ALPHA, RealOpenGLEnums.GL_ONE_MINUS_SRC_ALPHA,
-					RealOpenGLEnums.GL_ONE, RealOpenGLEnums.GL_ZERO);
-			GlStateManager.blendFunc(RealOpenGLEnums.GL_SRC_ALPHA, RealOpenGLEnums.GL_ONE_MINUS_SRC_ALPHA);
-			this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + i * 20, this.width / 2, this.height);
-			this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2,
-					46 + i * 20, this.width / 2, this.height);
+			this.drawThemedBackground(this.enabled, this.hovered);
 			this.mouseDragged(p_191745_1_, p_191745_2_, p_191745_3_);
-			int j = 14737632;
-
-			if (!this.enabled) {
-				j = 10526880;
-			} else if (this.hovered) {
-				j = 16777120;
-			}
-
 			this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2,
-					this.yPosition + (this.height - 8) / 2, j);
+					this.yPosition + (this.height - 8) / 2, this.getThemedTextColor());
 		}
 	}
 

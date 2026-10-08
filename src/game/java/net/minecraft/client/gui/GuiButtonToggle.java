@@ -44,8 +44,10 @@ public class GuiButtonToggle extends GuiButton {
 		if (this.visible) {
 			this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 					&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+			this.drawThemedBackground(this.enabled, this.hovered);
 			p_191745_1_.getTextureManager().bindTexture(this.field_191760_o);
 			GlStateManager.disableDepth();
+			this.setThemedTextureColor(this.enabled, this.hovered || this.field_191755_p);
 			int i = this.field_191756_q;
 			int j = this.field_191757_r;
 
@@ -58,6 +60,7 @@ public class GuiButtonToggle extends GuiButton {
 			}
 
 			this.drawTexturedModalRect(this.xPosition, this.yPosition, i, j, this.width, this.height);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			GlStateManager.enableDepth();
 		}
 	}

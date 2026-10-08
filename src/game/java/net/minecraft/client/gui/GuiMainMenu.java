@@ -20,7 +20,6 @@ import net.lax1dude.eaglercraft.minecraft.MainMenuSkyboxTexture;
 import net.lax1dude.eaglercraft.opengl.WorldRenderer;
 import net.lax1dude.eaglercraft.sp.SingleplayerServerController;
 import net.lax1dude.eaglercraft.sp.gui.GuiScreenIntegratedServerBusy;
-import net.lax1dude.eaglercraft.sp.gui.GuiScreenIntegratedServerStartup;
 import net.lax1dude.eaglercraft.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
@@ -35,7 +34,6 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.WorldServerDemo;
 import net.minecraft.world.storage.ISaveFormat;
 import net.minecraft.world.storage.WorldInfo;
 import net.peyton.eagler.gui.GuiCredits;
@@ -74,6 +72,7 @@ public class GuiMainMenu extends GuiScreen {
 	private static final ResourceLocation MINECRAFT_TITLE_TEXTURES = new ResourceLocation(
 			"textures/gui/title/minecraft.png");
 	private static final ResourceLocation field_194400_H = new ResourceLocation("textures/gui/title/edition.png");
+	private static final ResourceLocation MAIN_MENU_BACKGROUND = new ResourceLocation("textures/gui/mainmenu.jpeg");
 
 	/** An array of all the paths to the panorama pictures. */
 	private static final ResourceLocation[] TITLE_PANORAMA_PATHS = new ResourceLocation[] {
@@ -159,10 +158,6 @@ public class GuiMainMenu extends GuiScreen {
 			return;
 		}
 
-		viewportTexture = new MainMenuSkyboxTexture(256, 256);
-		this.backgroundTexture = this.mc.getTextureManager().getDynamicTextureLocation("background", this.viewportTexture);
-		viewportTexture2 = new MainMenuSkyboxTexture(256, 256);
-		backgroundTexture2 = this.mc.getTextureManager().getDynamicTextureLocation("background", viewportTexture2);
 		this.field_193978_M = this.fontRendererObj.getStringWidth("Resources copyright Mojang AB");
 		this.field_193979_N = this.width - this.field_193978_M - 2;
 		Calendar calendar = Calendar.getInstance();
@@ -209,7 +204,10 @@ public class GuiMainMenu extends GuiScreen {
 	 * Adds Demo buttons on Main Menu for players who are playing Demo.
 	 */
 	private void addDemoButtons(int p_73972_1_, int p_73972_2_) {
-		this.buttonList.add(new GuiButton(11, this.width / 2 - 100, p_73972_1_, I18n.format("menu.playdemo")));
+		this.buttonSingleplayer = new GuiButton(11, this.width / 2 - 100, p_73972_1_,
+				I18n.format("menu.playdemo"));
+		this.buttonSingleplayer.enabled = false;
+		this.buttonList.add(this.buttonSingleplayer);
 		this.buttonResetDemo = this.addButton(
 				new GuiButton(12, this.width / 2 - 100, p_73972_1_ + p_73972_2_ * 1, I18n.format("menu.resetdemo")));
 		ISaveFormat isaveformat = this.mc.getSaveLoader();
@@ -225,6 +223,10 @@ public class GuiMainMenu extends GuiScreen {
 	 * buttons)
 	 */
 	protected void actionPerformed(GuiButton button) throws IOException {
+		if (button.id == 1 || button.id == 11) {
+			return;
+		}
+
 		if (button.id == 0) {
 			this.mc.displayGuiScreen(new GuiOptions(this, this.mc.gameSettings));
 		}
@@ -233,20 +235,12 @@ public class GuiMainMenu extends GuiScreen {
 			this.mc.displayGuiScreen(new GuiLanguage(this, this.mc.gameSettings, this.mc.getLanguageManager()));
 		}
 
-		if (button.id == 1) {
-			this.mc.displayGuiScreen(new GuiScreenIntegratedServerStartup(this));
-		}
-
 		if (button.id == 2) {
 			this.mc.displayGuiScreen(new GuiMultiplayer(this));
 		}
 
 		if (button.id == 4) {
 			this.mc.displayGuiScreen(new GuiScreenEditProfile(this));
-		}
-
-		if (button.id == 11) {
-			this.mc.launchIntegratedServer("Demo_World", "Demo_World", WorldServerDemo.DEMO_WORLD_SETTINGS);
 		}
 
 		if (button.id == 12) {
@@ -454,15 +448,12 @@ public class GuiMainMenu extends GuiScreen {
 	 * Draws the screen and all the components in it.
 	 */
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		this.panoramaTimer += partialTicks;
-		GlStateManager.disableAlpha();
-		this.renderSkybox(mouseX, mouseY, partialTicks);
-		GlStateManager.enableAlpha();
+		this.mc.getTextureManager().bindTexture(MAIN_MENU_BACKGROUND);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		this.drawModalRectWithCustomSizedTexture(0, 0, 0.0F, 0.0F, this.width, this.height, 1024.0F, 1024.0F);
 		int i = 274;
 		int j = this.width / 2 - 137;
 		int k = 30;
-		this.drawGradientRect(0, 0, this.width, this.height, -2130706433, 16777215);
-		this.drawGradientRect(0, 0, this.width, this.height, 0, Integer.MIN_VALUE);
 		this.mc.getTextureManager().bindTexture(MINECRAFT_TITLE_TEXTURES);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
