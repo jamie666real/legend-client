@@ -145,8 +145,8 @@ public class GuiCredits extends GuiScreen {
 			this.drawCenteredString(this.mc.fontRendererObj, "jamie666", previewX, this.contentTop + 12,
 					0xFFE6EDF5);
 			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
-			SkinPreviewRenderer.renderPreview(previewX, previewY, par1, par2, false, DefaultSkins.ZAY_ZAY.model,
-					DefaultSkins.ZAY_ZAY.location, null);
+			SkinPreviewRenderer.renderPreview(previewX, previewY, par1, par2, false, DefaultSkins.MIKU.model,
+					DefaultSkins.MIKU.location, null);
 		}
 
 		int trackX = this.panelX + this.panelWidth - 17;
