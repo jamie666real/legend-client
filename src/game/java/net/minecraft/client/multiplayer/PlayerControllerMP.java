@@ -18,7 +18,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemElytra;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
@@ -29,6 +32,7 @@ import net.minecraft.network.play.client.CPacketClickWindow;
 import net.minecraft.network.play.client.CPacketCreativeInventoryAction;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.network.play.client.CPacketEnchantItem;
+import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlaceRecipe;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
@@ -448,8 +452,17 @@ public class PlayerControllerMP {
 			return EnumActionResult.PASS;
 		} else {
 			this.syncCurrentPlayItem();
+			ItemStack heldItem = player.getHeldItem(stack);
+			ItemStack chestItem = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+			if (com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("Quick Elytra")
+					&& heldItem.getItem() == Items.FIREWORKS && !player.isElytraFlying()
+					&& !player.onGround && player.motionY < 0.0D && !player.isInWater()
+					&& chestItem.getItem() == Items.ELYTRA && ItemElytra.isBroken(chestItem)) {
+				this.connection.sendPacket(new CPacketEntityAction(player,
+						CPacketEntityAction.Action.START_FALL_FLYING));
+			}
 			this.connection.sendPacket(new CPacketPlayerTryUseItem(stack));
-			ItemStack itemstack = player.getHeldItem(stack);
+			ItemStack itemstack = heldItem;
 
 			if (player.getCooldownTracker().hasCooldown(itemstack.getItem())) {
 				return EnumActionResult.PASS;

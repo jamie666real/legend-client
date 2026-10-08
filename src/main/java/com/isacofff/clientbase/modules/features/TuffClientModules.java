@@ -16,7 +16,6 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.renderer.entity.RenderManager;
 
 import java.util.HashMap;
@@ -104,7 +103,8 @@ public final class TuffClientModules {
 
     public static void register(Manager manager) {
         nextHudRow = 0;
-        add(manager, "Quick Elytra", Category.Movement, "Uses a held/off-hand firework while elytra gliding.", Kind.QUICK_ELYTRA);
+        add(manager, "Quick Elytra", Category.Movement,
+                "Starts elytra flight when you right-click a firework while falling.", Kind.QUICK_ELYTRA);
         add(manager, "Fast Crystals", Category.Combat, "Removes the local placement delay while placing end crystals.", Kind.FAST_CRYSTALS);
         add(manager, "Anchor Optimizer", Category.Combat, "Shows respawn-anchor charge and explosion information.", Kind.NONE);
         add(manager, "Hotbar Optimizer", Category.Player, "Keeps hotbar selection synchronized for normal actions.", Kind.NONE);
@@ -246,7 +246,6 @@ public final class TuffClientModules {
         private int speedTenths;
         private float previousGamma;
         private boolean hadDebugHitboxes;
-        private int fireworkCooldown;
         private int savedRenderDistance;
         private int savedParticleSetting;
         private int savedCloudSetting;
@@ -436,16 +435,6 @@ public final class TuffClientModules {
                         || MC.gameSettings.keyBindBack.isKeyDown()
                         || MC.gameSettings.keyBindLeft.isKeyDown()
                         || MC.gameSettings.keyBindRight.isKeyDown());
-            } else if (kind == Kind.QUICK_ELYTRA) {
-                if (fireworkCooldown > 0) {
-                    --fireworkCooldown;
-                }
-                if (fireworkCooldown == 0 && MC.player.isElytraFlying()
-                        && (MC.player.getHeldItemMainhand().getItem() == Items.FIREWORKS
-                                || MC.player.getHeldItemOffhand().getItem() == Items.FIREWORKS)) {
-                    KeyBinding.onTick(MC.gameSettings.keyBindUseItem.getKeyCode());
-                    fireworkCooldown = 20;
-                }
             }
         }
 

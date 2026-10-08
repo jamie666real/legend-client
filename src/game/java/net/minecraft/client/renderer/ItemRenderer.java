@@ -81,7 +81,7 @@ public class ItemRenderer {
 					|| transform == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND;
 			if (firstPerson && shouldRenderHeldItemSmall(heldStack)) {
 				GlStateManager.translate(0.125F, 0.125F, 0.0F);
-				GlStateManager.scale(0.75F, 0.75F, 0.75F);
+				GlStateManager.scale(0.5F, 0.5F, 0.5F);
 			}
 			boolean flag = this.itemRenderer.shouldRenderItemIn3D(heldStack)
 					&& block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
