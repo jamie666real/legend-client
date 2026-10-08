@@ -216,7 +216,7 @@ public class GameSettings {
 	}
 
 	private void applyClientPerformanceDefaults() {
-		this.renderDistanceChunks = this.renderDistanceChunks > 0 ? Math.min(this.renderDistanceChunks, 6) : 6;
+		this.renderDistanceChunks = this.renderDistanceChunks > 0 ? Math.min(this.renderDistanceChunks, 4) : 4;
 		this.particleSetting = 2;
 		this.clouds = 0;
 		this.ambientOcclusion = 0;

@@ -1244,7 +1244,6 @@ public class RenderGlobal implements IWorldEventListener, IResourceManagerReload
 	}
 
 	public void updateChunks(long finishTimeNano) {
-		finishTimeNano = (long)((double)finishTimeNano + 1.0E8D);
         this.displayListEntitiesDirty |= this.renderDispatcher.updateChunks(finishTimeNano);
 
         if (this.chunksToUpdateForced.size() > 0) {

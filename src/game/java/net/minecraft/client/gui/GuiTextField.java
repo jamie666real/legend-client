@@ -3,6 +3,8 @@ package net.minecraft.client.gui;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import net.lax1dude.eaglercraft.Mouse;
+import net.lax1dude.eaglercraft.internal.EnumCursorType;
 import net.lax1dude.eaglercraft.opengl.WorldRenderer;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
@@ -59,6 +61,7 @@ public class GuiTextField extends Gui {
 	private boolean visible = true;
 	private GuiPageButtonList.GuiResponder guiResponder;
 	private Predicate<String> validator = Predicates.<String>alwaysTrue();
+	private static GuiTextField draggingTextField;
 
 	public GuiTextField(int componentId, FontRenderer fontrendererObj, int x, int y, int par5Width, int par6Height) {
 		this.id = componentId;
@@ -424,18 +427,37 @@ public class GuiTextField extends Gui {
 		}
 
 		if (this.isFocused && flag && mouseButton == 0) {
-			int i = mouseX - this.xPosition;
-
-			if (this.enableBackgroundDrawing) {
-				i -= 4;
-			}
-
-			String s = this.fontRendererInstance.trimStringToWidth(this.text.substring(this.lineScrollOffset),
-					this.getWidth());
-			this.setCursorPosition(this.fontRendererInstance.trimStringToWidth(s, i).length() + this.lineScrollOffset);
+			draggingTextField = this;
+			this.setCursorPosition(this.getCursorPositionFromMouse(mouseX));
 			return true;
 		} else {
+			if (draggingTextField == this) {
+				draggingTextField = null;
+			}
 			return false;
+		}
+	}
+
+	private int getCursorPositionFromMouse(int mouseX) {
+		int x = mouseX - this.xPosition;
+
+		if (this.enableBackgroundDrawing) {
+			x -= 4;
+		}
+
+		x = MathHelper.clamp(x, 0, this.getWidth());
+		String visibleText = this.fontRendererInstance.trimStringToWidth(this.text.substring(this.lineScrollOffset),
+				this.getWidth());
+		return this.fontRendererInstance.trimStringToWidth(visibleText, x).length() + this.lineScrollOffset;
+	}
+
+	public static void clearMouseDrag() {
+		draggingTextField = null;
+	}
+
+	public static void updateMouseDrag(int mouseX) {
+		if (draggingTextField != null && draggingTextField.isFocused && draggingTextField.getVisible()) {
+			draggingTextField.setSelectionPos(draggingTextField.getCursorPositionFromMouse(mouseX));
 		}
 	}
 
@@ -444,6 +466,17 @@ public class GuiTextField extends Gui {
 	 */
 	public void drawTextBox() {
 		if (this.getVisible()) {
+			Minecraft minecraft = Minecraft.getMinecraft();
+			GuiScreen currentScreen = minecraft.currentScreen;
+			if (currentScreen != null && minecraft.displayWidth > 0 && minecraft.displayHeight > 0) {
+				int mouseX = Mouse.getX() * currentScreen.width / minecraft.displayWidth;
+				int mouseY = currentScreen.height - Mouse.getY() * currentScreen.height / minecraft.displayHeight - 1;
+				if (mouseX >= this.xPosition && mouseX < this.xPosition + this.width && mouseY >= this.yPosition
+						&& mouseY < this.yPosition + this.height) {
+					Mouse.showCursor(EnumCursorType.TEXT);
+				}
+			}
+
 			if (this.getEnableBackgroundDrawing()) {
 				drawRect(this.xPosition - 1, this.yPosition - 1, this.xPosition + this.width + 1,
 						this.yPosition + this.height + 1, -6250336);

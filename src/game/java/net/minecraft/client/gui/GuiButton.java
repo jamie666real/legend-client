@@ -1,5 +1,7 @@
 package net.minecraft.client.gui;
 
+import net.lax1dude.eaglercraft.Mouse;
+import net.lax1dude.eaglercraft.internal.EnumCursorType;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -103,6 +105,9 @@ public class GuiButton extends Gui {
 			FontRenderer fontrenderer = p_191745_1_.fontRendererObj;
 			this.hovered = p_191745_2_ >= this.xPosition && p_191745_3_ >= this.yPosition
 					&& p_191745_2_ < this.xPosition + this.width && p_191745_3_ < this.yPosition + this.height;
+			if (this.hovered && this.enabled) {
+				Mouse.showCursor(EnumCursorType.HAND);
+			}
 			this.drawThemedBackground(this.enabled, this.hovered);
 			this.mouseDragged(p_191745_1_, p_191745_2_, p_191745_3_);
 			this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2,

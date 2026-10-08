@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.opengl.WorldRenderer;
@@ -115,7 +116,7 @@ public class ChunkUpdateManager {
 
 				++chunkUpdatesTotal;
 
-				if (timeout < System.nanoTime()) {
+				if (timeout < EagRuntime.nanoTime()) {
 					break;
 				}
 			}

@@ -12,6 +12,7 @@ import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.Keyboard;
 import net.lax1dude.eaglercraft.Mouse;
 import net.lax1dude.eaglercraft.PauseMenuCustomizeState;
+import net.lax1dude.eaglercraft.internal.EnumCursorType;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
 import net.minecraft.client.Minecraft;
@@ -441,12 +442,14 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
 		int i = Mouse.getEventX() * this.width / this.mc.displayWidth;
 		int j = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
 		int k = Mouse.getEventButton();
+		Mouse.showCursor(EnumCursorType.DEFAULT);
 
 		if (Mouse.getEventButtonState()) {
 			if (this.mc.gameSettings.touchscreen && this.touchValue++ > 0) {
 				return;
 			}
 
+			GuiTextField.clearMouseDrag();
 			this.eventButton = k;
 			this.lastMouseEvent = Minecraft.getSystemTime();
 			this.mouseClicked(i, j, this.eventButton);
@@ -457,9 +460,13 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
 
 			this.eventButton = -1;
 			this.mouseReleased(i, j, k);
+			GuiTextField.clearMouseDrag();
 		} else if (this.eventButton != -1 && this.lastMouseEvent > 0L) {
 			long l = Minecraft.getSystemTime() - this.lastMouseEvent;
 			this.mouseClickMove(i, j, this.eventButton, l);
+			if (this.eventButton == 0) {
+				GuiTextField.updateMouseDrag(i);
+			}
 		}
 	}
 
