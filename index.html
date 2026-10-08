@@ -251,7 +251,7 @@
     const skinModelKey = "legendClientSkinModel";
     const skinSelectionKey = "legendClientSkinSelection";
     const skinOverridePixelsKey = "legendClientSkinOverridePixels";
-    let skinRotation = 12;
+    let skinRotation = 0;
     let dragX = null;
     let skinRenderer = null;
 
@@ -479,15 +479,16 @@
       }
 
       const armWidth = slimArms ? 3 : 4;
-      const rightArmX = slimArms ? 1 : 0;
+      const rightArmX = 1;
+      const leftArmX = slimArms ? 12 : 11;
       addCube(4, 0, -4, 8, 8, 8, 0, 0, 0);
       addCube(4, 0, -4, 8, 8, 8, 32, 0, 0.25);
       addCube(4, 8, -2, 8, 12, 4, 16, 16, 0);
       addCube(4, 8, -2, 8, 12, 4, 16, 32, 0.25);
       addCube(rightArmX, 8, -2, armWidth, 12, 4, 40, 16, 0);
       addCube(rightArmX, 8, -2, armWidth, 12, 4, 40, 32, 0.25);
-      addCube(12, 8, -2, armWidth, 12, 4, 32, 48, 0);
-      addCube(12, 8, -2, armWidth, 12, 4, 48, 48, 0.25);
+      addCube(leftArmX, 8, -2, armWidth, 12, 4, 32, 48, 0);
+      addCube(leftArmX, 8, -2, armWidth, 12, 4, 48, 48, 0.25);
       addCube(4, 20, -2, 4, 12, 4, 0, 16, 0);
       addCube(4, 20, -2, 4, 12, 4, 0, 32, 0.2);
       addCube(8, 20, -2, 4, 12, 4, 16, 48, 0);
