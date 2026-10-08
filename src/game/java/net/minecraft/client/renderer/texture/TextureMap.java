@@ -111,6 +111,8 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
 			copyMaterialFramebuffer = null;
 		}
 
+		int spritesProcessed = 0;
+		int spriteCount = this.mapRegisteredSprites.size();
 		for (Entry<String, TextureAtlasSprite> entry : this.mapRegisteredSprites.entrySet()) {
 			TextureAtlasSprite textureatlassprite = entry.getValue();
 			ResourceLocation resourcelocation = this.getResourceLocation(textureatlassprite);
@@ -129,6 +131,11 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
 				LOGGER.error("Using missing texture, unable to load {}", resourcelocation);
 				LOGGER.error(ioexception);
 				continue;
+			} finally {
+				++spritesProcessed;
+				if (spriteCount > 0) {
+					Minecraft.getMinecraft().updateStartupProgress(5 + spritesProcessed * 50 / spriteCount);
+				}
 			}
 
 			j = Math.min(j, Math.min(textureatlassprite.getIconWidth(), textureatlassprite.getIconHeight()));
@@ -155,6 +162,7 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
 			this.mipmapLevels = i1;
 		}
 
+		int mipmapsProcessed = 0;
 		for (final TextureAtlasSprite textureatlassprite1 : this.mapRegisteredSprites.values()) {
 			try {
 				textureatlassprite1.generateMipmaps(this.mipmapLevels);
@@ -178,6 +186,10 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
 				});
 				crashreportcategory.addCrashSection("Mipmap levels", Integer.valueOf(this.mipmapLevels));
 				throw new ReportedException(crashreport);
+			}
+			++mipmapsProcessed;
+			if (spriteCount > 0) {
+				Minecraft.getMinecraft().updateStartupProgress(55 + mipmapsProcessed * 7 / spriteCount);
 			}
 		}
 
@@ -235,6 +247,9 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
 
 			if (textureatlassprite2.hasAnimationMetadata()) {
 				this.listAnimatedSprites.add(textureatlassprite2);
+			}
+			if (!spriteList.isEmpty()) {
+				Minecraft.getMinecraft().updateStartupProgress(62 + (l1 + 1) * 10 / spriteList.size());
 			}
 		}
 

@@ -187,7 +187,7 @@ import net.lax1dude.eaglercraft.cookie.ServerCookieDataStore;
 
 public class Minecraft implements IThreadListener {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final ResourceLocation LOCATION_MOJANG_PNG = new ResourceLocation("textures/gui/title/mojang.png");
+    private static final ResourceLocation LOCATION_MOJANG_JPEG = new ResourceLocation("textures/gui/title/mojang.jpeg");
     public static final boolean IS_RUNNING_ON_MAC = Util.getOSType() == Util.EnumOS.OSX;
 
     /** The player's GameProfile properties */
@@ -318,6 +318,8 @@ public class Minecraft implements IThreadListener {
     private SoundHandler mcSoundHandler;
     private MusicTicker mcMusicTicker;
     private ResourceLocation mojangLogo;
+    private int startupProgress;
+    private boolean startupSplashActive;
     private final List<FutureTask<?>> scheduledTasks = new LinkedList();
     private ModelManager modelManager;
 
@@ -473,6 +475,7 @@ public class Minecraft implements IThreadListener {
         this.mcResourceManager.registerReloadListener(this.standardGalacticFontRenderer);
         this.mcResourceManager.registerReloadListener(new GrassColorReloadListener());
         this.mcResourceManager.registerReloadListener(new FoliageColorReloadListener());
+        this.updateStartupProgress(5);
         this.mouseHelper = new MouseHelper();
         this.checkGLError("Pre startup");
         GlStateManager.enableTexture2D();
@@ -491,9 +494,11 @@ public class Minecraft implements IThreadListener {
         this.textureMapBlocks.setMipmapLevels(this.gameSettings.mipmapLevels);
         this.renderEngine.loadTickableTexture(TextureMap.LOCATION_BLOCKS_TEXTURE, this.textureMapBlocks);
         this.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        this.updateStartupProgress(72);
         this.textureMapBlocks.setBlurMipmapDirect(false, this.gameSettings.mipmapLevels > 0);
         this.modelManager = new ModelManager(this.textureMapBlocks);
         this.mcResourceManager.registerReloadListener(this.modelManager);
+        this.updateStartupProgress(78);
         this.blockColors = BlockColors.init();
         this.itemColors = ItemColors.init(this.blockColors);
         this.renderItem = new RenderItem(this.renderEngine, this.modelManager, this.itemColors);
@@ -509,9 +514,11 @@ public class Minecraft implements IThreadListener {
         this.mcResourceManager.registerReloadListener(this.renderGlobal);
         this.func_193986_ar();
         this.mcResourceManager.registerReloadListener(this.field_193995_ae);
+        this.updateStartupProgress(88);
         GlStateManager.viewport(0, 0, this.displayWidth, this.displayHeight);
         this.effectRenderer = new ParticleManager(this.world, this.renderEngine);
         SkinPreviewRenderer.initialize();
+        this.updateStartupProgress(94);
         this.checkGLError("Post startup");
         this.ingameGUI = new GuiIngame(this);
 
@@ -541,8 +548,10 @@ public class Minecraft implements IThreadListener {
             this.displayGuiScreen(new GuiMainMenu());
         }
 
+        this.updateStartupProgress(100);
         this.renderEngine.deleteTexture(this.mojangLogo);
         this.mojangLogo = null;
+        this.startupSplashActive = false;
         this.loadingScreen = new LoadingScreenRenderer(this);
         this.debugRenderer = new DebugRenderer(this);
 
@@ -684,6 +693,37 @@ public class Minecraft implements IThreadListener {
     private void drawSplashScreen(TextureManager textureManagerInstance) {
         Display.update();
         updateDisplayMode();
+        InputStream inputstream = null;
+
+        try {
+            inputstream = this.mcDefaultResourcePack.getInputStream(LOCATION_MOJANG_JPEG);
+            this.mojangLogo = textureManagerInstance.getDynamicTextureLocation("logo",
+                    new DynamicTexture(ImageData.loadImageFile(inputstream,
+                            ImageData.getMimeFromType(LOCATION_MOJANG_JPEG.getResourcePath()))));
+        } catch (IOException ioexception) {
+            LOGGER.error("Unable to load logo: {}", LOCATION_MOJANG_JPEG, ioexception);
+        } finally {
+            IOUtils.closeQuietly(inputstream);
+        }
+
+        this.startupSplashActive = this.mojangLogo != null;
+        this.startupProgress = 0;
+        this.drawSplashScreenFrame();
+    }
+
+    public void updateStartupProgress(int progress) {
+        progress = Math.max(this.startupProgress, Math.min(100, progress));
+        if (this.startupSplashActive && progress != this.startupProgress) {
+            this.startupProgress = progress;
+            this.drawSplashScreenFrame();
+        }
+    }
+
+    private void drawSplashScreenFrame() {
+        if (!this.startupSplashActive || this.mojangLogo == null) {
+            return;
+        }
+
         GlStateManager.viewport(0, 0, displayWidth, displayHeight);
         GlStateManager.matrixMode(5889);
         GlStateManager.loadIdentity();
@@ -696,18 +736,7 @@ public class Minecraft implements IThreadListener {
         GlStateManager.disableFog();
         GlStateManager.disableDepth();
         GlStateManager.enableTexture2D();
-        InputStream inputstream = null;
-
-        try {
-            inputstream = this.mcDefaultResourcePack.getInputStream(LOCATION_MOJANG_PNG);
-            this.mojangLogo = textureManagerInstance.getDynamicTextureLocation("logo",
-                    new DynamicTexture(ImageData.loadImageFile(inputstream)));
-            textureManagerInstance.bindTexture(this.mojangLogo);
-        } catch (IOException ioexception) {
-            LOGGER.error("Unable to load logo: {}", LOCATION_MOJANG_PNG, ioexception);
-        } finally {
-            IOUtils.closeQuietly(inputstream);
-        }
+        this.renderEngine.bindTexture(this.mojangLogo);
 
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer bufferbuilder = tessellator.getBuffer();
@@ -722,8 +751,15 @@ public class Minecraft implements IThreadListener {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         short short1 = 256;
         short short2 = 256;
-        this.draw((scaledResolution.getScaledWidth() - short1) / 2,
-                (scaledResolution.getScaledHeight() - short2) / 2, 0, 0, short1, short2, 255, 255, 255, 255);
+        int logoX = (scaledResolution.getScaledWidth() - short1) / 2;
+        int logoY = (scaledResolution.getScaledHeight() - short2) / 2;
+        this.draw(logoX, logoY, 0, 0, short1, short2, 255, 255, 255, 255);
+        int barWidth = 120;
+        int barX = scaledResolution.getScaledWidth() / 2 - barWidth / 2;
+        int barY = logoY + 216;
+        Gui.drawRect(barX - 2, barY - 2, barX + barWidth + 2, barY + 8, 0xCC171717);
+        Gui.drawRect(barX, barY, barX + barWidth, barY + 4, 0xFF3A3024);
+        Gui.drawRect(barX, barY, barX + barWidth * this.startupProgress / 100, barY + 4, 0xFFFFB323);
         GlStateManager.disableLighting();
         GlStateManager.disableFog();
         GlStateManager.enableAlpha();
