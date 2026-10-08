@@ -524,13 +524,18 @@ public class Minecraft implements IThreadListener {
 
         ServerList.initServerList(this);
         EaglerProfile.read();
+        String initialUsername = EagRuntime.getConfiguration().getInitialUsername();
+        if (initialUsername != null && initialUsername.matches("[A-Za-z0-9_]{1,16}")) {
+            EaglerProfile.setName(initialUsername);
+            EaglerProfile.save();
+        }
         ServerCookieDataStore.load();
 
         if (this.serverName != null) {
-            this.displayGuiScreen(new GuiConnecting(new GuiScreenEditProfile(new GuiMainMenu()), this, this.serverName,
+            this.displayGuiScreen(new GuiConnecting(new GuiMainMenu(), this, this.serverName,
                     this.serverPort));
         } else {
-            this.displayGuiScreen(new GuiScreenEditProfile(new GuiMainMenu()));
+            this.displayGuiScreen(new GuiMainMenu());
         }
 
         this.renderEngine.deleteTexture(this.mojangLogo);

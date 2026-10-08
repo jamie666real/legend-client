@@ -41,6 +41,7 @@ public class TeaVMClientConfigAdapter implements IClientConfigAdapter {
 	private List<DefaultServer> defaultServers = new ArrayList<>();
 	private List<RelayEntry> relays = new ArrayList<>();
 	private String serverToJoin = null;   
+	private String initialUsername = null;
 	private String worldsDB = "worlds";
 	private String resourcePacksDB = "resourcePacks";
 	private JSONObject integratedServerOpts;
@@ -88,6 +89,7 @@ public class TeaVMClientConfigAdapter implements IClientConfigAdapter {
 		
 		defaultLocale = eaglercraftXOpts.getLang("en_US");
 		serverToJoin = eaglercraftXOpts.getJoinServer(null);
+		initialUsername = eaglercraftXOpts.getInitialUsername(null);
 		worldsDB = eaglercraftXOpts.getWorldsDB("worlds");
 		resourcePacksDB = eaglercraftXOpts.getResourcePacksDB("resourcePacks");
 		checkGLErrors = eaglercraftXOpts.getCheckGLErrors(false);
@@ -190,6 +192,7 @@ public class TeaVMClientConfigAdapter implements IClientConfigAdapter {
 		integratedServerOpts = eaglercraftOpts;
 		defaultLocale = eaglercraftOpts.optString("lang", "en_US");
 		serverToJoin = eaglercraftOpts.optString("joinServer", null);
+		initialUsername = eaglercraftOpts.optString("initialUsername", null);
 		worldsDB = eaglercraftOpts.optString("worldsDB", "worlds");
 		resourcePacksDB = eaglercraftOpts.optString("resourcePacksDB", "resourcePacks");
 		checkGLErrors = eaglercraftOpts.optBoolean("checkGLErrors", false);
@@ -284,6 +287,11 @@ public class TeaVMClientConfigAdapter implements IClientConfigAdapter {
 	@Override
 	public String getServerToJoin() {
 		return serverToJoin;
+	}
+
+	@Override
+	public String getInitialUsername() {
+		return initialUsername;
 	}
 
 	@Override

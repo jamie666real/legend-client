@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Legend Client</title>
+  <title>Legend Client Launcher</title>
   <style>
     :root {
-      --sun: #ffb000;
-      --amber: #ff8c00;
-      --gold: #ffd54a;
-      --cream: #fff7d6;
-      --ink: #4a2b00;
+      color-scheme: dark;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #17191c;
+      color: #f2f2f2;
     }
 
     * { box-sizing: border-box; }
@@ -18,62 +17,150 @@
     body {
       min-height: 100vh;
       margin: 0;
-      display: grid;
-      place-items: center;
-      color: var(--ink);
-      background: linear-gradient(135deg, var(--gold), var(--sun), var(--amber));
-      font-family: Arial, Helvetica, sans-serif;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(ellipse at top, #34383e, #17191c 65%);
     }
 
-    .card {
-      width: min(90vw, 520px);
-      padding: 3rem 2rem;
-      border: 4px solid rgba(255, 255, 255, 0.7);
-      border-radius: 24px;
-      background: rgba(255, 247, 214, 0.9);
-      box-shadow: 0 20px 60px rgba(120, 60, 0, 0.22);
-      backdrop-filter: blur(4px);
+    header {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 0 max(24px, calc((100vw - 900px) / 2));
+      background: #111315;
+      border-bottom: 1px solid #08090a;
+      box-shadow: 0 2px 8px #0008;
     }
 
-    h1 {
-      margin: 0 0 0.75rem;
-      font-size: clamp(2.2rem, 8vw, 4rem);
+    .brand {
+      color: #ffb323;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
     }
 
-    p {
-      margin: 0 0 2rem;
-      font-size: 1.1rem;
-      line-height: 1.6;
+    main {
+      width: min(calc(100% - 32px), 700px);
+      margin: 8vh auto;
+      padding: 34px;
+      background: #24282d;
+      border: 1px solid #3b4148;
+      box-shadow: 0 14px 40px #0008;
+    }
+
+    h1 { margin: 0; font-size: 30px; font-weight: 500; }
+    .subtitle { margin: 8px 0 28px; color: #b9bec4; }
+
+    .profile {
+      padding: 20px;
+      background: #1b1e22;
+      border: 1px solid #3b4148;
+    }
+
+    .section-title {
+      margin: 0 0 16px;
+      color: #ffb323;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    label { display: block; margin-bottom: 8px; color: #d1d4d8; font-size: 13px; }
+
+    input {
+      width: 100%;
+      max-width: 340px;
+      padding: 11px 12px;
+      color: #f2f2f2;
+      background: #101214;
+      border: 1px solid #555d66;
+      border-radius: 2px;
+      font: inherit;
+    }
+
+    input:focus { outline: 2px solid #ffb323; outline-offset: 1px; }
+    .hint { margin: 8px 0 0; color: #9da4ab; font-size: 12px; }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-top: 26px;
     }
 
     .launch {
-      display: inline-block;
-      padding: 1rem 2.5rem;
-      border: 0;
-      border-radius: 999px;
-      color: #fff;
-      background: linear-gradient(135deg, var(--amber), #ff6a00);
-      box-shadow: 0 10px 24px rgba(255, 106, 0, 0.35);
-      text-decoration: none;
-      font-size: 1.1rem;
+      min-width: 150px;
+      padding: 12px 24px;
+      color: #211708;
+      background: linear-gradient(#ffd36a, #f5a623);
+      border: 1px solid #ffdf8b;
+      border-radius: 2px;
+      box-shadow: 0 2px 5px #0008;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .launch:hover,
-    .launch:focus-visible {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 14px 30px rgba(255, 106, 0, 0.45);
+    .launch:hover, .launch:focus-visible { background: #ffe08b; }
+    #status { min-height: 18px; color: #ffcf73; font-size: 13px; }
+    footer { margin-top: auto; padding: 18px 24px; color: #858c93; font-size: 12px; text-align: center; }
+
+    @media (max-width: 520px) {
+      main { margin: 28px auto; padding: 22px; }
+      .actions { align-items: flex-start; flex-direction: column; gap: 10px; }
     }
   </style>
 </head>
 <body>
-  <main class="card">
-    <h1>Legend Client</h1>
-    <p>Launch the client</p>
-    <a class="launch" href="/javascript/" aria-label="Launch Legend Client">Launch Client</a>
+  <header><div class="brand">LEGEND CLIENT</div></header>
+  <main>
+    <h1>Welcome back</h1>
+    <p class="subtitle">Choose your profile before starting the game.</p>
+    <form id="launcher" action="/javascript/">
+      <section class="profile" aria-labelledby="profile-title">
+        <h2 class="section-title" id="profile-title">Player profile</h2>
+        <label for="player-name">Profile name</label>
+        <input id="player-name" name="username" type="text" maxlength="16" pattern="[A-Za-z0-9_]{1,16}"
+          autocomplete="nickname" placeholder="Enter a username" required>
+        <p class="hint">Use 1–16 letters, numbers, or underscores.</p>
+      </section>
+      <div class="actions">
+        <button class="launch" type="submit">Play</button>
+        <span id="status" role="status" aria-live="polite"></span>
+      </div>
+    </form>
   </main>
+  <footer>Legend Client · Minecraft 1.12.2</footer>
+  <script>
+    const profileInput = document.getElementById("player-name");
+    const launcherForm = document.getElementById("launcher");
+    const launcherStatus = document.getElementById("status");
+
+    try {
+      profileInput.value = localStorage.getItem("legendClientProfileName") || "";
+    } catch (error) {
+      launcherStatus.textContent = "Browser storage is unavailable; the profile will only apply this session.";
+    }
+
+    launcherForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      if (!launcherForm.reportValidity()) return;
+
+      const username = profileInput.value.trim();
+      if (!/^[A-Za-z0-9_]{1,16}$/.test(username)) {
+        launcherStatus.textContent = "Enter 1–16 letters, numbers, or underscores.";
+        return;
+      }
+
+      try {
+        localStorage.setItem("legendClientProfileName", username);
+      } catch (error) {
+        launcherStatus.textContent = "Could not save the profile; launching with it for this session.";
+      }
+
+      window.location.href = "/javascript/?username=" + encodeURIComponent(username);
+    });
+  </script>
 </body>
 </html>

@@ -181,7 +181,6 @@ public class GuiMainMenu extends GuiScreen {
 		}
 
 		this.buttonList.add(new GuiButton(0, this.width / 2 - 100, j + 72 + 12, 98, 20, I18n.format("menu.options")));
-		this.buttonList.add(new GuiButton(4, this.width / 2 + 2, j + 72 + 12, 98, 20, I18n.format("Edit Profile")));
 		this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, j + 72 + 12));
 	}
 
@@ -237,10 +236,6 @@ public class GuiMainMenu extends GuiScreen {
 
 		if (button.id == 2) {
 			this.mc.displayGuiScreen(new GuiMultiplayer(this));
-		}
-
-		if (button.id == 4) {
-			this.mc.displayGuiScreen(new GuiScreenEditProfile(this));
 		}
 
 		if (button.id == 12) {

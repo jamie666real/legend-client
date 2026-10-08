@@ -43,6 +43,10 @@ public interface IClientConfigAdapter {
 
 	String getServerToJoin();
 
+	default String getInitialUsername() {
+		return null;
+	}
+
 	String getWorldsDB();
 
 	String getResourcePacksDB();
