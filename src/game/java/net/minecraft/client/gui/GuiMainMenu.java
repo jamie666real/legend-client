@@ -20,7 +20,7 @@ import net.lax1dude.eaglercraft.minecraft.MainMenuSkyboxTexture;
 import net.lax1dude.eaglercraft.opengl.WorldRenderer;
 import net.lax1dude.eaglercraft.sp.SingleplayerServerController;
 import net.lax1dude.eaglercraft.sp.gui.GuiScreenIntegratedServerBusy;
-import net.lax1dude.eaglercraft.sp.gui.GuiScreenIntegratedServerStartup:
+import net.lax1dude.eaglercraft.sp.gui.GuiScreenIntegratedServerStartup;
 import net.lax1dude.eaglercraft.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
