@@ -212,7 +212,7 @@ public class GuiCredits extends GuiScreen {
 			int previewX = (previewLeft + previewRight) / 2;
 			int previewY = this.contentTop + 145;
 			drawRect(previewLeft, this.contentTop + 4, previewRight, this.contentTop + 166, 0x88304052);
-			this.drawCenteredString(this.mc.fontRendererObj, "jamie666", previewX, this.contentTop + 12, 0xFFE6EDF5);
+			this.drawCenteredString(this.mc.fontRendererObj, "jamie666", previewX, this.contentTop + 27, 0xFFE6EDF5);
 			long now = EagRuntime.steadyTimeMillis();
 			if (this.previewRespawnAt != 0L && now >= this.previewRespawnAt) {
 				this.previewRespawnAt = 0L;
