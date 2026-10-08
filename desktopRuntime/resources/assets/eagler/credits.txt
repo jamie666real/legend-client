@@ -1,6 +1,6 @@
- §b§lCREDITS
-  §ejamie666: Port, Client, Bug Fixes §eSkin rendering, §eModern Item Rendering, and §emore.
+§b§lCREDITS
+§e• jamie666: Port, Client, Bug Fixes §eSkin rendering, §eModern Item Rendering, and §emore.
 
 §b§lOTHER CREDITS
-§e• lax1dude: Creator of Eaglercraft, §eported Minecraft source code to §eTeaVM, wrote the hardware accelerated §eOpenGL emulator, and built §ecore servers like EaglercraftXBungee.
-§e• ayunami2000: Maintained the §eJavaScript runtime, added bug fixes, §eWebRTC LAN worlds, and voice chat §efeatures.
+§e• lax1dude: Creator of Eaglercraft, §eported §eMinecraft source code to §eTeaVM, wrote the hardware §eaccelerated §eOpenGL emulator, and built §ecore §eservers §elike EaglercraftXBungee.
+§e• ayunami2000: Maintained the §eJavaScript runtime, §eadded bug fixes, §eWebRTC LAN worlds, and voice chat §efeatures.
