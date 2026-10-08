@@ -22,18 +22,19 @@ do not indicate that a server plugin supports a feature.
 The client can display 238 selected 26.2 item-name placeholders in the
 singleplayer creative inventory. They are visual-only 1.12 items: they do not
 have modern item behavior, cannot be used on ordinary 1.12 servers, and are
-hidden from multiplayer creative inventories.
+hidden from multiplayer creative inventories. Each uses the closest matching
+icon already available in this client (for example, spawn eggs use the 1.12
+spawn egg, spears use a matching material sword, and new records use existing
+record art). These are approximations, not the exact 26.2 textures.
 
-All placeholders currently share one original generic icon. To replace it,
-save a licensed PNG as
-`desktopRuntime/resources/assets/minecraft/textures/items/modern_item_placeholder.png`.
-For separate item icons, save each PNG in that same `textures/items/` folder,
-add a matching model JSON in
-`desktopRuntime/resources/assets/minecraft/models/item/` using the
-`items/<item_name>` texture path, then register that model for the item in
-`RenderItem.registerItems()`. This project uses the 1.12 `textures/items/`
-directory; newer Minecraft resource packs commonly use `textures/item/`
-instead.
+The appearance mapping is in `ModernItemCatalog.getAppearanceModel()`. To
+provide a better icon for an item, save a licensed PNG in
+`desktopRuntime/resources/assets/minecraft/textures/items/<texture_name>.png`,
+add a model JSON in `desktopRuntime/resources/assets/minecraft/models/item/`
+that references it with the `items/<texture_name>` path, then change that
+item's mapping to the new model name. This project uses the 1.12
+`textures/items/` directory; newer Minecraft resource packs commonly use
+`textures/item/` instead.
 
 You can obtain textures from the assets in your own legitimate Minecraft
 installation: the matching version's client JAR stores item PNGs under
