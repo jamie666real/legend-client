@@ -55,7 +55,7 @@ public class GuiCredits extends GuiScreen {
 			this.creditsText = EagRuntime.getRequiredResourceString(this.fileLocation);
 		}
 		this.credits.clear();
-		int textWidth = Math.max(1, this.panelWidth - (this.panelWidth >= 330 ? 150 : 54));
+		int textWidth = Math.max(1, this.panelWidth - (this.panelWidth >= 260 ? 150 : 54));
 		for (String line : this.creditsText.split("\n", -1)) {
 			String trimmedLine = line.trim();
 			if (trimmedLine.isEmpty()) {
@@ -136,11 +136,12 @@ public class GuiCredits extends GuiScreen {
 					0xFFE6EDF5);
 		}
 
-		if (this.panelWidth >= 330 && this.panelHeight >= 220) {
-			int previewX = this.panelX + this.panelWidth - 66;
+		if (this.panelWidth >= 260 && this.panelHeight >= 220) {
+			int previewLeft = Math.max(this.panelX + 6, this.panelX + this.panelWidth - 122);
+			int previewRight = this.panelX + this.panelWidth - 10;
+			int previewX = (previewLeft + previewRight) / 2;
 			int previewY = this.contentTop + 145;
-			drawRect(this.panelX + this.panelWidth - 122, this.contentTop + 4,
-					this.panelX + this.panelWidth - 10, this.contentTop + 166, 0x88304052);
+			drawRect(previewLeft, this.contentTop + 4, previewRight, this.contentTop + 166, 0x88304052);
 			this.drawCenteredString(this.mc.fontRendererObj, "jamie666", previewX, this.contentTop + 12,
 					0xFFE6EDF5);
 			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
