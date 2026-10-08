@@ -46,6 +46,18 @@ public class SkinPreviewRenderer {
 	}
 
 	public static void renderPreview(int x, int y, int mx, int my, boolean capeMode, SkinModel skinModel, ResourceLocation skinTexture, ResourceLocation capeTexture) {
+		renderPreviewInternal(x, y, mx, my, capeMode, skinModel, skinTexture, capeTexture, 0.0f, 0.0f);
+	}
+
+	public static void renderNpcPreview(int x, int y, int mx, int my, SkinModel skinModel,
+			ResourceLocation skinTexture, ResourceLocation capeTexture, float animationTime) {
+		float limbSwing = animationTime * 0.003f;
+		float limbSwingAmount = 0.035f + (float) Math.sin(animationTime * 0.0015f) * 0.015f;
+		renderPreviewInternal(x, y, mx, my, false, skinModel, skinTexture, capeTexture, limbSwing, limbSwingAmount);
+	}
+
+	private static void renderPreviewInternal(int x, int y, int mx, int my, boolean capeMode, SkinModel skinModel,
+			ResourceLocation skinTexture, ResourceLocation capeTexture, float limbSwing, float limbSwingAmount) {
 		ModelBiped model;
 		switch(skinModel) {
 		case STEVE:
@@ -99,7 +111,8 @@ public class SkinPreviewRenderer {
 			Minecraft.getMinecraft().getTextureManager().bindTexture(skinTexture);
 		}
 		
-		model.render(null, 0.0f, 0.0f, (float)(EagRuntime.steadyTimeMillis() % 2000000) / 50f, ((x - mx) * 0.06f), ((y - my) * -0.1f), 0.0625f);
+		model.render(null, limbSwing, limbSwingAmount, (float)(EagRuntime.steadyTimeMillis() % 2000000) / 50f,
+				((x - mx) * 0.06f), ((y - my) * -0.1f), 0.0625f);
 		
 		if(capeTexture != null && model instanceof ModelPlayer) {
 			Minecraft.getMinecraft().getTextureManager().bindTexture(capeTexture);

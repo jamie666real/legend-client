@@ -158,14 +158,17 @@ public class GuiCredits extends GuiScreen {
 			long elapsed = Math.max(0L, Math.min(100L, now - this.previewAnimationTime));
 			this.previewAnimationTime = now;
 			float smoothing = 1.0F - (float) Math.exp(-elapsed / 100.0D);
-			float orbitX = (float) Math.sin(now * 0.0007D) * 220.0F;
-			float orbitY = (float) Math.sin(now * 0.0009D) * 14.0F;
-			this.previewMouseX += (par1 - orbitX - this.previewMouseX) * smoothing;
-			this.previewMouseY += (par2 + orbitY - this.previewMouseY) * smoothing;
+			long glanceCycle = now % 7800L;
+			float glance = glanceCycle >= 5300L && glanceCycle <= 6700L
+					? (float) Math.sin((glanceCycle - 5300L) * Math.PI / 1400.0D) : 0.0F;
+			float idleSway = (float) Math.sin(now * 0.00045D) * 18.0F;
+			float idleTilt = (float) Math.sin(now * 0.0008D) * 5.0F;
+			this.previewMouseX += (par1 - idleSway - glance * 130.0F - this.previewMouseX) * smoothing;
+			this.previewMouseY += (par2 + idleTilt - this.previewMouseY) * smoothing;
 			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
-			SkinPreviewRenderer.renderPreview(previewX, previewY, (int) this.previewMouseX,
-					(int) this.previewMouseY, false, EaglerProfile.getActiveSkinModel(),
-					EaglerProfile.getActiveSkinResourceLocation(), EaglerProfile.getActiveCapeResourceLocation());
+			SkinPreviewRenderer.renderNpcPreview(previewX, previewY, (int) this.previewMouseX,
+					(int) this.previewMouseY, EaglerProfile.getActiveSkinModel(), EaglerProfile.getActiveSkinResourceLocation(),
+					EaglerProfile.getActiveCapeResourceLocation(), now);
 		}
 
 		int trackX = this.panelX + this.panelWidth - 17;
