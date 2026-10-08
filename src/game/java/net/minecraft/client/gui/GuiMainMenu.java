@@ -20,6 +20,7 @@ import net.lax1dude.eaglercraft.minecraft.MainMenuSkyboxTexture;
 import net.lax1dude.eaglercraft.opengl.WorldRenderer;
 import net.lax1dude.eaglercraft.sp.SingleplayerServerController;
 import net.lax1dude.eaglercraft.sp.gui.GuiScreenIntegratedServerBusy;
+import net.lax1dude.eaglercraft.sp.gui.GuiScreenIntegratedServerStartup:
 import net.lax1dude.eaglercraft.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.opengl.RealOpenGLEnums;
@@ -197,7 +198,6 @@ public class GuiMainMenu extends GuiScreen {
 	private void addSingleplayerMultiplayerButtons(int p_73969_1_, int p_73969_2_) {
 		this.buttonSingleplayer = new GuiButton(1, this.width / 2 - 100, p_73969_1_,
 				I18n.format("menu.singleplayer"));
-		this.buttonSingleplayer.enabled = false;
 		this.buttonList.add(this.buttonSingleplayer);
 		this.buttonList.add(
 				new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, I18n.format("menu.multiplayer")));
@@ -229,7 +229,12 @@ public class GuiMainMenu extends GuiScreen {
 	 * buttons)
 	 */
 	protected void actionPerformed(GuiButton button) throws IOException {
-		if (button.id == 1 || button.id == 11) {
+		if (button.id == 1) {
+			this.mc.displayGuiScreen(new GuiScreenIntegratedServerStartup(this));
+			return;
+		}
+
+		if (button.id == 11) {
 			return;
 		}
 
