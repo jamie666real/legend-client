@@ -47,6 +47,8 @@ public class GuiMainMenu extends GuiScreen {
 
 	/** The splash message. */
 	private String splashText;
+	private final List<String> splashTexts = Lists.<String>newArrayList();
+	private int splashTextIndex;
 	private GuiButton buttonResetDemo;
 	private GuiButton buttonSingleplayer;
 
@@ -93,7 +95,6 @@ public class GuiMainMenu extends GuiScreen {
 		IResource iresource = null;
 
 		try {
-			List<String> list = Lists.<String>newArrayList();
 			iresource = Minecraft.getMinecraft().getResourceManager().getResource(SPLASH_TEXTS);
 			BufferedReader bufferedreader = new BufferedReader(
 					new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8));
@@ -103,13 +104,14 @@ public class GuiMainMenu extends GuiScreen {
 				s = s.trim();
 
 				if (!s.isEmpty()) {
-					list.add(s);
+					this.splashTexts.add(s);
 				}
 			}
 
-			if (!list.isEmpty()) {
+			if (!this.splashTexts.isEmpty()) {
 				while (true) {
-					this.splashText = list.get(RANDOM.nextInt(list.size()));
+					this.splashTextIndex = RANDOM.nextInt(this.splashTexts.size());
+					this.splashText = this.splashTexts.get(this.splashTextIndex);
 
 					if (this.splashText.hashCode() != 125780783) {
 						break;
@@ -145,6 +147,10 @@ public class GuiMainMenu extends GuiScreen {
 	 * on the key), keyCode (lwjgl Keyboard key code)
 	 */
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
+		if (keyCode == 1 && !this.splashTexts.isEmpty()) {
+			this.splashTextIndex = (this.splashTextIndex + 1) % this.splashTexts.size();
+			this.splashText = this.splashTexts.get(this.splashTextIndex);
+		}
 	}
 
 	/**
