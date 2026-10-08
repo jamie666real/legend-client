@@ -9,15 +9,14 @@ import net.minecraft.client.gui.GuiScreen;
 import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.Mouse;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.profile.DefaultSkins;
 import net.lax1dude.eaglercraft.profile.SkinModel;
 import net.lax1dude.eaglercraft.profile.SkinPreviewRenderer;
-import net.minecraft.util.ResourceLocation;
 
 import static net.lax1dude.eaglercraft.opengl.RealOpenGLEnums.GL_DEPTH_BUFFER_BIT;
 
 public class GuiCredits extends GuiScreen {
 
-	private static final ResourceLocation ZAYZAY_SKIN = new ResourceLocation("eagler:skins/zayzay.png");
 	private ArrayList<String> credits = new ArrayList<String>();
 
 	private int mouseY;
@@ -142,10 +141,11 @@ public class GuiCredits extends GuiScreen {
 			int previewY = this.contentTop + 145;
 			drawRect(this.panelX + this.panelWidth - 122, this.contentTop + 4,
 					this.panelX + this.panelWidth - 10, this.contentTop + 166, 0x88304052);
+			this.drawCenteredString(this.mc.fontRendererObj, "jamie666", previewX, this.contentTop + 12,
+					0xFFE6EDF5);
 			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
-			SkinPreviewRenderer.renderPreview(previewX, previewY, par1, par2, false, SkinModel.STEVE, ZAYZAY_SKIN,
-					null);
-			this.drawCenteredString(this.mc.fontRendererObj, "Zay Zay", previewX, previewY + 7, 0xFFE6EDF5);
+			SkinPreviewRenderer.renderPreview(previewX, previewY, par1, par2, false, DefaultSkins.ZAY_ZAY.model,
+					DefaultSkins.ZAY_ZAY.location, null);
 		}
 
 		int trackX = this.panelX + this.panelWidth - 17;
