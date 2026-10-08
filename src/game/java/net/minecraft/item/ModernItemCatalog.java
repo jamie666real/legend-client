@@ -242,6 +242,221 @@ public final class ModernItemCatalog {
         {"zombie_nautilus_spawn_egg", "Zombie Nautilus Spawn Egg"}
     };
 
+    public static String getAppearanceModel(String itemName) {
+        if (itemName.endsWith("_spawn_egg")) {
+            return "spawn_egg";
+        }
+        if (itemName.endsWith("_chest_boat")) {
+            itemName = itemName.substring(0, itemName.length() - 11) + "_boat";
+        }
+        if (itemName.endsWith("_boat")) {
+            if (itemName.startsWith("bamboo_")) {
+                return "jungle_boat";
+            }
+            if (itemName.startsWith("cherry_") || itemName.startsWith("mangrove_")
+                    || itemName.startsWith("pale_oak_")) {
+                return "acacia_boat";
+            }
+            if (itemName.equals("oak_boat") || itemName.equals("acacia_boat") || itemName.equals("birch_boat")
+                    || itemName.equals("dark_oak_boat") || itemName.equals("jungle_boat")
+                    || itemName.equals("spruce_boat")) {
+                return itemName;
+            }
+            return "oak_boat";
+        }
+        if (itemName.endsWith("_bundle")) {
+            String color = itemName.substring(0, itemName.length() - 7);
+            return color.equals("light_gray") ? "silver_shulker_box" : color + "_shulker_box";
+        }
+        if (itemName.equals("bundle")) {
+            return "shulker_box";
+        }
+        if (itemName.endsWith("_harness") || itemName.equals("harness")) {
+            return "saddle";
+        }
+        if (itemName.endsWith("_spear")) {
+            String material = itemName.substring(0, itemName.length() - 6);
+            if (material.equals("wooden")) {
+                return "wooden_sword";
+            }
+            if (material.equals("copper")) {
+                return "golden_sword";
+            }
+            if (material.equals("netherite")) {
+                return "iron_sword";
+            }
+            return material + "_sword";
+        }
+        if (itemName.endsWith("_nautilus_armor")) {
+            String material = itemName.substring(0, itemName.length() - 15);
+            if (material.equals("copper") || material.equals("netherite")) {
+                material = "iron";
+            }
+            if (material.equals("golden")) {
+                material = "golden";
+            }
+            return material + "_horse_armor";
+        }
+        if (itemName.endsWith("_horse_armor")) {
+            String material = itemName.substring(0, itemName.length() - 12);
+            if (material.equals("leather") || material.equals("copper")) {
+                return "golden_horse_armor";
+            }
+            if (material.equals("netherite")) {
+                return "iron_horse_armor";
+            }
+            return material.equals("gold") ? "golden_horse_armor" : itemName;
+        }
+        if (itemName.equals("smithing_template") || itemName.endsWith("_armor_trim_smithing_template")
+                || itemName.endsWith("_smithing_template")) {
+            return "paper";
+        }
+        if (itemName.endsWith("_pottery_sherd")) {
+            return "brick";
+        }
+        if (itemName.endsWith("_banner_pattern")) {
+            return "banner";
+        }
+        if (itemName.startsWith("music_disc_")) {
+            String[] records = { "record_11", "record_13", "record_blocks", "record_cat", "record_chirp",
+                    "record_far", "record_mall", "record_mellohi", "record_stal", "record_strad", "record_ward",
+                    "record_wait" };
+            return records[Math.floorMod(itemName.hashCode(), records.length)];
+        }
+        if (itemName.startsWith("copper_")) {
+            String suffix = itemName.substring("copper_".length());
+            if (suffix.equals("ingot")) {
+                return "gold_ingot";
+            }
+            if (suffix.equals("nugget")) {
+                return "gold_nugget";
+            }
+            if (suffix.equals("horse_armor")) {
+                return "golden_horse_armor";
+            }
+            return "golden_" + suffix;
+        }
+        if (itemName.startsWith("netherite_")) {
+            String suffix = itemName.substring("netherite_".length());
+            if (suffix.equals("ingot") || suffix.equals("scrap")) {
+                return "iron_ingot";
+            }
+            if (suffix.equals("horse_armor")) {
+                return "iron_horse_armor";
+            }
+            return "iron_" + suffix;
+        }
+        if (itemName.endsWith("_bucket")) {
+            return "water_bucket";
+        }
+        if (itemName.endsWith("_egg")) {
+            return "egg";
+        }
+        if (itemName.equals("amethyst_shard") || itemName.equals("nautilus_shell")) {
+            return "prismarine_shard";
+        }
+        if (itemName.equals("echo_shard")) {
+            return "prismarine_crystals";
+        }
+        if (itemName.equals("heart_of_the_sea")) {
+            return "end_crystal";
+        }
+        if (itemName.equals("lodestone_compass")) {
+            return "compass";
+        }
+        if (itemName.equals("crossbow")) {
+            return "bow";
+        }
+        if (itemName.equals("dried_kelp") || itemName.equals("glow_berries")) {
+            return "reeds";
+        }
+        if (itemName.equals("disc_fragment_5")) {
+            return "record_13";
+        }
+        if (itemName.equals("ominous_bottle") || itemName.equals("honey_bottle")) {
+            return itemName.equals("honey_bottle") ? "bottle_drinkable" : "bottle_splash";
+        }
+        if (itemName.equals("glow_ink_sac")) {
+            return "dye_black";
+        }
+        if (itemName.equals("glow_item_frame")) {
+            return "item_frame";
+        }
+        if (itemName.equals("breeze_rod")) {
+            return "blaze_rod";
+        }
+        if (itemName.equals("wind_charge")) {
+            return "fire_charge";
+        }
+        if (itemName.equals("honeycomb")) {
+            return "golden_apple";
+        }
+        if (itemName.equals("armadillo_scute")) {
+            return "leather";
+        }
+        if (itemName.equals("goat_horn")) {
+            return "bone";
+        }
+        if (itemName.equals("brush")) {
+            return "feather";
+        }
+        if (itemName.equals("mace")) {
+            return "iron_axe";
+        }
+        if (itemName.equals("wolf_armor")) {
+            return "leather_chestplate";
+        }
+        if (itemName.equals("bamboo_raft") || itemName.equals("bamboo_chest_raft")) {
+            return "jungle_boat";
+        }
+        if (itemName.equals("debug_stick")) {
+            return "stick";
+        }
+        if (itemName.equals("ominous_trial_key") || itemName.equals("trial_key")) {
+            return "gold_nugget";
+        }
+        if (itemName.equals("phantom_membrane")) {
+            return "leather";
+        }
+        if (itemName.equals("pitcher_plant")) {
+            return "houstonia";
+        }
+        if (itemName.equals("pitcher_pod") || itemName.equals("torchflower_seeds")) {
+            return "wheat_seeds";
+        }
+        if (itemName.equals("raw_copper") || itemName.equals("raw_gold")) {
+            return "gold_ingot";
+        }
+        if (itemName.equals("raw_iron")) {
+            return "iron_ingot";
+        }
+        if (itemName.equals("resin_brick")) {
+            return "brick";
+        }
+        if (itemName.equals("resin_clump")) {
+            return "slime_ball";
+        }
+        if (itemName.equals("spyglass")) {
+            return "compass";
+        }
+        if (itemName.equals("suspicious_stew")) {
+            return "mushroom_stew";
+        }
+        if (itemName.equals("sweet_berries")) {
+            return "reeds";
+        }
+        if (itemName.equals("trident")) {
+            return "iron_sword";
+        }
+        if (itemName.equals("warped_fungus_on_a_stick")) {
+            return "carrot_on_a_stick";
+        }
+        if (itemName.equals("blue_egg") || itemName.equals("brown_egg")) {
+            return "egg";
+        }
+        return "paper";
+    }
+
     private ModernItemCatalog() {
     }
 }

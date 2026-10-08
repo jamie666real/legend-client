@@ -52,6 +52,7 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemFishFood;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ModernItemCatalog;
 import net.minecraft.tileentity.TileEntityStructure;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ReportedException;
@@ -1109,7 +1110,8 @@ public class RenderItem implements IResourceManagerReloadListener {
 		this.registerBlock(Blocks.STRUCTURE_BLOCK, TileEntityStructure.Mode.CORNER.getModeId(), "structure_block");
 		this.registerBlock(Blocks.STRUCTURE_BLOCK, TileEntityStructure.Mode.DATA.getModeId(), "structure_block");
 		for (Item item : Item.MODERN_26_2_PLACEHOLDERS) {
-			this.registerItem(item, "modern_item_placeholder");
+			String itemName = Item.REGISTRY.getNameForObject(item).getResourcePath();
+			this.registerItem(item, ModernItemCatalog.getAppearanceModel(itemName));
 		}
 	}
 

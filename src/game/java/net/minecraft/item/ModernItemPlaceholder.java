@@ -21,6 +21,6 @@ public final class ModernItemPlaceholder extends Item {
 
 	@Override
 	public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag advanced) {
-		tooltip.add(I18n.translateToLocal("item.modern26_2.placeholder.warning"));
+		tooltip.add(I18n.translateToLocal("item.modern26_2.placeholder.appearance_warning"));
 	}
 }

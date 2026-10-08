@@ -4368,4 +4368,4 @@ item.modern26_2.yellow_bundle.name=Yellow Bundle
 item.modern26_2.yellow_harness.name=Yellow Harness
 item.modern26_2.zoglin_spawn_egg.name=Zoglin Spawn Egg
 item.modern26_2.zombie_nautilus_spawn_egg.name=Zombie Nautilus Spawn Egg
-item.modern26_2.placeholder.warning=Visual placeholder only; not supported by Minecraft 1.12 servers.
+item.modern26_2.placeholder.appearance_warning=Approximate 1.12 icon only; visual placeholder, not supported by 1.12 servers.
