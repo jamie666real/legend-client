@@ -41,6 +41,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 
 	private boolean dropDownOpen = false;
 	private String[] dropDownOptions;
+	private DefaultSkins[] displayedDefaultSkins;
 	private int slotsVisible = 0;
 	protected int selectedSlot = 0;
 	private int scrollPos = -1;
@@ -66,30 +67,62 @@ public class GuiScreenEditProfile extends GuiScreen {
 		usernameField.setFocused(true);
 		usernameField.setText(EaglerProfile.getName());
 		usernameField.setMaxStringLength(16);
-		selectedSlot = EaglerProfile.presetSkinId == -1 ? EaglerProfile.customSkinId : (EaglerProfile.presetSkinId + EaglerProfile.customSkins.size());
 		buttonList.add(new GuiButton(0, width / 2 - 100, height / 6 + 168, I18n.format("gui.done")));
 		buttonList.add(new GuiButton(1, width / 2 - 21, height / 6 + 110, 71, 20, I18n.format("editProfile.addSkin")));
 		buttonList.add(new GuiButton(2, width / 2 - 21 + 71, height / 6 + 110, 72, 20, I18n.format("editProfile.clearSkin")));
 		updateOptions();
+		if (EaglerProfile.presetSkinId == -1) {
+			selectedSlot = EaglerProfile.customSkinId;
+		} else {
+			selectedSlot = EaglerProfile.customSkins.size() + getDisplayedDefaultSkinIndex(EaglerProfile.presetSkinId);
+		}
+		if (selectedSlot < 0 || selectedSlot >= dropDownOptions.length) {
+			selectedSlot = 0;
+		}
 	}
 
 	private void updateOptions() {
-		DefaultSkins[] arr = DefaultSkins.defaultSkinsMap;
-		if(!EagRuntime.getConfiguration().isAllowFNAWSkins()) {
-			DefaultSkins[] arrNoFNAW = new DefaultSkins[arr.length - 5];
-			System.arraycopy(arr, 0, arrNoFNAW, 0, arrNoFNAW.length);
-			arr = arrNoFNAW;
+		DefaultSkins[] defaults = DefaultSkins.defaultSkinsMap;
+		boolean allowFNAWSkins = EagRuntime.getConfiguration().isAllowFNAWSkins();
+		int numDefault = 0;
+		for (DefaultSkins skin : defaults) {
+			if (allowFNAWSkins || skin.model.highPoly == null) {
+				++numDefault;
+			}
 		}
 		int numCustom = EaglerProfile.customSkins.size();
-		String[] n = new String[numCustom + arr.length];
+		String[] n = new String[numCustom + numDefault];
+		displayedDefaultSkins = new DefaultSkins[numDefault];
 		for(int i = 0; i < numCustom; ++i) {
 			n[i] = EaglerProfile.customSkins.get(i).name;
 		}
-		int numDefault = arr.length;
-		for(int j = 0; j < numDefault; ++j) {
-			n[numCustom + j] = arr[j].name;
+		int next = numCustom;
+		for (DefaultSkins skin : defaults) {
+			if (allowFNAWSkins || skin.model.highPoly == null) {
+				displayedDefaultSkins[next - numCustom] = skin;
+				n[next++] = skin.name;
+			}
 		}
 		dropDownOptions = n;
+	}
+
+	private int getDisplayedDefaultSkinIndex(int skinId) {
+		for (int i = 0; i < displayedDefaultSkins.length; ++i) {
+			if (displayedDefaultSkins[i].id == skinId) {
+				return i;
+			}
+		}
+		return 0;
+	}
+
+	private SkinModel getSelectedSkinModel() {
+		int customCount = EaglerProfile.customSkins.size();
+		if (selectedSlot < customCount) {
+			return EaglerProfile.customSkins.get(selectedSlot).model;
+		}
+		int defaultIndex = selectedSlot - customCount;
+		return defaultIndex >= 0 && defaultIndex < displayedDefaultSkins.length
+				? displayedDefaultSkins[defaultIndex].model : SkinModel.STEVE;
 	}
 
 	public void drawScreen(int mx, int my, float partialTicks) {
@@ -119,7 +152,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 
 		int numberOfCustomSkins = EaglerProfile.customSkins.size();
 		int skid = selectedSlot - numberOfCustomSkins;
-		SkinModel selectedSkinModel = skid < 0 ? EaglerProfile.customSkins.get(selectedSlot).model : DefaultSkins.getSkinFromId(skid).model;
+		SkinModel selectedSkinModel = getSelectedSkinModel();
 		if(selectedSkinModel == SkinModel.STEVE || selectedSkinModel == SkinModel.ALEX || (selectedSkinModel.highPoly != null && !this.mc.gameSettings.enableFNAWSkins)) {
 			String capesText = I18n.format("editProfile.capes");
 			int color = 10526880;
@@ -282,7 +315,8 @@ public class GuiScreenEditProfile extends GuiScreen {
 			if(skid < 0) {
 				texture = EaglerProfile.customSkins.get(selectedSlot).getResource();
 			}else {
-				texture = DefaultSkins.getSkinFromId(skid).location;
+				int defaultIndex = selectedSlot - numberOfCustomSkins;
+				texture = displayedDefaultSkins[defaultIndex].location;
 			}
 
 			SkinPreviewRenderer.renderPreview(xx, yy, newSkinWaitSteveOrAlex ? width / 2 : mx,
@@ -434,7 +468,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 			
 			int skinX, skinY;
 			int skid = selectedSlot - EaglerProfile.customSkins.size();
-			SkinModel selectedSkinModel = skid < 0 ? EaglerProfile.customSkins.get(selectedSlot).model : DefaultSkins.getSkinFromId(skid).model;
+			SkinModel selectedSkinModel = getSelectedSkinModel();
 			if(selectedSkinModel == SkinModel.STEVE || selectedSkinModel == SkinModel.ALEX || (selectedSkinModel.highPoly != null && !this.mc.gameSettings.enableFNAWSkins)) {
 				skinX = this.width / 2 - 120;
 				skinY = this.height / 6 + 8;
@@ -524,7 +558,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 			EaglerProfile.presetSkinId = -1;
 			EaglerProfile.customSkinId = selectedSlot;
 		}else {
-			EaglerProfile.presetSkinId = selectedSlot - customLen;
+			EaglerProfile.presetSkinId = displayedDefaultSkins[selectedSlot - customLen].id;
 			EaglerProfile.customSkinId = -1;
 		}
 		String name = usernameField.getText().trim();

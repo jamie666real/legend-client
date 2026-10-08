@@ -8,9 +8,16 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.Mouse;
+import net.lax1dude.eaglercraft.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.profile.SkinModel;
+import net.lax1dude.eaglercraft.profile.SkinPreviewRenderer;
+import net.minecraft.util.ResourceLocation;
+
+import static net.lax1dude.eaglercraft.opengl.RealOpenGLEnums.GL_DEPTH_BUFFER_BIT;
 
 public class GuiCredits extends GuiScreen {
 
+	private static final ResourceLocation ZAYZAY_SKIN = new ResourceLocation("eagler:skins/zayzay.png");
 	private ArrayList<String> credits = new ArrayList<String>();
 
 	private int mouseY;
@@ -49,7 +56,7 @@ public class GuiCredits extends GuiScreen {
 			this.creditsText = EagRuntime.getRequiredResourceString(this.fileLocation);
 		}
 		this.credits.clear();
-		int textWidth = Math.max(1, this.panelWidth - 54);
+		int textWidth = Math.max(1, this.panelWidth - (this.panelWidth >= 330 ? 150 : 54));
 		for (String line : this.creditsText.split("\n", -1)) {
 			String trimmedLine = line.trim();
 			if (trimmedLine.isEmpty()) {
@@ -128,6 +135,17 @@ public class GuiCredits extends GuiScreen {
 		for (int i = 0; i < this.visibleLines && this.scrollPosition + i < lines; ++i) {
 			this.mc.fontRendererObj.drawStringWithShadow(this.credits.get(this.scrollPosition + i), textX, textY + i * 10,
 					0xFFE6EDF5);
+		}
+
+		if (this.panelWidth >= 330 && this.panelHeight >= 220) {
+			int previewX = this.panelX + this.panelWidth - 66;
+			int previewY = this.contentTop + 145;
+			drawRect(this.panelX + this.panelWidth - 122, this.contentTop + 4,
+					this.panelX + this.panelWidth - 10, this.contentTop + 166, 0x88304052);
+			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
+			SkinPreviewRenderer.renderPreview(previewX, previewY, par1, par2, false, SkinModel.STEVE, ZAYZAY_SKIN,
+					null);
+			this.drawCenteredString(this.mc.fontRendererObj, "Zay Zay", previewX, previewY + 7, 0xFFE6EDF5);
 		}
 
 		int trackX = this.panelX + this.panelWidth - 17;
