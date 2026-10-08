@@ -86,7 +86,7 @@
 
     .skin-controls {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 160px;
+      grid-template-columns: minmax(0, 1fr) minmax(200px, 220px);
       align-items: start;
       gap: 18px;
     }
@@ -103,45 +103,24 @@
     }
 
     select { margin-top: 8px; }
-    #skin-model { margin-top: 12px; }
+    #skin-model { margin-top: 8px; }
     .skin-stage {
       position: relative;
-      width: 160px;
-      height: 190px;
+      width: 100%;
+      aspect-ratio: 4 / 5;
       overflow: hidden;
-      perspective: 600px;
-      background: radial-gradient(ellipse at center, #343a40, #101214 72%);
-      border: 1px solid #555d66;
+      background:
+        radial-gradient(ellipse at 50% 89%, #454b51 0, #252a2f 24%, transparent 60%),
+        radial-gradient(ellipse at 50% 45%, #30363c, #101214 76%);
+      border: 1px solid #6b737c;
+      box-shadow: inset 0 0 24px #0008, 0 8px 20px #0006;
       cursor: grab;
       touch-action: none;
       user-select: none;
     }
 
     .skin-stage:active { cursor: grabbing; }
-    .player-model {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 16px;
-      height: 32px;
-      transform: translate(-50%, -50%) scale(3.4) rotateX(-7deg) rotateY(var(--skin-rotation, -25deg));
-      transform-style: preserve-3d;
-    }
-
-    .skin-cube { position: absolute; transform-style: preserve-3d; }
-    .skin-face {
-      position: absolute;
-      background-repeat: no-repeat;
-      image-rendering: pixelated;
-      backface-visibility: hidden;
-    }
-
-    .skin-face-front { filter: brightness(1); }
-    .skin-face-back { filter: brightness(.75); }
-    .skin-face-right { filter: brightness(.85); }
-    .skin-face-left { filter: brightness(.7); }
-    .skin-face-top { filter: brightness(1.15); }
-    .skin-face-bottom { filter: brightness(.6); }
+    canvas.skin-canvas { display: block; width: 100%; height: 100%; background: transparent; border: 0; image-rendering: pixelated; }
     .skin-texture { display: none; }
 
     #skin-status { min-height: 18px; margin: 8px 0 0; color: #ffcf73; font-size: 12px; }
@@ -173,9 +152,7 @@
     @media (max-width: 520px) {
       main { margin: 28px auto; padding: 22px; }
       .actions { align-items: flex-start; flex-direction: column; gap: 10px; }
-      .skin-controls { grid-template-columns: minmax(0, 1fr) 120px; gap: 12px; }
-      .skin-stage { width: 120px; height: 160px; }
-      .player-model { transform: translate(-50%, -50%) scale(2.8) rotateX(-7deg) rotateY(var(--skin-rotation, -25deg)); }
+      .skin-controls { grid-template-columns: minmax(0, 1fr) minmax(132px, 160px); gap: 12px; }
     }
   </style>
 </head>
@@ -233,16 +210,16 @@
             </select>
             <label for="skin-file">Choose a Minecraft skin</label>
             <input id="skin-file" type="file" accept="image/png">
-            <label for="skin-model" class="hint">Player model</label>
+            <label for="skin-model" class="hint">Player arm style</label>
             <select id="skin-model">
-              <option value="default">Steve (wide arms)</option>
-              <option value="slim">Alex (slim arms)</option>
+              <option value="default">Wide arms (Steve)</option>
+              <option value="slim">Thin arms (Alex)</option>
             </select>
-            <p class="hint">Choose a built-in skin above or upload a 64×64 / classic 64×32 PNG.</p>
+            <p class="hint">Choose a built-in skin or upload a 64×64 / classic 64×32 PNG. Arm style applies to the preview and game.</p>
           </div>
           <div class="skin-preview">
             <div id="skin-stage" class="skin-stage" role="img" aria-label="3D preview of selected skin; drag to rotate">
-              <div id="skin-preview" class="player-model"></div>
+              <canvas id="skin-preview" class="skin-canvas" aria-hidden="true"></canvas>
             </div>
             <canvas id="skin-texture" class="skin-texture" width="64" height="64"></canvas>
             <p id="skin-preview-name" class="hint">Current profile skin</p>
@@ -273,31 +250,35 @@
     const skinPixelsKey = "legendClientSkinPixels";
     const skinModelKey = "legendClientSkinModel";
     const skinSelectionKey = "legendClientSkinSelection";
+    const skinOverridePixelsKey = "legendClientSkinOverridePixels";
     let skinRotation = -25;
     let dragX = null;
+    let skinRenderer = null;
 
     try {
       profileInput.value = (localStorage.getItem("legendClientProfileName") || "")
         .replace(/[^A-Za-z0-9_]/g, "").slice(0, 16);
       const savedSkinPixels = localStorage.getItem(skinPixelsKey);
+      const savedSkinOverridePixels = localStorage.getItem(skinOverridePixelsKey);
       const savedSkinSelection = localStorage.getItem(skinSelectionKey)
         || (savedSkinPixels ? "uploaded" : "profile");
       embeddedSkinInput.querySelector('option[value="uploaded"]').disabled = !savedSkinPixels;
       embeddedSkinInput.value = savedSkinSelection;
       if (embeddedSkinInput.value !== savedSkinSelection) embeddedSkinInput.value = "profile";
+      const savedSkinModel = localStorage.getItem(skinModelKey);
+      if (savedSkinModel === "default" || savedSkinModel === "slim") skinModelInput.value = savedSkinModel;
       if (savedSkinPixels) {
-        skinModelInput.value = localStorage.getItem(skinModelKey) || "default";
         if (savedSkinSelection === "uploaded") {
           drawSkinPreview(savedSkinPixels);
           skinPreviewName.textContent = "My uploaded skin";
-          renderSkinModel(skinTextureCanvas.toDataURL("image/png"), skinModelInput.value === "slim");
+          renderSkinModel(skinTextureCanvas, skinModelInput.value === "slim");
         }
         skinStatus.textContent = savedSkinSelection === "uploaded"
           ? "Saved uploaded skin will be applied when you play."
           : "Choose a built-in skin, uploaded skin, or keep your current profile skin.";
       }
       if (/^(?:[0-9]|[12][0-9])$/.test(savedSkinSelection)) {
-        showEmbeddedSkinPreview(savedSkinSelection);
+        showEmbeddedSkinPreview(savedSkinSelection, !!savedSkinOverridePixels);
       } else if (savedSkinSelection === "profile") {
         showProfileSkinPreview();
       }
@@ -318,121 +299,262 @@
       skinContext.putImageData(image, 0, 0);
     }
 
-    function renderSkinModel(textureUrl, slimArms) {
-      skinPreview.replaceChildren();
-      const pixelScale = 1;
+    function createSkinRenderer() {
+      const gl = skinPreview.getContext("webgl", { alpha: true, antialias: true });
+      if (!gl) {
+        skinStatus.textContent = "Your browser does not support the 3D skin preview.";
+        return null;
+      }
 
-      function addCube(name, x, y, z, width, height, depth, uv, expand = 0) {
-        const cube = document.createElement("div");
-        cube.className = "skin-cube";
-        cube.style.left = (x - expand) + "px";
-        cube.style.top = (y - expand) + "px";
-        cube.style.width = (width + expand * 2) + "px";
-        cube.style.height = (height + expand * 2) + "px";
-        cube.style.transform = "translateZ(" + z + "px)";
-
-        const faces = {
-          front: { size: [width + expand * 2, height + expand * 2], uv: uv.front, transform: "translate(-50%, -50%) translateZ(" + (depth / 2 + expand) + "px)" },
-          back: { size: [width + expand * 2, height + expand * 2], uv: uv.back, transform: "translate(-50%, -50%) rotateY(180deg) translateZ(" + (depth / 2 + expand) + "px)" },
-          right: { size: [depth + expand * 2, height + expand * 2], uv: uv.right, transform: "translate(-50%, -50%) rotateY(90deg) translateZ(" + (width / 2 + expand) + "px)" },
-          left: { size: [depth + expand * 2, height + expand * 2], uv: uv.left, transform: "translate(-50%, -50%) rotateY(-90deg) translateZ(" + (width / 2 + expand) + "px)" },
-          top: { size: [width + expand * 2, depth + expand * 2], uv: uv.top, transform: "translate(-50%, -50%) rotateX(90deg) translateZ(" + (height / 2 + expand) + "px)" },
-          bottom: { size: [width + expand * 2, depth + expand * 2], uv: uv.bottom, transform: "translate(-50%, -50%) rotateX(-90deg) translateZ(" + (height / 2 + expand) + "px)" }
-        };
-
-        for (const [side, faceData] of Object.entries(faces)) {
-          if (!faceData.uv) continue;
-          const face = document.createElement("div");
-          face.className = "skin-face skin-face-" + side;
-          face.style.width = faceData.size[0] + "px";
-          face.style.height = faceData.size[1] + "px";
-          face.style.left = "50%";
-          face.style.top = "50%";
-          face.style.transform = faceData.transform;
-          face.style.backgroundImage = "url(" + textureUrl + ")";
-          const uvWidth = faceData.uv[2] || faceData.size[0];
-          const uvHeight = faceData.uv[3] || faceData.size[1];
-          const scaleX = faceData.size[0] / uvWidth;
-          const scaleY = faceData.size[1] / uvHeight;
-          const textureWidth = 64 * pixelScale * scaleX;
-          const textureHeight = 64 * pixelScale * scaleY;
-          face.style.backgroundSize = textureWidth + "px " + textureHeight + "px";
-          face.style.backgroundPosition =
-            (-(faceData.uv[0] + uvWidth / 2) * pixelScale * scaleX + faceData.size[0] / 2) + "px "
-            + (-(faceData.uv[1] + uvHeight / 2) * pixelScale * scaleY + faceData.size[1] / 2) + "px";
-          cube.appendChild(face);
+      const vertexShaderSource = `
+        attribute vec3 aPosition;
+        attribute vec2 aTexCoord;
+        attribute vec3 aNormal;
+        uniform float uYaw;
+        uniform float uPitch;
+        uniform float uAspect;
+        varying vec2 vTexCoord;
+        varying float vLight;
+        void main() {
+          float cy = cos(uYaw);
+          float sy = sin(uYaw);
+          float cp = cos(uPitch);
+          float sp = sin(uPitch);
+          vec3 rotated = vec3(
+            aPosition.x * cy + aPosition.z * sy,
+            0.0,
+            -aPosition.x * sy + aPosition.z * cy
+          );
+          rotated.y = aPosition.y * cp - rotated.z * sp;
+          rotated.z = aPosition.y * sp + rotated.z * cp;
+          vec3 normal = vec3(
+            aNormal.x * cy + aNormal.z * sy,
+            0.0,
+            -aNormal.x * sy + aNormal.z * cy
+          );
+          normal.y = aNormal.y * cp - normal.z * sp;
+          normal.z = aNormal.y * sp + normal.z * cp;
+          float depth = 52.0 - rotated.z;
+          float nearPlane = 1.0;
+          float farPlane = 100.0;
+          float focalLength = 1.75;
+          gl_Position = vec4(
+            rotated.x * focalLength / uAspect,
+            rotated.y * focalLength,
+            ((farPlane + nearPlane) * depth - 2.0 * farPlane * nearPlane) / (farPlane - nearPlane),
+            depth
+          );
+          vec3 lightDirection = normalize(vec3(-0.4, 0.7, 0.85));
+          vLight = 0.58 + 0.42 * max(dot(normalize(normal), lightDirection), 0.0);
+          vTexCoord = aTexCoord;
         }
-        skinPreview.appendChild(cube);
+      `;
+      const fragmentShaderSource = `
+        precision mediump float;
+        uniform sampler2D uSkin;
+        varying vec2 vTexCoord;
+        varying float vLight;
+        void main() {
+          vec4 color = texture2D(uSkin, vTexCoord);
+          if (color.a < 0.05) discard;
+          gl_FragColor = vec4(color.rgb * vLight, color.a);
+        }
+      `;
+
+      function compileShader(type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          const message = gl.getShaderInfoLog(shader);
+          gl.deleteShader(shader);
+          throw new Error(message || "Unknown shader compilation error");
+        }
+        return shader;
       }
 
-      function sides(right, front, left, back) {
-        return { right, front, left, back };
+      try {
+        const vertexShader = compileShader(gl.VERTEX_SHADER, vertexShaderSource);
+        const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+          throw new Error(gl.getProgramInfoLog(program) || "Unknown shader link error");
+        }
+
+        const buffer = gl.createBuffer();
+        const texture = gl.createTexture();
+        if (!buffer || !texture) throw new Error("Could not allocate the preview buffers.");
+        gl.useProgram(program);
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LEQUAL);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.disable(gl.CULL_FACE);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        skinRenderer = {
+          gl: gl,
+          program: program,
+          buffer: buffer,
+          texture: texture,
+          position: gl.getAttribLocation(program, "aPosition"),
+          texCoord: gl.getAttribLocation(program, "aTexCoord"),
+          normal: gl.getAttribLocation(program, "aNormal"),
+          yaw: gl.getUniformLocation(program, "uYaw"),
+          pitch: gl.getUniformLocation(program, "uPitch"),
+          aspect: gl.getUniformLocation(program, "uAspect"),
+          skin: gl.getUniformLocation(program, "uSkin"),
+          slimArms: null,
+          textureCanvas: null,
+          textureDirty: true,
+          vertexCount: 0
+        };
+        return skinRenderer;
+      } catch (error) {
+        skinStatus.textContent = "Could not initialize the 3D skin preview: " + error.message;
+        return null;
       }
-
-      const headUV = {
-        ...sides([0, 8], [8, 8], [16, 8], [24, 8]),
-        top: [8, 0], bottom: [16, 0]
-      };
-      const hatUV = {
-        ...sides([32, 8], [40, 8], [48, 8], [56, 8]),
-        top: [40, 0], bottom: [48, 0]
-      };
-      const bodyUV = {
-        ...sides([16, 20], [20, 20], [28, 20], [32, 20]),
-        top: [20, 16], bottom: [28, 16]
-      };
-      const jacketUV = {
-        ...sides([16, 36], [20, 36], [28, 36], [32, 36]),
-        top: [20, 32], bottom: [28, 32]
-      };
-      const rightArmUV = slimArms
-        ? { ...sides([40, 20, 3], [43, 20, 4], [47, 20, 3], [50, 20, 4]), top: [44, 16, 3], bottom: [47, 16, 3] }
-        : { ...sides([40, 20], [44, 20], [48, 20], [52, 20]), top: [44, 16], bottom: [48, 16] };
-      const rightSleeveUV = slimArms
-        ? { ...sides([40, 36, 3], [43, 36, 4], [47, 36, 3], [50, 36, 4]), top: [44, 32, 3], bottom: [47, 32, 3] }
-        : { ...sides([40, 36], [44, 36], [48, 36], [52, 36]), top: [44, 32], bottom: [48, 32] };
-      const leftArmUV = {
-        ...sides([32, 52], [36, 52], [40, 52], [44, 52]),
-        top: [36, 48], bottom: [40, 48]
-      };
-      const leftSleeveUV = {
-        ...sides([48, 52], [52, 52], [56, 52], [60, 52]),
-        top: [52, 48], bottom: [56, 48]
-      };
-      const rightLegUV = {
-        ...sides([0, 20], [4, 20], [8, 20], [12, 20]),
-        top: [4, 16], bottom: [8, 16]
-      };
-      const rightPantsUV = {
-        ...sides([0, 36], [4, 36], [8, 36], [12, 36]),
-        top: [4, 32], bottom: [8, 32]
-      };
-      const leftLegUV = {
-        ...sides([16, 52], [20, 52], [24, 52], [28, 52]),
-        top: [20, 48], bottom: [24, 48]
-      };
-      const leftPantsUV = {
-        ...sides([0, 52], [4, 52], [8, 52], [12, 52]),
-        top: [4, 48], bottom: [8, 48]
-      };
-
-      addCube("head", 4, 0, 0, 8, 8, 8, headUV);
-      addCube("hat", 4, 0, 0, 8, 8, 8, hatUV, 0.25);
-      addCube("body", 4, 8, 0, 8, 12, 4, bodyUV);
-      addCube("jacket", 4, 8, 0, 8, 12, 4, jacketUV, 0.25);
-      const armWidth = slimArms ? 3 : 4;
-      const leftArmX = 16 - armWidth;
-      addCube("right-arm", 0, 8, 0, armWidth, 12, 4, rightArmUV);
-      addCube("right-sleeve", 0, 8, 0, armWidth, 12, 4, rightSleeveUV, 0.25);
-      addCube("left-arm", leftArmX, 8, 0, armWidth, 12, 4, leftArmUV);
-      addCube("left-sleeve", leftArmX, 8, 0, armWidth, 12, 4, leftSleeveUV, 0.25);
-      addCube("right-leg", 4, 20, 0, 4, 12, 4, rightLegUV);
-      addCube("right-pants", 4, 20, 0, 4, 12, 4, rightPantsUV, 0.2);
-      addCube("left-leg", 8, 20, 0, 4, 12, 4, leftLegUV);
-      addCube("left-pants", 8, 20, 0, 4, 12, 4, leftPantsUV, 0.2);
     }
 
-    function showEmbeddedSkinPreview(skinId) {
+    function buildSkinModel(slimArms) {
+      const vertices = [];
+
+      function addFace(points, u, v, width, height, normal) {
+        const texCoords = [
+          [u + width, v], [u, v], [u, v + height], [u + width, v + height]
+        ];
+        for (const index of [0, 1, 2, 0, 2, 3]) {
+          const point = points[index];
+          const texCoord = texCoords[index];
+          vertices.push(
+            point[0] - 8, 16 - point[1], -point[2],
+            texCoord[0] / 64, texCoord[1] / 64,
+            normal[0], normal[1], normal[2]
+          );
+        }
+      }
+
+      function addCube(x, y, z, width, height, depth, u, v, expand) {
+        const minX = x - expand;
+        const minY = y - expand;
+        const minZ = z - expand;
+        const maxX = x + width + expand;
+        const maxY = y + height + expand;
+        const maxZ = z + depth + expand;
+        const xMinYMinZMin = [minX, minY, minZ];
+        const xMaxYMinZMin = [maxX, minY, minZ];
+        const xMinYMaxZMin = [minX, maxY, minZ];
+        const xMaxYMaxZMin = [maxX, maxY, minZ];
+        const xMinYMinZMax = [minX, minY, maxZ];
+        const xMaxYMinZMax = [maxX, minY, maxZ];
+        const xMinYMaxZMax = [minX, maxY, maxZ];
+        const xMaxYMaxZMax = [maxX, maxY, maxZ];
+
+        addFace([xMaxYMinZMax, xMaxYMinZMin, xMaxYMaxZMin, xMaxYMaxZMax],
+          u + depth + width, v + depth, depth, height, [1, 0, 0]);
+        addFace([xMinYMinZMin, xMinYMinZMax, xMinYMaxZMax, xMinYMaxZMin],
+          u, v + depth, depth, height, [-1, 0, 0]);
+        addFace([xMaxYMinZMax, xMinYMinZMax, xMinYMinZMin, xMaxYMinZMin],
+          u + depth, v, width, depth, [0, 1, 0]);
+        addFace([xMinYMaxZMin, xMinYMaxZMax, xMaxYMaxZMax, xMaxYMaxZMin],
+          u + depth + width, v, width, depth, [0, -1, 0]);
+        addFace([xMaxYMinZMin, xMinYMinZMin, xMinYMaxZMin, xMaxYMaxZMin],
+          u + depth, v + depth, width, height, [0, 0, 1]);
+        addFace([xMinYMinZMax, xMaxYMinZMax, xMaxYMaxZMax, xMinYMaxZMax],
+          u + depth + width + depth, v + depth, width, height, [0, 0, -1]);
+      }
+
+      const armWidth = slimArms ? 3 : 4;
+      const rightArmX = slimArms ? 1 : 0;
+      addCube(4, 0, -4, 8, 8, 8, 0, 0, 0);
+      addCube(4, 0, -4, 8, 8, 8, 32, 0, 0.25);
+      addCube(4, 8, -2, 8, 12, 4, 16, 16, 0);
+      addCube(4, 8, -2, 8, 12, 4, 16, 32, 0.25);
+      addCube(rightArmX, 8, -2, armWidth, 12, 4, 40, 16, 0);
+      addCube(rightArmX, 8, -2, armWidth, 12, 4, 40, 32, 0.25);
+      addCube(12, 8, -2, armWidth, 12, 4, 32, 48, 0);
+      addCube(12, 8, -2, armWidth, 12, 4, 48, 48, 0.25);
+      addCube(4, 20, -2, 4, 12, 4, 0, 16, 0);
+      addCube(4, 20, -2, 4, 12, 4, 0, 32, 0.2);
+      addCube(8, 20, -2, 4, 12, 4, 16, 48, 0);
+      addCube(8, 20, -2, 4, 12, 4, 0, 48, 0.2);
+      return new Float32Array(vertices);
+    }
+
+    function drawSkinModel() {
+      if (!skinRenderer || !skinRenderer.textureCanvas) return;
+      const renderer = skinRenderer;
+      const gl = renderer.gl;
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.max(1, Math.round(skinStage.clientWidth * pixelRatio));
+      const height = Math.max(1, Math.round(skinStage.clientHeight * pixelRatio));
+      if (skinPreview.width !== width || skinPreview.height !== height) {
+        skinPreview.width = width;
+        skinPreview.height = height;
+      }
+      gl.viewport(0, 0, width, height);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.useProgram(renderer.program);
+
+      if (renderer.slimArms !== skinModelInput.value) {
+        const vertices = buildSkinModel(skinModelInput.value === "slim");
+        gl.bindBuffer(gl.ARRAY_BUFFER, renderer.buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+        renderer.vertexCount = vertices.length / 8;
+        renderer.slimArms = skinModelInput.value;
+      }
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, renderer.texture);
+      if (renderer.textureDirty) {
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, renderer.textureCanvas);
+        renderer.textureDirty = false;
+      }
+      gl.uniform1i(renderer.skin, 0);
+      gl.uniform1f(renderer.yaw, skinRotation * Math.PI / 180);
+      gl.uniform1f(renderer.pitch, -7 * Math.PI / 180);
+      gl.uniform1f(renderer.aspect, width / height);
+      gl.bindBuffer(gl.ARRAY_BUFFER, renderer.buffer);
+      const stride = 8 * Float32Array.BYTES_PER_ELEMENT;
+      gl.enableVertexAttribArray(renderer.position);
+      gl.vertexAttribPointer(renderer.position, 3, gl.FLOAT, false, stride, 0);
+      gl.enableVertexAttribArray(renderer.texCoord);
+      gl.vertexAttribPointer(renderer.texCoord, 2, gl.FLOAT, false, stride, 3 * Float32Array.BYTES_PER_ELEMENT);
+      gl.enableVertexAttribArray(renderer.normal);
+      gl.vertexAttribPointer(renderer.normal, 3, gl.FLOAT, false, stride, 5 * Float32Array.BYTES_PER_ELEMENT);
+      gl.drawArrays(gl.TRIANGLES, 0, renderer.vertexCount);
+    }
+
+    function renderSkinModel(textureCanvas, slimArms) {
+      if (!skinRenderer) skinRenderer = createSkinRenderer();
+      if (!skinRenderer) return;
+      skinRenderer.textureCanvas = textureCanvas;
+      skinRenderer.textureDirty = true;
+      drawSkinModel();
+    }
+
+    function clearSkinPreview() {
+      if (skinRenderer) {
+        skinRenderer.gl.clearColor(0, 0, 0, 0);
+        skinRenderer.gl.clear(skinRenderer.gl.COLOR_BUFFER_BIT | skinRenderer.gl.DEPTH_BUFFER_BIT);
+        skinRenderer.textureCanvas = null;
+      }
+    }
+
+    function isSlimPreset(skinId) {
+      return new Set(["1", "3", "5", "7", "9", "11", "13", "15", "17", "29"]).has(skinId);
+    }
+
+    function showEmbeddedSkinPreview(skinId, preserveArmStyle, onLoaded) {
       const option = embeddedSkinInput.querySelector('option[value="' + skinId + '"]');
       if (!option) return;
       const preview = new Image();
@@ -443,11 +565,14 @@
         skinContext.clearRect(0, 0, 64, 64);
         skinContext.imageSmoothingEnabled = false;
         skinContext.drawImage(preview, 0, 0, 64, 64);
-        renderSkinModel(skinTextureCanvas.toDataURL("image/png"), new Set(["1", "3", "5", "7", "9", "11", "13", "15", "17", "29"]).has(skinId));
+        const slimArms = isSlimPreset(skinId);
+        if (!preserveArmStyle) skinModelInput.value = slimArms ? "slim" : "default";
+        renderSkinModel(skinTextureCanvas, skinModelInput.value === "slim");
+        if (onLoaded) onLoaded(slimArms ? "slim" : "default");
       };
       preview.onerror = function() {
         if (embeddedSkinInput.value !== skinId) return;
-        skinPreview.replaceChildren();
+        clearSkinPreview();
         skinStatus.textContent = "Could not load the preview for " + option.textContent + ".";
       };
       preview.src = "/javascript/skin-previews/" + skinId + ".png";
@@ -455,7 +580,7 @@
     }
 
     function showProfileSkinPreview() {
-      skinPreview.replaceChildren();
+      clearSkinPreview();
       skinPreviewName.textContent = "Current profile skin";
     }
 
@@ -468,7 +593,7 @@
       if (dragX === null) return;
       skinRotation += (event.clientX - dragX) * 0.8;
       dragX = event.clientX;
-      skinPreview.style.setProperty("--skin-rotation", skinRotation + "deg");
+      drawSkinModel();
     });
 
     function stopSkinRotation() {
@@ -477,6 +602,7 @@
 
     skinStage.addEventListener("pointerup", stopSkinRotation);
     skinStage.addEventListener("pointercancel", stopSkinRotation);
+    window.addEventListener("resize", drawSkinModel);
 
     function encodeSkinPixels(rgbaPixels) {
       let binaryPixels = "";
@@ -550,7 +676,7 @@
           embeddedSkinInput.value = "uploaded";
           drawSkinPreview(encodedPixels);
           skinPreviewName.textContent = "My uploaded skin";
-          renderSkinModel(skinTextureCanvas.toDataURL("image/png"), skinModelInput.value === "slim");
+          renderSkinModel(skinTextureCanvas, skinModelInput.value === "slim");
           skinStatus.textContent = "Skin saved. It will be applied when you play.";
         } catch (error) {
           skinStatus.textContent = "Could not save the skin in browser storage.";
@@ -568,6 +694,7 @@
       const selection = embeddedSkinInput.value;
       try {
         if (selection === "uploaded") {
+          localStorage.removeItem(skinOverridePixelsKey);
           const savedSkinPixels = localStorage.getItem(skinPixelsKey);
           if (!savedSkinPixels) {
             embeddedSkinInput.value = "profile";
@@ -576,9 +703,10 @@
           }
           drawSkinPreview(savedSkinPixels);
           skinPreviewName.textContent = "My uploaded skin";
-          renderSkinModel(skinTextureCanvas.toDataURL("image/png"), skinModelInput.value === "slim");
+          renderSkinModel(skinTextureCanvas, skinModelInput.value === "slim");
           skinStatus.textContent = "Uploaded skin selected. It will be applied when you play.";
         } else {
+          localStorage.removeItem(skinOverridePixelsKey);
           if (selection === "profile") {
             showProfileSkinPreview();
             skinStatus.textContent = "Your current profile skin will be kept.";
@@ -608,12 +736,25 @@
     skinModelInput.addEventListener("change", function() {
       try {
         localStorage.setItem(skinModelKey, skinModelInput.value);
-        if (localStorage.getItem(skinPixelsKey)) {
-          if (embeddedSkinInput.value === "uploaded") {
-            drawSkinPreview(localStorage.getItem(skinPixelsKey));
-            renderSkinModel(skinTextureCanvas.toDataURL("image/png"), skinModelInput.value === "slim");
-          }
+        if (embeddedSkinInput.value === "uploaded") {
+          const uploadedSkin = localStorage.getItem(skinPixelsKey);
+          if (!uploadedSkin) throw new Error("Saved uploaded skin is missing.");
+          drawSkinPreview(uploadedSkin);
+          renderSkinModel(skinTextureCanvas, skinModelInput.value === "slim");
           skinStatus.textContent = "Player model saved.";
+        } else if (embeddedSkinInput.value !== "profile") {
+          const skinId = embeddedSkinInput.value;
+          showEmbeddedSkinPreview(skinId, true, function(nativeModel) {
+            if (skinModelInput.value === nativeModel) {
+              localStorage.removeItem(skinOverridePixelsKey);
+            } else {
+              localStorage.setItem(skinOverridePixelsKey,
+                encodeSkinPixels(skinContext.getImageData(0, 0, 64, 64).data));
+            }
+            skinStatus.textContent = "Player model saved.";
+          });
+        } else {
+          skinStatus.textContent = "Player model saved for your next skin selection.";
         }
       } catch (error) {
         skinStatus.textContent = "Could not save the player model in browser storage.";

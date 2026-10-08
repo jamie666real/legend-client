@@ -24,7 +24,12 @@
 					var initialSkinId = null;
 					try {
 						var skinSelection = window.localStorage.getItem("legendClientSkinSelection");
-						if(skinSelection === "uploaded" || (!skinSelection && window.localStorage.getItem("legendClientSkinPixels"))) {
+						var skinOverridePixels = window.localStorage.getItem("legendClientSkinOverridePixels");
+						if(skinOverridePixels && skinSelection !== "profile" && skinSelection !== "uploaded"
+								&& skinSelection !== null && /^[0-9]+$/.test(skinSelection)) {
+							initialSkinData = skinOverridePixels;
+							initialSkinModel = window.localStorage.getItem("legendClientSkinModel") || "default";
+						}else if(skinSelection === "uploaded" || (!skinSelection && window.localStorage.getItem("legendClientSkinPixels"))) {
 							initialSkinData = window.localStorage.getItem("legendClientSkinPixels");
 							initialSkinModel = window.localStorage.getItem("legendClientSkinModel") || "default";
 						}else if(skinSelection !== "profile" && skinSelection !== null && /^[0-9]+$/.test(skinSelection)) {

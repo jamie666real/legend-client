@@ -180,8 +180,8 @@ public class GuiMainMenu extends GuiScreen {
 			this.addSingleplayerMultiplayerButtons(j, 24);
 		}
 
-		this.buttonList.add(new GuiButton(0, this.width / 2 - 100, j + 72 + 12, 98, 20, I18n.format("menu.options")));
-		this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, j + 72 + 12));
+		this.buttonList.add(new GuiButton(0, this.width / 2 - 100, j + 96 + 12, 98, 20, I18n.format("menu.options")));
+		this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, j + 96 + 12));
 	}
 
 	/**
@@ -195,8 +195,9 @@ public class GuiMainMenu extends GuiScreen {
 		this.buttonList.add(this.buttonSingleplayer);
 		this.buttonList.add(
 				new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, I18n.format("menu.multiplayer")));
+		this.buttonList.add(new GuiButton(15, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, "Website"));
 		this.buttonList
-				.add(new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, I18n.format("menu.credits")));
+				.add(new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 3, I18n.format("menu.credits")));
 	}
 
 	/**
@@ -236,6 +237,10 @@ public class GuiMainMenu extends GuiScreen {
 
 		if (button.id == 2) {
 			this.mc.displayGuiScreen(new GuiMultiplayer(this));
+		}
+
+		if (button.id == 15) {
+			EagRuntime.openLink("https://cosmixmc.org");
 		}
 
 		if (button.id == 12) {
