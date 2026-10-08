@@ -464,16 +464,17 @@
           [[u + depth + width, v], [u + depth, v], [u + depth, v + depth], [u + depth + width, v + depth]],
           [0, 1, 0]);
         addFace([xMaxYMaxZMin, xMinYMaxZMin, xMinYMaxZMax, xMaxYMaxZMax],
-          [[u + depth + width, v + depth], [u + depth + width + width, v + depth],
-            [u + depth + width + width, v], [u + depth + width, v]],
+          [[u + depth + width + width, v + depth], [u + depth + width, v + depth],
+            [u + depth + width, v], [u + depth + width + width, v]],
           [0, -1, 0]);
         addFace([xMaxYMinZMin, xMinYMinZMin, xMinYMaxZMin, xMaxYMaxZMin],
-          [[u + depth, v + depth], [u, v + depth], [u, v + depth + height], [u + depth, v + depth + height]],
+          [[u + depth + width, v + depth], [u + depth, v + depth],
+            [u + depth, v + depth + height], [u + depth + width, v + depth + height]],
           [0, 0, 1]);
         addFace([xMinYMinZMax, xMaxYMinZMax, xMaxYMaxZMax, xMinYMaxZMax],
-          [[u + depth + width + depth, v + depth], [u + depth + width + depth + width, v + depth],
-            [u + depth + width + depth + width, v + depth + height],
-            [u + depth + width + depth, v + depth + height]],
+          [[u + depth + width + depth + width, v + depth], [u + depth + width + depth, v + depth],
+            [u + depth + width + depth, v + depth + height],
+            [u + depth + width + depth + width, v + depth + height]],
           [0, 0, -1]);
       }
 
