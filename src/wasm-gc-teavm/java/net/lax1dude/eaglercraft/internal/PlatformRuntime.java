@@ -89,7 +89,7 @@ public class PlatformRuntime {
 
 		PlatformAssets.readAssetsTeaVM();
 
-		byte[] finalLoadScreen = PlatformAssets.getResourceBytes("/assets/eagler/eagtek.png");
+		byte[] finalLoadScreen = PlatformAssets.getResourceBytes("/assets/eagler/eagtek.jpeg");
 
 		if(finalLoadScreen != null) {
 			EarlyLoadScreen.initialize();

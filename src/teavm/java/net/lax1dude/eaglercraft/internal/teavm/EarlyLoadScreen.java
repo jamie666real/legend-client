@@ -239,7 +239,7 @@ public class EarlyLoadScreen {
 	}
 
 	public static void loadFinal(byte[] image) {
-		ImageData img = PlatformAssets.loadImageFile(image);
+		ImageData img = PlatformAssets.loadImageFile(image, "image/jpeg");
 		if(img == null) {
 			return;
 		}

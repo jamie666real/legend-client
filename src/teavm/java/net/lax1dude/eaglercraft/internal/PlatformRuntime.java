@@ -439,7 +439,7 @@ public class PlatformRuntime {
 
 		logger.info("Loaded {} resources from EPKs", PlatformAssets.assets.size());
 
-		byte[] finalLoadScreen = PlatformAssets.getResourceBytes("/assets/eagler/eagtek.png");
+		byte[] finalLoadScreen = PlatformAssets.getResourceBytes("/assets/eagler/eagtek.jpeg");
 
 		if(finalLoadScreen != null) {
 			EarlyLoadScreen.loadFinal(finalLoadScreen);

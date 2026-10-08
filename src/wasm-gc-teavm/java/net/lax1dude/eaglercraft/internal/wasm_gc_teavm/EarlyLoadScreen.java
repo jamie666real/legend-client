@@ -90,7 +90,7 @@ public class EarlyLoadScreen {
 	}
 
 	public static void loadFinal(byte[] finalLoadScreen) {
-		ImageData img = PlatformAssets.loadImageFile(finalLoadScreen);
+		ImageData img = PlatformAssets.loadImageFile(finalLoadScreen, "image/jpeg");
 		if(img == null) {
 			return;
 		}
