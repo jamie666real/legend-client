@@ -11,6 +11,7 @@ import net.minecraft.init.SoundEvents;
 import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.Mouse;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.profile.DefaultSkins;
 import net.lax1dude.eaglercraft.profile.EaglerProfile;
 import net.lax1dude.eaglercraft.profile.SkinPreviewRenderer;
 
@@ -243,8 +244,8 @@ public class GuiCredits extends GuiScreen {
 			if (deathAlpha > 0.0F) {
 				GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
 				SkinPreviewRenderer.renderNpcPreview(previewX, previewY, (int) (this.previewMouseX + hurtShake),
-						(int) this.previewMouseY, EaglerProfile.getActiveSkinModel(),
-						EaglerProfile.getActiveSkinResourceLocation(), EaglerProfile.getActiveCapeResourceLocation(), now,
+						(int) this.previewMouseY, DefaultSkins.ZAYZAY.model, DefaultSkins.ZAYZAY.location,
+						EaglerProfile.getActiveCapeResourceLocation(), now,
 						hurtRemaining > 0L, deathProgress, deathAlpha);
 			}
 		this.drawDeathParticles(previewX, previewY, deathElapsed);
