@@ -575,8 +575,8 @@ public final class TuffClientModules {
                 return "Speedrun: 00:00";
             }
             long seconds = (System.currentTimeMillis() - worldStartTime) / 1000L;
-            return String.format(java.util.Locale.ROOT, "Speedrun: %02d:%02d:%02d",
-                    seconds / 3600L, seconds / 60L % 60L, seconds % 60L);
+            return "Speedrun: " + twoDigits(seconds / 3600L) + ":"
+                    + twoDigits(seconds / 60L % 60L) + ":" + twoDigits(seconds % 60L);
         }
 
         private String compassText() {
@@ -661,7 +661,17 @@ public final class TuffClientModules {
         }
 
         private static String format(double value) {
-            return String.format(java.util.Locale.ROOT, "%.1f", value);
+            if (Double.isNaN(value) || Double.isInfinite(value)) {
+                return String.valueOf(value);
+            }
+            long roundedTenths = Math.round(value * 10.0D);
+            long whole = roundedTenths / 10L;
+            String sign = roundedTenths < 0L && whole == 0L ? "-" : "";
+            return sign + whole + "." + Math.abs(roundedTenths % 10L);
+        }
+
+        private static String twoDigits(long value) {
+            return value < 10L ? "0" + value : String.valueOf(value);
         }
     }
 }
