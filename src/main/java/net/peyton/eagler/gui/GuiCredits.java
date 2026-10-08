@@ -9,8 +9,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.Mouse;
 import net.lax1dude.eaglercraft.opengl.GlStateManager;
-import net.lax1dude.eaglercraft.profile.DefaultSkins;
-import net.lax1dude.eaglercraft.profile.SkinModel;
+import net.lax1dude.eaglercraft.profile.EaglerProfile;
 import net.lax1dude.eaglercraft.profile.SkinPreviewRenderer;
 
 import static net.lax1dude.eaglercraft.opengl.RealOpenGLEnums.GL_DEPTH_BUFFER_BIT;
@@ -29,6 +28,9 @@ public class GuiCredits extends GuiScreen {
 	private int contentTop;
 	private int trackHeight;
 	private String creditsText;
+	private float previewMouseX;
+	private float previewMouseY;
+	private long previewAnimationTime = -1L;
 
 	private int dragstart = -1;
 	private int dragstartI = -1;
@@ -142,11 +144,28 @@ public class GuiCredits extends GuiScreen {
 			int previewX = (previewLeft + previewRight) / 2;
 			int previewY = this.contentTop + 145;
 			drawRect(previewLeft, this.contentTop + 4, previewRight, this.contentTop + 166, 0x88304052);
-			this.drawCenteredString(this.mc.fontRendererObj, "jamie666", previewX, this.contentTop + 12,
-					0xFFE6EDF5);
+			String playerName = EaglerProfile.getName();
+			if (playerName == null || playerName.trim().isEmpty()) {
+				playerName = "Player";
+			}
+			this.drawCenteredString(this.mc.fontRendererObj, playerName, previewX, this.contentTop + 12, 0xFFE6EDF5);
+			long now = EagRuntime.steadyTimeMillis();
+			if (this.previewAnimationTime < 0L) {
+				this.previewMouseX = par1;
+				this.previewMouseY = par2;
+				this.previewAnimationTime = now;
+			}
+			long elapsed = Math.max(0L, Math.min(100L, now - this.previewAnimationTime));
+			this.previewAnimationTime = now;
+			float smoothing = 1.0F - (float) Math.exp(-elapsed / 100.0D);
+			float orbitX = (float) Math.sin(now * 0.0007D) * 220.0F;
+			float orbitY = (float) Math.sin(now * 0.0009D) * 14.0F;
+			this.previewMouseX += (par1 - orbitX - this.previewMouseX) * smoothing;
+			this.previewMouseY += (par2 + orbitY - this.previewMouseY) * smoothing;
 			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
-			SkinPreviewRenderer.renderPreview(previewX, previewY, par1, par2, false, DefaultSkins.ZAYZAY.model,
-					DefaultSkins.ZAYZAY.location, null);
+			SkinPreviewRenderer.renderPreview(previewX, previewY, (int) this.previewMouseX,
+					(int) this.previewMouseY, false, EaglerProfile.getActiveSkinModel(),
+					EaglerProfile.getActiveSkinResourceLocation(), EaglerProfile.getActiveCapeResourceLocation());
 		}
 
 		int trackX = this.panelX + this.panelWidth - 17;
