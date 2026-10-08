@@ -46,6 +46,9 @@ public abstract class Module {
     public String getHudDisplayText() { return getName(); }
 
     public void toggle() {
+        if (!isAvailable() && !enabled) {
+            return;
+        }
         this.enabled = !this.enabled;
         if (this.enabled) onEnable();
         else onDisable();
@@ -55,6 +58,9 @@ public abstract class Module {
     }
 
     void setEnabledWithoutSaving(boolean enabled) {
+        if (enabled && !isAvailable()) {
+            return;
+        }
         this.enabled = enabled;
         if (enabled) {
             onEnable();

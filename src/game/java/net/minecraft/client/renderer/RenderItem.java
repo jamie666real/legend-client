@@ -1108,6 +1108,9 @@ public class RenderItem implements IResourceManagerReloadListener {
 		this.registerBlock(Blocks.STRUCTURE_BLOCK, TileEntityStructure.Mode.LOAD.getModeId(), "structure_block");
 		this.registerBlock(Blocks.STRUCTURE_BLOCK, TileEntityStructure.Mode.CORNER.getModeId(), "structure_block");
 		this.registerBlock(Blocks.STRUCTURE_BLOCK, TileEntityStructure.Mode.DATA.getModeId(), "structure_block");
+		for (Item item : Item.MODERN_26_2_PLACEHOLDERS) {
+			this.registerItem(item, "modern_item_placeholder");
+		}
 	}
 
 	public void onResourceManagerReload(IResourceManager resourceManager) {

@@ -223,6 +223,10 @@ public class Items {
 	public static final Item IRON_NUGGET;
 	public static final Item KNOWLEDGE_BOOK;
 
+	public static Item getModern26_2Placeholder(String name) {
+		return Item.getByNameOrId("modern_26_2:" + name);
+	}
+
 	private static Item getRegisteredItem(String name) {
 		Item item = Item.REGISTRY.getObject(new ResourceLocation(name));
 

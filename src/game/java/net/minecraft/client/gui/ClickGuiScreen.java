@@ -3,6 +3,7 @@ package net.minecraft.client.gui;
 import com.isacofff.clientbase.Category;
 import com.isacofff.clientbase.Client;
 import com.isacofff.clientbase.modules.Module;
+import com.isacofff.clientbase.modules.features.TuffClientModules;
 import com.isacofff.clientbase.settings.Setting;
 import com.isacofff.clientbase.settings.Setting.BooleanSetting;
 import com.isacofff.clientbase.settings.Setting.ModeSetting;
@@ -15,17 +16,17 @@ import net.lax1dude.eaglercraft.Mouse;
 
 public class ClickGuiScreen extends GuiScreen {
 
-    private static final int BACKDROP = 0xB8000000;
-    private static final int WINDOW = 0xFF10131C;
-    private static final int SIDEBAR = 0xFF151A26;
-    private static final int CARD = 0xFF1B2230;
-    private static final int CARD_SELECTED = 0xFF253247;
-    private static final int OUTLINE = 0xFF293448;
-    private static final int ACCENT = 0xFFFF8A00;
-    private static final int BRAND_YELLOW = 0xFFFFD21F;
-    private static final int TEXT = 0xFFF1F5F9;
-    private static final int MUTED = 0xFF99A8BC;
-    private static final int GREEN = 0xFF68E0A0;
+    private int BACKDROP = 0xB8000000;
+    private int WINDOW = 0xFF10131C;
+    private int SIDEBAR = 0xFF151A26;
+    private int CARD = 0xFF1B2230;
+    private int CARD_SELECTED = 0xFF253247;
+    private int OUTLINE = 0xFF293448;
+    private int ACCENT = 0xFFFF8A00;
+    private int BRAND_YELLOW = 0xFFFFD21F;
+    private int TEXT = 0xFFF1F5F9;
+    private int MUTED = 0xFF99A8BC;
+    private int GREEN = 0xFF68E0A0;
 
     private Category category = Category.Movement;
     private final ArrayList<Category> visibleCategories = new ArrayList<>();
@@ -80,6 +81,7 @@ public class ClickGuiScreen extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         calculateLayout();
+        applyTheme();
         drawRect(0, 0, width, height, BACKDROP);
         drawRect(panelX, panelY, panelX + panelWidth, panelY + panelHeight, WINDOW);
         drawRect(panelX, panelY, panelX + panelWidth, panelY + 42, SIDEBAR);
@@ -104,6 +106,34 @@ public class ClickGuiScreen extends GuiScreen {
             drawHudEditor(mouseX, mouseY);
         }
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    private void applyTheme() {
+        if (TuffClientModules.isEnabled("Teto Mode")) {
+            BACKDROP = 0xB8100915;
+            WINDOW = 0xFF18121F;
+            SIDEBAR = 0xFF211728;
+            CARD = 0xFF2B1D2A;
+            CARD_SELECTED = 0xFF42304A;
+            OUTLINE = 0xFF654056;
+            ACCENT = 0xFFFF5C9E;
+            BRAND_YELLOW = 0xFF63E8E8;
+            TEXT = 0xFFFFF2FA;
+            MUTED = 0xFFC5AABD;
+            GREEN = 0xFF71E6BC;
+        } else {
+            BACKDROP = 0xB8000000;
+            WINDOW = 0xFF10131C;
+            SIDEBAR = 0xFF151A26;
+            CARD = 0xFF1B2230;
+            CARD_SELECTED = 0xFF253247;
+            OUTLINE = 0xFF293448;
+            ACCENT = 0xFFFF8A00;
+            BRAND_YELLOW = 0xFFFFD21F;
+            TEXT = 0xFFF1F5F9;
+            MUTED = 0xFF99A8BC;
+            GREEN = 0xFF68E0A0;
+        }
     }
 
     private void drawCategorySidebar(int mouseX, int mouseY) {

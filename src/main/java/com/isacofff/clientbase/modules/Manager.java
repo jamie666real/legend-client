@@ -2,6 +2,7 @@ package com.isacofff.clientbase.modules;
 
 import com.isacofff.clientbase.Category;
 import com.isacofff.clientbase.modules.features.ArmorStatus;
+import com.isacofff.clientbase.modules.features.AutoElytra;
 import com.isacofff.clientbase.modules.features.AutoJump;
 import com.isacofff.clientbase.modules.features.AutoSprint;
 import com.isacofff.clientbase.modules.features.BiomeHud;
@@ -45,6 +46,7 @@ public class Manager {
         modules.add(new ArmorStatus());
         modules.add(new PotionStatus());
         modules.add(new Keystrokes());
+        modules.add(new AutoElytra());
         modules.add(new ViaEntities());
         modules.add(new ViaItems());
         modules.add(new XYZ());

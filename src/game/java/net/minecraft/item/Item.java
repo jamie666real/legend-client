@@ -3,6 +3,7 @@ package net.minecraft.item;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import net.lax1dude.eaglercraft.EaglercraftRandom;
@@ -58,6 +59,7 @@ import net.minecraft.world.World;
 
 public class Item {
 	public static final RegistryNamespaced<ResourceLocation, Item> REGISTRY = new RegistryNamespaced<ResourceLocation, Item>();
+	public static final List<Item> MODERN_26_2_PLACEHOLDERS = new ArrayList<Item>();
 	private static final Map<Block, Item> BLOCK_TO_ITEM = Maps.<Block, Item>newHashMap();
 	private static final IItemPropertyGetter DAMAGED_GETTER = new IItemPropertyGetter() {
 		public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
@@ -1133,6 +1135,14 @@ public class Item {
 		registerItem(2266, "record_11", (new ItemRecord("11", SoundEvents.RECORD_11)).setUnlocalizedName("record"));
 		registerItem(2267, "record_wait",
 				(new ItemRecord("wait", SoundEvents.RECORD_WAIT)).setUnlocalizedName("record"));
+
+		for (int i = 0; i < ModernItemCatalog.ITEMS.length; ++i) {
+			String itemName = ModernItemCatalog.ITEMS[i][0];
+			Item placeholderItem = (new ModernItemPlaceholder()).setCreativeTab(CreativeTabs.MISC)
+					.setUnlocalizedName("modern26_2." + itemName);
+			registerItem(5000 + i, new ResourceLocation("modern_26_2", itemName), placeholderItem);
+			MODERN_26_2_PLACEHOLDERS.add(placeholderItem);
+		}
 	}
 
 	/**

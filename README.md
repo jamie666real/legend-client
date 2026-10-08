@@ -7,6 +7,40 @@
 1. Open `com.isacofff.clientbase.modules.features`
 2. Create a module (See ExampleModule.java found in the `features` folder for an example)
 3. Register the module inside Manager.java
+
+The offline Tuff Client HTML is a compiled client, not source code or a server
+plugin. ViaItems and ViaEntities require client-side extended-item/entity data
+handlers as well as matching server support; those handlers are not included
+in this 1.12 client, so the modules remain unavailable.
+
+Modules that the current 1.12 client cannot implement are shown as unavailable
+instead of appearing enabled as no-op placeholders. Server-brand messages alone
+do not indicate that a server plugin supports a feature.
+
+### Modern item placeholders
+
+The client can display 238 selected 26.2 item-name placeholders in the
+singleplayer creative inventory. They are visual-only 1.12 items: they do not
+have modern item behavior, cannot be used on ordinary 1.12 servers, and are
+hidden from multiplayer creative inventories.
+
+All placeholders currently share one original generic icon. To replace it,
+save a licensed PNG as
+`desktopRuntime/resources/assets/minecraft/textures/items/modern_item_placeholder.png`.
+For separate item icons, save each PNG in that same `textures/items/` folder,
+add a matching model JSON in
+`desktopRuntime/resources/assets/minecraft/models/item/` using the
+`items/<item_name>` texture path, then register that model for the item in
+`RenderItem.registerItems()`. This project uses the 1.12 `textures/items/`
+directory; newer Minecraft resource packs commonly use `textures/item/`
+instead.
+
+You can obtain textures from the assets in your own legitimate Minecraft
+installation: the matching version's client JAR stores item PNGs under
+`assets/minecraft/textures/item/`. Copy only assets you have permission to use;
+do not redistribute Mojang assets. Add or replace textures before building the
+resource pack with `CompileEPK`, then run `CompileJS` and, for an offline HTML
+build, `MakeOfflineDownload`.
    
 ### Gui location
 

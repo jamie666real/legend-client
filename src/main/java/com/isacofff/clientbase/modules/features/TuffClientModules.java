@@ -102,15 +102,6 @@ public final class TuffClientModules {
         Gui.drawRect(centerX, centerY + 2, centerX + 1, centerY + 5, color);
     }
 
-    private static boolean isServerPluginFeatureAvailable() {
-        Minecraft mc = Minecraft.getMinecraft();
-        if (mc == null || mc.player == null) {
-            return false;
-        }
-        String serverBrand = mc.player.getServerBrand();
-        return serverBrand != null && !serverBrand.trim().isEmpty();
-    }
-
     public static void register(Manager manager) {
         nextHudRow = 0;
         add(manager, "Quick Elytra", Category.Movement, "Uses a held/off-hand firework while elytra gliding.", Kind.QUICK_ELYTRA);
@@ -157,7 +148,7 @@ public final class TuffClientModules {
         add(manager, "Auto GG", Category.Player, "Sends gg once when a server announces a clear match win.", Kind.AUTO_GG);
         add(manager, "Fancy Hover Block", Category.Render, "Displays the selected block name and coordinates.", Kind.FANCY_HOVER);
 
-        add(manager, "Client Brander", Category.Player, "Displays client brand information when provided by peers.", Kind.NONE);
+        add(manager, "Client Brander", Category.Player, "Displays the connected server brand.", Kind.CLIENT_BRAND);
         add(manager, "AppleSkin", Category.Render, "Displays food and saturation information.", Kind.HUNGER);
         add(manager, "Compass", Category.Render, "Displays compass direction and heading.", Kind.COMPASS);
         add(manager, "Inventory HUD", Category.Render, "Shows your main inventory contents on screen.", Kind.INVENTORY);
@@ -179,7 +170,7 @@ public final class TuffClientModules {
         add(manager, "LDM", Category.Render, "Temporarily applies low-detail graphics settings.", Kind.LDM);
 
         add(manager, "List Layout", Category.Client, "Switches supported lists between list and grid layouts.", Kind.NONE);
-        add(manager, "Teto Mode", Category.Client, "Alternative client theme.", Kind.NONE);
+        add(manager, "Teto Mode", Category.Client, "Applies the Teto color theme to the mod menu.", Kind.TETO_MODE);
         add(manager, "Debug", Category.Client, "Toggles the vanilla debug overlay.", Kind.DEBUG);
         add(manager, "Sodium UI", Category.Client, "Alternative video settings layout.", Kind.NONE);
         add(manager, "Minecraft GUI", Category.Client, "Switches between client and Minecraft GUI styling.", Kind.NONE);
@@ -242,7 +233,8 @@ public final class TuffClientModules {
         POTIONS, ENTITY_HEALTH, NO_RAIN, NO_EXPLOSION, NO_EFFECT, NO_GLINT, NO_DYNAMIC_FOV, NO_DEATH,
         NO_BACKGROUND, LOW_FIRE, ZOOM, FULLBRIGHT, MINIMAP, HITBOXES, SPRINT, SNEAK, CROSSHAIR, QUICK_ELYTRA,
         RANGE_CROSSHAIR, PVP_TRACKER, COMBO, LDM, CPVP, WTAP, FANCY_HOVER, ORE_HIGHLIGHT, SMALL_ITEMS,
-        SMALL_TOTEM, CHAT_CLEAR, AUTO_GG, SHULKER, DEBUG, STREAMER, HOTBAR_SWITCHER, FAST_CRYSTALS
+        SMALL_TOTEM, CHAT_CLEAR, AUTO_GG, SHULKER, DEBUG, STREAMER, HOTBAR_SWITCHER, FAST_CRYSTALS, TETO_MODE,
+        CLIENT_BRAND
     }
 
     private static final class TuffModule extends Module {
@@ -263,7 +255,9 @@ public final class TuffClientModules {
 
         private TuffModule(String name, Category category, String description, Kind kind) {
             super(name, category);
-            this.description = description;
+            this.description = kind == Kind.NONE
+                    ? "Not implemented in this client build. " + description
+                    : description;
             this.kind = kind;
             if (kind == Kind.ARMOR) {
                 setHudPosition(8, 24);
@@ -296,6 +290,7 @@ public final class TuffClientModules {
             case WTAP:
             case FANCY_HOVER:
             case SHULKER:
+            case CLIENT_BRAND:
                 return true;
             default:
                 return false;
@@ -304,10 +299,10 @@ public final class TuffClientModules {
 
         @Override
         public void toggle() {
-            if (kind == Kind.NONE && !isServerPluginFeatureAvailable()) {
+            if (kind == Kind.NONE) {
                 if (MC != null && MC.ingameGUI != null) {
                     MC.ingameGUI.getChatGUI().printChatMessage(new TextComponentString(
-                            getName() + " requires a compatible server plugin to be enabled here."));
+                            getName() + " is not implemented in this client build."));
                 }
                 return;
             }
@@ -316,7 +311,7 @@ public final class TuffClientModules {
 
         @Override
         public boolean isAvailable() {
-            return kind != Kind.NONE || isServerPluginFeatureAvailable();
+            return kind != Kind.NONE;
         }
 
         @Override
@@ -343,6 +338,7 @@ public final class TuffClientModules {
             case WTAP:
             case FANCY_HOVER:
             case SHULKER:
+            case CLIENT_BRAND:
                 return true;
             default:
                 return false;
@@ -404,6 +400,10 @@ public final class TuffClientModules {
                         ? MC.pointedEntity.getName() + ": "
                                 + (int) ((net.minecraft.entity.EntityLivingBase) MC.pointedEntity).getHealth() + " HP"
                         : "Entity health: --";
+            case CLIENT_BRAND:
+                String serverBrand = MC.player.getServerBrand();
+                return serverBrand == null || serverBrand.trim().isEmpty() ? "Server brand: unknown"
+                        : "Server brand: " + serverBrand;
             default:
                 return "";
             }
