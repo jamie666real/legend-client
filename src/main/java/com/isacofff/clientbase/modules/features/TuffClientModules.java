@@ -123,7 +123,7 @@ public final class TuffClientModules {
         add(manager, "No Rain", Category.Render, "Hides rain and snow rendering.", Kind.NO_RAIN);
         add(manager, "No Glint", Category.Render, "Hides enchantment glint.", Kind.NO_GLINT);
         add(manager, "No Dynamic FOV", Category.Render, "Keeps movement from changing camera FOV.", Kind.NO_DYNAMIC_FOV);
-        add(manager, "Small Tools", Category.Render, "Renders held items smaller in first person.", Kind.SMALL_ITEMS);
+        add(manager, "Small Tools", Category.Render, "Renders all held items smaller in first person.", Kind.SMALL_ITEMS);
         add(manager, "No Effect", Category.Render, "Reduces rendered particle effects.", Kind.NO_EFFECT);
         add(manager, "No Death Animation", Category.Render, "Removes the local camera death tilt.", Kind.NO_DEATH);
         add(manager, "Chat Clear", Category.Render, "Removes the chat background.", Kind.CHAT_CLEAR);

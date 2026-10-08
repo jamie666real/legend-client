@@ -59,6 +59,18 @@ public class ItemRenderer {
 		this.renderItemSide(entityIn, heldStack, transform, false);
 	}
 
+	private boolean shouldRenderHeldItemSmall(ItemStack heldStack) {
+		if (heldStack == null || heldStack.func_190926_b()) {
+			return false;
+		}
+		Item item = heldStack.getItem();
+		if (com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("Small Tools")) {
+			return true;
+		}
+		return item == net.minecraft.init.Items.TOTEM_OF_UNDYING
+				&& com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("Small Totems");
+	}
+
 	public void renderItemSide(EntityLivingBase entitylivingbaseIn, ItemStack heldStack,
 			ItemCameraTransforms.TransformType transform, boolean leftHanded) {
 		if (!heldStack.func_190926_b()) {
@@ -67,11 +79,7 @@ public class ItemRenderer {
 			GlStateManager.pushMatrix();
 			boolean firstPerson = transform == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND
 					|| transform == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND;
-			if (firstPerson
-					&& (com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("Small Tools")
-							|| item == net.minecraft.init.Items.TOTEM_OF_UNDYING
-									&& com.isacofff.clientbase.modules.features.TuffClientModules
-											.isEnabled("Small Totems"))) {
+			if (firstPerson && shouldRenderHeldItemSmall(heldStack)) {
 				GlStateManager.translate(0.125F, 0.125F, 0.0F);
 				GlStateManager.scale(0.75F, 0.75F, 0.75F);
 			}
