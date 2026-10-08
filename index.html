@@ -253,6 +253,11 @@
     const skinOverridePixelsKey = "legendClientSkinOverridePixels";
     let skinRotation = 0;
     let dragX = null;
+    let targetGazeYaw = 0;
+    let targetGazePitch = 0;
+    let gazeYaw = 0;
+    let gazePitch = 0;
+    let gazeAnimationFrame = null;
     let skinRenderer = null;
 
     try {
@@ -529,8 +534,8 @@
         renderer.textureDirty = false;
       }
       gl.uniform1i(renderer.skin, 0);
-      gl.uniform1f(renderer.yaw, skinRotation * Math.PI / 180);
-      gl.uniform1f(renderer.pitch, -4 * Math.PI / 180);
+      gl.uniform1f(renderer.yaw, skinRotation * Math.PI / 180 + gazeYaw);
+      gl.uniform1f(renderer.pitch, -4 * Math.PI / 180 + gazePitch);
       gl.uniform1f(renderer.aspect, width / height);
       gl.bindBuffer(gl.ARRAY_BUFFER, renderer.buffer);
       const stride = 8 * Float32Array.BYTES_PER_ELEMENT;
@@ -599,10 +604,11 @@
     });
 
     skinStage.addEventListener("pointermove", function(event) {
-      if (dragX === null) return;
-      skinRotation += (event.clientX - dragX) * 0.8;
-      dragX = event.clientX;
-      drawSkinModel();
+      if (dragX !== null) {
+        skinRotation += (event.clientX - dragX) * 0.8;
+        dragX = event.clientX;
+        drawSkinModel();
+      }
     });
 
     function stopSkinRotation() {
@@ -611,6 +617,41 @@
 
     skinStage.addEventListener("pointerup", stopSkinRotation);
     skinStage.addEventListener("pointercancel", stopSkinRotation);
+    window.addEventListener("pointermove", function(event) {
+      if (dragX !== null) return;
+      const bounds = skinStage.getBoundingClientRect();
+      const horizontal = Math.max(-1, Math.min(1,
+        (event.clientX - (bounds.left + bounds.width / 2)) / (bounds.width / 2)));
+      const vertical = Math.max(-1, Math.min(1,
+        (event.clientY - (bounds.top + bounds.height / 2)) / (bounds.height / 2)));
+      targetGazeYaw = horizontal * 0.75;
+      targetGazePitch = vertical * 0.38;
+      if (gazeAnimationFrame === null) gazeAnimationFrame = requestAnimationFrame(animateSkinGaze);
+    });
+    function resetSkinGaze() {
+      targetGazeYaw = 0;
+      targetGazePitch = 0;
+      if (gazeAnimationFrame === null) gazeAnimationFrame = requestAnimationFrame(animateSkinGaze);
+    }
+
+    window.addEventListener("blur", resetSkinGaze);
+    window.addEventListener("pointerout", function(event) {
+      if (event.relatedTarget === null) resetSkinGaze();
+    });
+
+    function animateSkinGaze() {
+      gazeYaw += (targetGazeYaw - gazeYaw) * 0.18;
+      gazePitch += (targetGazePitch - gazePitch) * 0.18;
+      if (Math.abs(targetGazeYaw - gazeYaw) < 0.001 && Math.abs(targetGazePitch - gazePitch) < 0.001) {
+        gazeYaw = targetGazeYaw;
+        gazePitch = targetGazePitch;
+        gazeAnimationFrame = null;
+      } else {
+        gazeAnimationFrame = requestAnimationFrame(animateSkinGaze);
+      }
+      drawSkinModel();
+    }
+
     window.addEventListener("resize", drawSkinModel);
 
     function encodeSkinPixels(rgbaPixels) {
