@@ -71,7 +71,10 @@ public class GuiNewChat extends Gui {
 							if (l1 > 3) {
 								int i2 = 0;
 								int j2 = -i1 * 9;
-								drawRect(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
+								if (!com.isacofff.clientbase.modules.features.TuffClientModules
+										.isEnabled("Chat Clear")) {
+									drawRect(-2, j2 - 9, 0 + k + 4, j2, l1 / 2 << 24);
+								}
 								String s = chatline.getChatComponent().getFormattedText();
 								GlStateManager.enableBlend();
 								this.mc.fontRendererObj.drawStringWithShadow(s, 0.0F, (float) (j2 - 8),

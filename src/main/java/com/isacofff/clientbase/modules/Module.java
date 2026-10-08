@@ -11,6 +11,8 @@ public abstract class Module {
     private String name;
     private Category category;
     private boolean enabled;
+    private int hudX = 6;
+    private int hudY = 6;
 
     public boolean open = false;
 
@@ -27,6 +29,21 @@ public abstract class Module {
     public Category getCategory() { return category; }
 
     public boolean isEnabled() { return enabled; }
+
+    public boolean isAvailable() { return true; }
+
+    public boolean isHudModule() { return false; }
+
+    public int getHudX() { return hudX; }
+
+    public int getHudY() { return hudY; }
+
+    public void setHudPosition(int x, int y) {
+        hudX = Math.max(0, x);
+        hudY = Math.max(0, y);
+    }
+
+    public String getHudDisplayText() { return getName(); }
 
     public void toggle() {
         this.enabled = !this.enabled;

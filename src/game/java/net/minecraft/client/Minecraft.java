@@ -1054,6 +1054,7 @@ public class Minecraft implements IThreadListener {
     }
 
     private void clickMouse() {
+        com.isacofff.clientbase.modules.features.TuffClientModules.recordClick(true);
         if (this.leftClickCounter <= 0) {
             if (this.objectMouseOver == null) {
                 LOGGER.error("Null returned as 'hitResult', this shouldn't happen!");
@@ -1064,6 +1065,8 @@ public class Minecraft implements IThreadListener {
             } else if (!this.player.isRowingBoat()) {
                 switch (this.objectMouseOver.typeOfHit) {
                     case ENTITY:
+                        com.isacofff.clientbase.modules.features.TuffClientModules
+                                .recordAttack(this.objectMouseOver.entityHit);
                         this.playerController.attackEntity(this.player, this.objectMouseOver.entityHit);
                         break;
 
@@ -1094,8 +1097,14 @@ public class Minecraft implements IThreadListener {
      * Called when user clicked he's mouse right button (place)
      */
     private void rightClickMouse() {
+        com.isacofff.clientbase.modules.features.TuffClientModules.recordClick(false);
         if (!this.playerController.getIsHittingBlock()) {
-            this.rightClickDelayTimer = 4;
+            boolean fastCrystalPlacement = com.isacofff.clientbase.modules.features.TuffClientModules
+                    .isEnabled("Fast Crystals") && this.objectMouseOver != null
+                    && this.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK
+                    && (this.player.getHeldItemMainhand().getItem() == Items.END_CRYSTAL
+                            || this.player.getHeldItemOffhand().getItem() == Items.END_CRYSTAL);
+            this.rightClickDelayTimer = fastCrystalPlacement ? 0 : 4;
 
             if (!this.player.isRowingBoat()) {
                 if (this.objectMouseOver == null) {
@@ -1569,6 +1578,13 @@ public class Minecraft implements IThreadListener {
                 if (this.player.isSpectator()) {
                     this.ingameGUI.getSpectatorGui().onHotbarSelected(i);
                 } else if (!this.player.isCreative() || this.currentScreen != null || !flag1 && !flag) {
+                    if (this.currentScreen == null && this.player.openContainer == this.player.inventoryContainer
+                            && com.isacofff.clientbase.modules.features.TuffClientModules
+                                    .isEnabled("Hotbar Switcher")
+                            && (Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54))) {
+                        this.playerController.windowClick(this.player.openContainer.windowId, i + 9, i,
+                                net.minecraft.inventory.ClickType.SWAP, this.player);
+                    }
                     this.player.inventory.currentItem = i;
                 } else {
                     GuiContainerCreative.func_192044_a(this, i, flag1, flag);

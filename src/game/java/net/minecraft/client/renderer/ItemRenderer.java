@@ -65,6 +65,16 @@ public class ItemRenderer {
 			Item item = heldStack.getItem();
 			Block block = Block.getBlockFromItem(item);
 			GlStateManager.pushMatrix();
+			boolean firstPerson = transform == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND
+					|| transform == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND;
+			if (firstPerson
+					&& (com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("Small Tools")
+							|| item == net.minecraft.init.Items.TOTEM_OF_UNDYING
+									&& com.isacofff.clientbase.modules.features.TuffClientModules
+											.isEnabled("Small Totems"))) {
+				GlStateManager.translate(0.125F, 0.125F, 0.0F);
+				GlStateManager.scale(0.75F, 0.75F, 0.75F);
+			}
 			boolean flag = this.itemRenderer.shouldRenderItemIn3D(heldStack)
 					&& block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
 
@@ -552,7 +562,9 @@ public class ItemRenderer {
 			float f7 = -0.5F;
 			float f8 = 0.5F;
 			float f9 = -0.5F;
-			GlStateManager.translate((float) (-(i * 2 - 1)) * 0.24F, -0.3F, 0.0F);
+			float fireOffset = com.isacofff.clientbase.modules.features.TuffClientModules
+					.isEnabled("Low on Fire") ? -0.65F : -0.3F;
+			GlStateManager.translate((float) (-(i * 2 - 1)) * 0.24F, fireOffset, 0.0F);
 			GlStateManager.rotate((float) (i * 2 - 1) * 10.0F, 0.0F, 1.0F, 0.0F);
 			bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
 			bufferbuilder.pos(-0.5D, -0.5D, -0.5D).tex((double) f2, (double) f4).endVertex();

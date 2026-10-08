@@ -1522,6 +1522,10 @@ public class RenderGlobal implements IWorldEventListener, IResourceManagerReload
 			float f = 0.002F;
 			BlockPos blockpos = movingObjectPositionIn.getBlockPos();
 			IBlockState iblockstate = this.theWorld.getBlockState(blockpos);
+			if (com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("Glowing Ores")
+					&& isOreBlock(iblockstate.getBlock())) {
+				GlStateManager.color(1.0F, 0.75F, 0.1F, 0.95F);
+			}
 
 			if (iblockstate.getMaterial() != Material.AIR && this.theWorld.getWorldBorder().contains(blockpos)) {
 				double d3 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) partialTicks;
@@ -1535,6 +1539,12 @@ public class RenderGlobal implements IWorldEventListener, IResourceManagerReload
 			GlStateManager.enableTexture2D();
 			GlStateManager.disableBlend();
 		}
+	}
+
+	private static boolean isOreBlock(Block block) {
+		return block == Blocks.COAL_ORE || block == Blocks.IRON_ORE || block == Blocks.GOLD_ORE
+				|| block == Blocks.LAPIS_ORE || block == Blocks.DIAMOND_ORE || block == Blocks.REDSTONE_ORE
+				|| block == Blocks.LIT_REDSTONE_ORE || block == Blocks.EMERALD_ORE || block == Blocks.QUARTZ_ORE;
 	}
 
 	public static void func_181561_a(AxisAlignedBB parAxisAlignedBB) {

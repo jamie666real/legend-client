@@ -157,6 +157,15 @@ public class ParticleManager {
 	}
 
 	public void addEffect(Particle effect) {
+		if (com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("No Effect")) {
+			return;
+		}
+		if ((com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("No Explosion Particles")
+				|| com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("CPvP Mode"))
+				&& (effect instanceof ParticleExplosion || effect instanceof ParticleExplosionLarge
+						|| effect instanceof ParticleExplosionHuge)) {
+			return;
+		}
 		this.queueEntityFX.add(effect);
 	}
 

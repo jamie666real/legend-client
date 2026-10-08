@@ -420,6 +420,10 @@ public class GuiIngame extends Gui {
 	}
 
 	protected void renderPotionEffects(ScaledResolution resolution) {
+		if (com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("Potions")) {
+			return;
+		}
+
 		Collection<PotionEffect> collection = this.mc.player.getActivePotionEffects();
 
 		if (!collection.isEmpty()) {
@@ -931,6 +935,10 @@ public class GuiIngame extends Gui {
 	 * Renders a Vignette arount the entire screen that changes with light level.
 	 */
 	public void renderVignette(float lightLevel, ScaledResolution scaledRes) {
+		if (com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("No Background Tint")) {
+			return;
+		}
+
 		lightLevel = 1.0F - lightLevel;
 		lightLevel = MathHelper.clamp(lightLevel, 0.0F, 1.0F);
 		WorldBorder worldborder = this.mc.world.getWorldBorder();

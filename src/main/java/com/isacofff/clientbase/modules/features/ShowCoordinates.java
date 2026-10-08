@@ -11,17 +11,34 @@ public class ShowCoordinates extends Module {
     public ShowCoordinates() {
         super("Coordinates", Category.Render);
         this.description = "Shows your current position in the HUD.";
+        setHudPosition(6, 6);
+    }
+
+    @Override
+    public boolean isHudModule() {
+        return true;
+    }
+
+    @Override
+    public String getHudDisplayText() {
+        if (TuffClientModules.isEnabled("Streamer")) {
+            return "Coordinates hidden";
+        }
+        return mc == null || mc.player == null ? "Coordinates" : "XYZ: "
+                + Math.floor(mc.player.posX) + ", " + Math.floor(mc.player.getEntityBoundingBox().minY)
+                + ", " + Math.floor(mc.player.posZ);
     }
 
     @Override
     public void onRender() {
-        if (mc == null || mc.player == null || mc.world == null) {
+        if (mc == null || mc.player == null || mc.world == null
+                || TuffClientModules.isEnabled("Streamer")) {
             return;
         }
-        String coordinates = "XYZ: " + Math.floor(mc.player.posX) + ", "
-                + Math.floor(mc.player.getEntityBoundingBox().minY) + ", " + Math.floor(mc.player.posZ);
-        mc.fontRendererObj.drawStringWithShadow(coordinates, 6.0F, 6.0F, 0xFFFFFFFF);
+        String coordinates = getHudDisplayText();
+        mc.fontRendererObj.drawStringWithShadow(coordinates, (float) getHudX(), (float) getHudY(), 0xFFFFFFFF);
         String dimension = "Dimension: " + mc.player.dimension;
-        mc.fontRendererObj.drawStringWithShadow(dimension, 6.0F, 17.0F, 0xFFB8C7D9);
+        mc.fontRendererObj.drawStringWithShadow(dimension, (float) getHudX(),
+                (float) (getHudY() + mc.fontRendererObj.FONT_HEIGHT + 2), 0xFFB8C7D9);
     }
 }

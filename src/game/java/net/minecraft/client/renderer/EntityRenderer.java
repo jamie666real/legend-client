@@ -8,6 +8,7 @@ import net.lax1dude.eaglercraft.Display;
 import net.lax1dude.eaglercraft.EagRuntime;
 import net.lax1dude.eaglercraft.EaglercraftRandom;
 import net.lax1dude.eaglercraft.HString;
+import net.lax1dude.eaglercraft.Keyboard;
 import net.lax1dude.eaglercraft.Mouse;
 import net.lax1dude.eaglercraft.internal.buffer.FloatBuffer;
 import net.lax1dude.eaglercraft.opengl.WorldRenderer;
@@ -385,7 +386,14 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 
 			if (useFOVSetting) {
 				f = this.mc.gameSettings.fovSetting;
-				f = f * (this.fovModifierHandPrev + (this.fovModifierHand - this.fovModifierHandPrev) * partialTicks);
+				if (!com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("No Dynamic FOV")) {
+					f = f * (this.fovModifierHandPrev
+							+ (this.fovModifierHand - this.fovModifierHandPrev) * partialTicks);
+				}
+				if (com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("Zoom")
+						&& Keyboard.isKeyDown(44)) {
+					f *= 0.25F;
+				}
 			}
 
 			if (entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHealth() <= 0.0F) {
@@ -409,12 +417,16 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			EntityLivingBase entitylivingbase = (EntityLivingBase) this.mc.getRenderViewEntity();
 			float f = (float) entitylivingbase.hurtTime - partialTicks;
 
-			if (entitylivingbase.getHealth() <= 0.0F) {
+			if (entitylivingbase.getHealth() <= 0.0F
+					&& !com.isacofff.clientbase.modules.features.TuffClientModules
+							.isEnabled("No Death Animation")) {
 				float f1 = (float) entitylivingbase.deathTime + partialTicks;
 				GlStateManager.rotate(40.0F - 8000.0F / (f1 + 200.0F), 0.0F, 0.0F, 1.0F);
 			}
 
-			if (f < 0.0F) {
+			if (f < 0.0F || com.isacofff.clientbase.Client.manager != null
+					&& com.isacofff.clientbase.Client.manager
+							.isModuleEnabled(com.isacofff.clientbase.modules.features.NoHurtCam.class)) {
 				return;
 			}
 
@@ -1347,6 +1359,11 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	 * Render rain and snow
 	 */
 	protected void renderRainSnow(float partialTicks) {
+		if (com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("No Rain")
+				|| com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("CPvP Mode")) {
+			return;
+		}
+
 		float f = this.mc.world.getRainStrength(partialTicks);
 
 		if (f > 0.0F) {

@@ -912,6 +912,8 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 	 * Prints a chatmessage in the chat GUI
 	 */
 	public void handleChat(SPacketChat packetIn) {
+		com.isacofff.clientbase.modules.features.TuffClientModules
+				.recordIncomingChat(packetIn.getChatComponent().getUnformattedText());
 		this.gameController.ingameGUI.func_191742_a(packetIn.func_192590_c(), packetIn.getChatComponent());
 	}
 

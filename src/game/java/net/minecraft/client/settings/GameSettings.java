@@ -211,7 +211,17 @@ public class GameSettings {
 		GameSettings.Options.RENDER_DISTANCE.setValueMax(16.0F);
 		this.renderDistanceChunks = 4;
 		this.loadOptions();
+		this.applyClientPerformanceDefaults();
 		Config.initGameSettings(this);
+	}
+
+	private void applyClientPerformanceDefaults() {
+		this.renderDistanceChunks = this.renderDistanceChunks > 0 ? Math.min(this.renderDistanceChunks, 6) : 6;
+		this.particleSetting = 2;
+		this.clouds = 0;
+		this.ambientOcclusion = 0;
+		this.fancyGraphics = false;
+		this.entityShadows = false;
 	}
 
 	public GameSettings() {

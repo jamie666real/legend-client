@@ -147,7 +147,9 @@ public class RenderItem implements IResourceManagerReloadListener {
 				
 				this.func_191961_a(model, stack);
 
-				if (stack.hasEffect() && (!Config.isCustomItems() || !CustomItems.renderCustomEffect(this, stack, model))) {
+				if (stack.hasEffect()
+						&& !com.isacofff.clientbase.modules.features.TuffClientModules.isEnabled("No Glint")
+						&& (!Config.isCustomItems() || !CustomItems.renderCustomEffect(this, stack, model))) {
 					this.func_191966_a(model);
 				}
 			}
