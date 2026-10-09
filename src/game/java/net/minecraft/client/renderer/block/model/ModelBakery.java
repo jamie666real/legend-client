@@ -38,6 +38,7 @@ import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ModernItemCatalog;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
@@ -326,6 +327,16 @@ public class ModelBakery {
 						}
 					}
 				}
+			}
+		}
+
+		for (Item item : Item.MODERN_26_2_PLACEHOLDERS) {
+			String itemName = Item.REGISTRY.getNameForObject(item).getResourcePath();
+			String appearanceModel = ModernItemCatalog.getAppearanceModel(itemName);
+
+			if (!this.itemLocations.containsKey(appearanceModel)) {
+				this.loadItemModel(appearanceModel, this.getItemLocation(appearanceModel),
+						Item.REGISTRY.getNameForObject(item));
 			}
 		}
 	}

@@ -338,7 +338,10 @@ public final class ModernItemCatalog {
         }
         if (itemName.startsWith("netherite_")) {
             String suffix = itemName.substring("netherite_".length());
-            if (suffix.equals("ingot") || suffix.equals("scrap")) {
+            if (suffix.equals("ingot")) {
+                return "netherite_ingot";
+            }
+            if (suffix.equals("scrap")) {
                 return "iron_ingot";
             }
             if (suffix.equals("horse_armor")) {
