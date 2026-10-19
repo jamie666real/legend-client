@@ -217,7 +217,7 @@ public class IntegratedServerPlayerNetworkManager {
 			logger.error("Failed to write packet {}!", pkt.getClass().getSimpleName());
 			return;
 		}
-		
+
 		int len = temporaryBuffer.readableBytes();
 		if(enableSendCompression) {
 			if(len > compressionThreshold) {
