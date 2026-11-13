@@ -29,5 +29,6 @@ if [ "$java_version" -gt 21 ]; then
 	exit 1
 fi
 
+python3 "$(dirname "$0")/PrepareViaItems.py"
 chmod +x gradlew
 ./gradlew generateJavascript
